@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASTROLÁBIO | Orientação do Percurso Acadêmico</title>
+<style>
+:root{
+  --tinta:#0A2E3D;
+  --azul:#084C63;
+  --azul-escuro:#063A4C;
+  --bronze:#A85C0A;
+  --bronze-claro:#C97C15;
+  --ouro:#C48A1F;
+  --cinza:#3B4A52;
+  --cinza2:#5A6C76;
+  --linha:#9FB3BC;
+  --linha-forte:#7A939F;
+  --fundo:#ffffff;
+  --suave:#E9F1F4;
+  --suave2:#F4F8FA;
+  --critico:#96140F;
+  --atencao:#8A4B00;
+  --ok:#14663C;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--fundo); color:var(--tinta); line-height:1.6; font-size:17px;
+}
+h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif}
+
+/* ---------- topo ---------- */
+header{border-bottom:5px solid var(--bronze);background:#fff;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(10,46,61,.10)}
+.faixa{max-width:1440px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:14px;flex:1;min-width:270px}
+.selo{width:56px;height:56px;flex:none}
+.selo .gira{transform-origin:50px 50px;animation:girar 44s linear infinite}
+.selo .gira2{transform-origin:50px 50px;animation:girar 78s linear infinite reverse}
+@keyframes girar{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.marca h1{font-size:31px;letter-spacing:4px;color:var(--azul);font-weight:700;line-height:1.1}
+.marca p{font-size:12.5px;color:var(--bronze);letter-spacing:1.2px;text-transform:uppercase;font-weight:700;margin-top:2px}
+.acoes{display:flex;gap:9px;flex-wrap:wrap}
+button{
+  font-family:inherit;font-size:15px;font-weight:600;padding:10px 16px;border-radius:5px;
+  border:2px solid var(--linha-forte);background:#fff;color:var(--tinta);cursor:pointer;
+}
+button:hover{background:var(--suave);border-color:var(--azul);color:var(--azul)}
+button.primario{background:var(--azul);color:#fff;border-color:var(--azul)}
+button.primario:hover{background:var(--azul-escuro);color:#fff;border-color:var(--azul-escuro)}
+button.ouro{background:var(--bronze);color:#fff;border-color:var(--bronze)}
+button.ouro:hover{background:#8E4C06;color:#fff;border-color:#8E4C06}
+button.risco{color:var(--critico);border-color:var(--critico)}
+button.risco:hover{background:#FBEAE9;color:var(--critico);border-color:var(--critico)}
+.progresso{display:flex;align-items:center;gap:11px;font-size:15px;color:var(--tinta);font-weight:700}
+.barra{width:130px;height:14px;background:#fff;border:2px solid var(--azul);border-radius:8px;overflow:hidden}
+.barra span{display:block;height:100%;background:var(--bronze);width:0;transition:width .35s}
+
+.aviso{background:#FFF2D6;border-bottom:3px solid var(--bronze);padding:11px 22px;font-size:15px;color:#6E3C00;text-align:center;display:none;font-weight:600}
+
+/* ---------- estrutura ---------- */
+.palco{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:290px 1fr;gap:0;min-height:calc(100vh - 96px)}
+nav{border-right:3px solid var(--linha);padding:0 0 26px;background:#fff}
+.bloco-nav{margin-bottom:6px}
+.bloco-nav h4{
+  font-family:inherit;font-size:12.5px;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;background:var(--bronze);padding:9px 18px;font-weight:800;margin-bottom:8px;
+}
+.bloco-nav:nth-of-type(2) h4{background:var(--azul)}
+.bloco-nav:nth-of-type(3) h4{background:var(--ok)}
+.itens{padding:0 12px}
+.item{
+  display:flex;gap:12px;align-items:center;padding:11px 12px;border-radius:6px;margin-bottom:3px;
+  cursor:pointer;font-size:16px;color:var(--tinta);border:2px solid transparent;font-weight:600;
+}
+.item:hover{background:var(--suave);border-color:var(--linha)}
+.item.ativo{background:var(--azul);color:#fff;border-color:var(--azul-escuro)}
+.num{
+  flex:none;width:29px;height:29px;border-radius:50%;border:2.5px solid var(--linha-forte);
+  font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;color:var(--cinza);background:#fff;
+}
+.item.ativo .num{border-color:#fff;color:var(--azul);background:#fff}
+.item.cheio .num{background:var(--ok);border-color:var(--ok);color:#fff}
+.item.adiada{opacity:.62}
+.item.adiada .num{border-style:dashed;border-color:#8C9BA3;color:#8C9BA3;background:#fff}
+.item.adiada:hover{opacity:1}
+.adiada-aviso{
+  border:3px dashed var(--atencao);border-radius:8px;background:#FDF8EE;
+  padding:18px 20px;margin-bottom:26px;font-size:15.5px;color:#6E3C00;line-height:1.6;
+}
+.adiada-aviso b{display:block;font-size:17px;margin-bottom:6px;color:var(--atencao)}
+.fase-tag{
+  display:inline-block;padding:5px 13px;border-radius:16px;font-size:13px;font-weight:800;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;
+}
+.item.ativo.cheio .num{background:#fff;border-color:#fff;color:var(--ok)}
+
+main{padding:34px 44px 80px;max-width:960px}
+.cabeca-estacao{border-bottom:4px solid var(--bronze);padding-bottom:18px;margin-bottom:28px}
+.etiqueta{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--bronze);font-weight:800}
+.cabeca-estacao h2{font-size:36px;margin:7px 0 12px;color:var(--azul);line-height:1.15}
+.cabeca-estacao .guia{font-size:16.5px;color:var(--cinza);max-width:720px}
+
+.campo{margin-bottom:24px}
+.campo label{display:block;font-size:16px;font-weight:800;margin-bottom:5px;color:var(--tinta)}
+.campo .dica{font-size:14.5px;color:var(--cinza2);margin-bottom:9px;font-style:italic;line-height:1.5}
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:12px 14px;border:2px solid var(--linha-forte);border-radius:5px;
+  font-family:inherit;font-size:16.5px;color:var(--tinta);background:#fff;
+}
+textarea{resize:vertical;min-height:92px;line-height:1.6}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--bronze);box-shadow:0 0 0 4px rgba(168,92,10,.18)}
+.dupla{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.tripla{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.opcoes{display:flex;flex-wrap:wrap;gap:9px}
+.opcao{
+  display:flex;align-items:center;gap:8px;border:2px solid var(--linha-forte);border-radius:22px;
+  padding:8px 15px;font-size:15px;cursor:pointer;user-select:none;font-weight:600;background:#fff;
+}
+.opcao:hover{border-color:var(--azul);color:var(--azul)}
+.opcao.marcada{background:var(--azul);border-color:var(--azul);color:#fff}
+.opcao input{margin:0;accent-color:var(--bronze);width:17px;height:17px}
+
+.condicional{border-left:7px solid var(--bronze);padding:20px 0 4px 22px;margin:24px 0;background:#FFF9F1}
+.condicional h3{font-size:21px;margin-bottom:5px;color:var(--bronze)}
+.condicional .sub{font-size:15px;color:var(--cinza);margin-bottom:18px}
+
+.autor{border:2px solid var(--linha);border-radius:8px;padding:20px;margin-bottom:18px;background:var(--suave2)}
+.autor-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:2px solid var(--linha);padding-bottom:10px}
+.autor-topo strong{font-size:17px;color:var(--azul)}
+.mini{font-size:14px;padding:6px 12px}
+.vazio{border:3px dashed var(--linha-forte);border-radius:8px;padding:32px;text-align:center;color:var(--cinza);font-size:16px}
+
+.rodape-nav{display:flex;justify-content:space-between;gap:14px;margin-top:40px;padding-top:24px;border-top:3px solid var(--linha)}
+
+/* ---------- telas ---------- */
+.tela{display:none}
+.tela.ativa{display:block}
+.panorama h2{font-size:36px;margin-bottom:8px;color:var(--azul)}
+.panorama .assinatura{font-size:15px;color:var(--cinza2);margin-bottom:30px}
+.secao-pan{margin-bottom:32px}
+.secao-pan h3{font-size:22px;color:#fff;background:var(--azul);padding:9px 16px;border-radius:5px;margin-bottom:16px}
+.narrativa{font-size:17px;margin-bottom:16px;text-align:justify}
+.ficha{margin-bottom:14px}
+.ficha dt{font-size:13.5px;text-transform:uppercase;letter-spacing:1px;color:var(--bronze);font-weight:800;margin-top:14px}
+.ficha dd{font-size:16.5px;margin-left:0;white-space:pre-wrap}
+.nulo{color:#8C9BA3;font-style:italic}
+
+.alerta{border-left:8px solid;padding:14px 18px;margin-bottom:12px;border-radius:0 6px 6px 0;font-size:16px;background:var(--suave)}
+.alerta.critico{border-color:var(--critico);background:#FBEAE9}
+.alerta.atencao{border-color:var(--atencao);background:#FDF3E2}
+.alerta.ok{border-color:var(--ok);background:#E8F5EE}
+.alerta b{display:block;margin-bottom:3px;font-size:16.5px}
+.alerta em{display:block;margin-top:6px;color:var(--cinza);font-size:15px}
+
+.placar{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.metro{flex:1;min-width:150px;border:3px solid var(--azul);border-radius:8px;padding:16px;text-align:center;background:#fff}
+.metro b{display:block;font-size:38px;font-family:Georgia,serif;color:var(--azul);line-height:1.1}
+.metro span{font-size:13px;text-transform:uppercase;letter-spacing:1.1px;color:var(--cinza);font-weight:700}
+
+.mapa-caixa{border:3px solid var(--linha);border-radius:8px;overflow:auto;background:#fff;padding:10px}
+.mapa-caixa svg{display:block;min-width:1100px}
+
+/* ---------- astrolábio ---------- */
+.astro-palco{display:grid;grid-template-columns:minmax(320px,1fr) 320px;gap:30px;align-items:start}
+#astroSVG svg{width:100%;height:auto;display:block;touch-action:none;cursor:grab}
+#astroSVG svg.arrastando{cursor:grabbing}
+.astro-leitura{border:3px solid var(--bronze);border-radius:10px;padding:20px;background:#FFFCF6;position:sticky;top:120px}
+.astro-leitura h3{font-size:25px;color:var(--bronze);margin:6px 0 10px;line-height:1.2}
+.astro-leitura p{font-size:15.5px;color:var(--cinza);margin-bottom:16px}
+.astro-legenda{margin-top:18px;border-top:2px solid var(--linha);padding-top:14px;font-size:14.5px;color:var(--cinza)}
+.astro-legenda div{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+.pastilha{width:15px;height:15px;border-radius:50%;flex:none}
+.astro-ajuda{font-size:15px;color:var(--cinza);margin-bottom:18px;max-width:620px}
+.estrela-alvo{cursor:pointer}
+.estrela-alvo:hover circle{stroke-width:3.5}
+
+footer{border-top:5px solid var(--bronze);padding:30px 22px;text-align:center;font-size:15px;color:var(--cinza);background:var(--suave);margin-top:auto}
+footer .autoria{font-family:Georgia,serif;font-size:19px;color:var(--azul);margin-bottom:6px}
+footer .autoria b{color:var(--bronze)}
+footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(--azul);margin-bottom:10px}
+
+@media (max-width:980px){
+  .astro-palco{grid-template-columns:1fr}
+  .astro-leitura{position:static}
+}
+@media (max-width:900px){
+  .palco{grid-template-columns:1fr}
+  nav{border-right:none;border-bottom:3px solid var(--linha)}
+  main{padding:24px 18px 60px}
+  .dupla,.tripla{grid-template-columns:1fr}
+  .marca h1{font-size:26px}
+}
+@media print{
+  header,nav,.rodape-nav,.acoes,.aviso,footer{display:none!important}
+  .palco{grid-template-columns:1fr}
+  main{max-width:100%;padding:0}
+  .tela{display:none!important}
+  .tela.ativa{display:block!important}
+  body{font-size:12px}
+  .secao-pan h3{background:#fff!important;color:#000!important;border-bottom:2px solid #000;border-radius:0}
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="faixa">
+    <div class="marca">
+      <svg class="selo" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="46" fill="#F6EFDF" stroke="#8E6413" stroke-width="4"/>
+        <circle cx="50" cy="50" r="37" fill="#fff" stroke="#084C63" stroke-width="2.5"/>
+        <g class="gira">
+          <circle cx="50" cy="36" r="20" fill="none" stroke="#A85C0A" stroke-width="3"/>
+          <circle cx="72" cy="30" r="4.5" fill="#C48A1F"/>
+        </g>
+        <g class="gira2">
+          <line x1="12" y1="50" x2="88" y2="50" stroke="#A85C0A" stroke-width="3.5"/>
+          <polygon points="88,50 79,45 79,55" fill="#A85C0A"/>
+        </g>
+        <circle cx="50" cy="50" r="5" fill="#084C63"/>
+      </svg>
+      <div>
+        <h1>ASTROLÁBIO</h1>
+        <p>Onde estou, para onde vou, que caminho seguir</p>
+      </div>
+    </div>
+    <div class="progresso">
+      <div class="barra"><span id="barraFill"></span></div>
+      <span id="barraTxt">0%</span>
+    </div>
+    <div class="acoes">
+      <button class="ouro" onclick="irPara('astro')">Astrolábio</button>
+      <button onclick="irPara('painel')" id="btPan">Panorama</button>
+      <button onclick="irPara('mapa')" id="btMapa">Mapa mental</button>
+      <button onclick="exportar()">Baixar</button>
+      <button onclick="document.getElementById('arq').click()">Carregar</button>
+      <button class="risco" onclick="limpar()">Limpar</button>
+      <input type="file" id="arq" accept=".json" style="display:none" onchange="importar(event)">
+    </div>
+  </div>
+</header>
+
+<div class="aviso" id="avisoArmazenamento">
+  Este navegador bloqueou o armazenamento local. Suas respostas ficam apenas nesta sessão. Use o botão <b>Baixar</b> antes de fechar a página.
+</div>
+
+<div class="palco">
+  <nav id="nav"></nav>
+  <main>
+    <div class="tela ativa" id="tela-form"></div>
+
+    <div class="tela panorama" id="tela-painel">
+      <h2 class="serif">Panorama do Percurso</h2>
+      <p class="assinatura">Síntese gerada a partir das dez estações. Documento de trabalho para discussão com o orientador.</p>
+      <div id="conteudoPainel"></div>
+      <div class="rodape-nav">
+        <button onclick="irPara('form')">Voltar às estações</button>
+        <button class="primario" onclick="window.print()">Imprimir ou salvar em PDF</button>
+      </div>
+    </div>
+
+    <div class="tela" id="tela-mapa">
+      <h2 class="serif">Mapa Mental do Percurso</h2>
+      <p class="assinatura">Origem, lacuna, projeto, entrega e alcance. Atualiza a cada alteração nas estações.</p>
+      <div class="mapa-caixa" id="caixaMapa"></div>
+      <div class="rodape-nav">
+        <button onclick="irPara('form')">Voltar às estações</button>
+        <div style="display:flex;gap:10px">
+          <button onclick="baixarSVG()">Baixar SVG</button>
+          <button class="primario" onclick="baixarPNG()">Baixar PNG</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tela" id="tela-astro">
+      <h2 class="serif" style="font-size:36px;color:var(--azul)">O Instrumento</h2>
+      <p class="astro-ajuda">As dez estações são as dez estrelas da rete, dispostas em espiral do centro para a borda: do incômodo que originou o percurso até o alcance público do resultado. Cada estrela acende quando a estação correspondente é preenchida. A régua aponta para uma estação por vez.</p>
+      <div class="astro-palco">
+        <div id="astroSVG"></div>
+        <div class="astro-leitura">
+          <div class="etiqueta">A régua aponta para</div>
+          <h3 id="astroAlvo">&nbsp;</h3>
+          <p id="astroDesc"></p>
+          <button class="primario" style="width:100%" onclick="abrirAlvo()">Abrir esta estação</button>
+          <div class="astro-legenda">
+            <div><span class="pastilha" style="background:#C48A1F"></span> Estrela acesa: estação preenchida</div>
+            <div><span class="pastilha" style="background:#fff;border:2px solid #7A939F"></span> Estrela apagada: estação pendente</div>
+            <div><span class="pastilha" style="background:#fff;border:2px dashed #B7C4CB"></span> Estrela em espera: ainda não cobrada nesta fase</div>
+            <div><span class="pastilha" style="background:#A85C0A"></span> Arco externo: progresso do percurso</div>
+          </div>
+          <div class="astro-legenda">
+            <div><span class="pastilha" style="background:#A85C0A;opacity:.45"></span> Anel interno: <b>onde estou</b>, estações 1 a 4</div>
+            <div><span class="pastilha" style="background:#084C63;opacity:.45"></span> Anel médio: <b>para onde vou</b>, estações 5 a 7</div>
+            <div><span class="pastilha" style="background:#14663C;opacity:.45"></span> Anel externo: <b>como chego</b>, estações 8 a 10</div>
+          </div>
+        </div>
+      </div>
+      <div class="rodape-nav">
+        <button onclick="irPara('form')">Ir para as estações</button>
+        <div style="display:flex;gap:12px">
+          <button onclick="irPara('mapa')">Mapa mental</button>
+          <button class="primario" onclick="irPara('painel')">Panorama</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div class="marca-rod">ASTROLÁBIO</div>
+  <div class="autoria">Idealizado por <b>Ernandes Sobreira</b> e <b>Carla Galbiati</b></div>
+  Universidade do Estado de Mato Grosso, UNEMAT<br>
+  Plataforma de orientação metodológica do percurso acadêmico<br>
+  <span style="font-size:13.5px">Os dados permanecem no seu dispositivo. Nada é enviado a servidores.</span>
+</footer>
+
+<script>
+/* =======================================================================
+   ARMAZENAMENTO COM QUEDA PARA MEMÓRIA
+   ======================================================================= */
+const Cofre = (function(){
+  let disponivel = true, memoria = {};
+  try{ const t='__astro__'; localStorage.setItem(t,'1'); localStorage.removeItem(t); }
+  catch(e){ disponivel = false; }
+  return {
+    disponivel,
+    ler(k){ if(disponivel){ try{ return localStorage.getItem(k); }catch(e){} } return memoria[k] || null; },
+    gravar(k,v){ if(disponivel){ try{ localStorage.setItem(k,v); return; }catch(e){} } memoria[k]=v; },
+    apagar(k){ if(disponivel){ try{ localStorage.removeItem(k); return; }catch(e){} } delete memoria[k]; }
+  };
+})();
+if(!Cofre.disponivel){ document.getElementById('avisoArmazenamento').style.display='block'; }
+
+const CHAVE = 'astrolabio_v1';
+
+/* =======================================================================
+   ESQUEMA DAS ESTAÇÕES
+   ======================================================================= */
+const TIPOS_PTT = ['Cartilha ou guia técnico','Protocolo técnico','Aplicativo ou software','Dashboard ou sistema de monitoramento','Curso, oficina ou material didático','Metodologia ou conjunto de indicadores','Tecnologia social','Relatório técnico ou plano de gestão','Instrumento normativo','Produto audiovisual ou podcast','Banco de dados ou modelo preditivo','Outro'];
+
+const ESTACOES = [
+  {
+    id:'e1', bloco:'Onde estou', titulo:'Ponto de Partida',
+    guia:'Antes de qualquer coisa, situe-se. Um percurso de pós-graduação não começa na matrícula: começa em algum incômodo que existia antes dela. Recuperar esse ponto de origem é o que dá direção às escolhas que virão.',
+    campos:[
+      {k:'nome', t:'text', r:'Seu nome completo'},
+      {k:'instituicao', t:'text', r:'Instituição', meia:true},
+      {k:'programa', t:'text', r:'Programa de pós-graduação', meia:true},
+      {k:'nivel', t:'select', r:'Nível', op:['Mestrado acadêmico','Mestrado profissional','Doutorado','Doutorado profissional','Pós-doutorado'], meia:true},
+      {k:'momento', t:'select', r:'Momento do percurso', d:'Define o que a plataforma vai cobrar de você agora. Pode ser alterado a qualquer tempo.', op:['Ingressante, nos primeiros meses','Em desenvolvimento','Fase final, rumo à defesa'], meia:true},
+      {k:'area', t:'text', r:'Área de avaliação ou grande área', meia:true},
+      {k:'linha', t:'text', r:'Linha de pesquisa', meia:true},
+      {k:'grupo', t:'text', r:'Grupo de pesquisa ou laboratório', d:'Nome do grupo no diretório institucional ou no CNPq, se houver.', meia:true},
+      {k:'orientador', t:'text', r:'Orientador', meia:true},
+      {k:'coorientador', t:'text', r:'Coorientador, se houver', meia:true},
+      {k:'ingresso', t:'text', r:'Mês e ano de ingresso', meia:true},
+      {k:'defesa', t:'text', r:'Mês e ano previsto para a defesa', meia:true},
+      {k:'trajetoria', t:'textarea', r:'Que caminho o trouxe até este programa?',
+        d:'Formação, trabalho, território, experiências. Escreva como se explicasse a alguém que não o conhece.'},
+      {k:'incomodo', t:'textarea', r:'Qual incômodo, problema prático ou pergunta persistente fez você procurar a pós-graduação?',
+        d:'Este é o núcleo do seu percurso. Não descreva um tema. Descreva algo que não funciona, que falta ou que se repete de forma indevida.'},
+      {k:'expectativa', t:'textarea', r:'Ao final do curso, o que precisa estar diferente?',
+        d:'No seu trabalho, no seu campo, no seu território ou na sua formação. Seja concreto.'}
+    ]
+  },
+  {
+    id:'e2', bloco:'Onde estou', titulo:'O Texto Inspirador',
+    guia:'Toda pesquisa tem um texto de origem, a leitura que reorganizou o modo de ver o problema. Identificá-lo não é nostalgia: é o primeiro nó da rede intelectual à qual você está se filiando.',
+    campos:[
+      {k:'referencia', t:'textarea', r:'Referência completa do texto', d:'Formato ABNT ou o padrão da sua área.'},
+      {k:'tipo', t:'select', r:'Natureza do texto', op:['Artigo científico','Livro ou capítulo','Dissertação ou tese','Relatório técnico','Norma, lei ou resolução','Material de divulgação científica','Documento de política pública','Outro'], meia:true},
+      {k:'anoLeitura', t:'text', r:'Quando você leu', meia:true},
+      {k:'link', t:'text', r:'DOI ou endereço de acesso'},
+      {k:'comoChegou', t:'textarea', r:'Como você chegou a esse texto?',
+        d:'Indicação de professor, busca em base de dados, exigência do trabalho, acaso. Isso revela como sua rede de leitura se forma.'},
+      {k:'oQueMexeu', t:'textarea', r:'O que exatamente nesse texto mudou sua forma de ver o problema?',
+        d:'Um argumento, um resultado, um método, uma figura, uma contradição com o que você via em campo.'},
+      {k:'trecho', t:'textarea', r:'Transcreva a frase, o dado ou a figura que mais marcou',
+        d:'Com a página. Você vai citar isso depois.'},
+      {k:'semResposta', t:'textarea', r:'O que esse texto deixou sem resposta?',
+        d:'Esta pergunta é a ponte entre a sua origem e a sua lacuna. Se ficar vazia, o projeto perde ancoragem.'},
+      {k:'noSeuContexto', t:'textarea', r:'O que muda quando você tenta aplicar esse texto ao seu contexto?',
+        d:'Território, escala, instituição, público, condições de campo. Quase sempre é aqui que nasce a contribuição original.'}
+    ]
+  },
+  {
+    id:'e3', bloco:'Onde estou', titulo:'Constelação de Autores', tipo:'autores',
+    guia:'Você não entra sozinho em um campo: entra em uma conversa que já estava acontecendo. Mapear quem sustenta essa conversa, onde essas pessoas estão e o que produzem além do que você leu é o que transforma referência bibliográfica em rede de trabalho, com bancas, coautorias e parcerias possíveis.'
+  },
+  {
+    id:'e4', bloco:'Onde estou', titulo:'A Lacuna',
+    guia:'Este é o passo que a maioria dos projetos pula, e é por isso que a maioria trava na qualificação. Um objetivo sem lacuna declarada é uma tarefa, não uma pesquisa. Aqui você precisa afirmar, com evidência, o que ainda não se sabe.',
+    campos:[
+      {k:'jaSeSabe', t:'textarea', r:'O que já está estabelecido na literatura que você leu?',
+        d:'Escreva em três ou quatro afirmações que qualquer especialista da área aceitaria sem discussão.'},
+      {k:'naoSeSabe', t:'textarea', r:'O que ainda não se sabe?',
+        d:'Formule como ausência: não há dados sobre, não foi testado em, não existe protocolo para, não se conhece o efeito de.'},
+      {k:'evidencia', t:'textarea', r:'Como você sabe que essa lacuna existe?',
+        d:'Quantas referências consultou, em quais bases, com quais termos, e o que não encontrou. Lacuna afirmada sem busca é chute.'},
+      {k:'nRefs', t:'number', r:'Número aproximado de referências consultadas até aqui', meia:true},
+      {k:'bases', t:'text', r:'Bases e fontes consultadas', d:'Periódicos CAPES, Scopus, Web of Science, SciELO, Google Acadêmico, repositórios, literatura cinzenta.', meia:true},
+      {k:'porQueImporta', t:'textarea', r:'Por que essa lacuna importa para alguém que não é pesquisador?',
+        d:'Se você não conseguir responder, o projeto terá dificuldade de justificar relevância social, e no mestrado profissional isso é decisivo.'}
+    ]
+  },
+  {
+    id:'e5', bloco:'Para onde vou', titulo:'O Projeto',
+    guia:'Agora o percurso vira compromisso. A pergunta, o objetivo e o recorte precisam caber no tempo que você tem e derivar diretamente da lacuna que acabou de declarar.',
+    campos:[
+      {k:'titulo', t:'text', r:'Título provisório'},
+      {k:'pergunta', t:'textarea', r:'Pergunta central da pesquisa',
+        d:'Uma frase, terminada em ponto de interrogação, que possa ser respondida com os dados que você conseguirá obter.'},
+      {k:'objetivoGeral', t:'textarea', r:'Objetivo geral',
+        d:'Um verbo no infinitivo, um objeto e um recorte. Deve responder à pergunta acima, nem mais nem menos.'},
+      {k:'objetivosEsp', t:'textarea', r:'Objetivos específicos', d:'Um por linha. Cada um deve corresponder a algo que você efetivamente vai executar.'},
+      {k:'territorio', t:'text', r:'Recorte territorial', meia:true},
+      {k:'temporal', t:'text', r:'Recorte temporal', meia:true},
+      {k:'abordagem', t:'select', r:'Abordagem', op:['Qualitativa','Quantitativa','Mista'], meia:true},
+      {k:'finalidade', t:'select', r:'Finalidade', op:['Exploratória','Descritiva','Explicativa','Interpretativa'], meia:true},
+      {k:'hipotese', t:'textarea', r:'Hipótese ou pressuposto orientador',
+        d:'Se a pesquisa for exploratória ou qualitativa e não comportar hipótese, escreva o pressuposto que a orienta e diga por que não há hipótese.'},
+      {k:'delineamento', t:'select', r:'Estratégia de pesquisa predominante', op:['Estudo de caso','Levantamento amostral','Pesquisa documental','Pesquisa-ação ou participante','Experimento ou quase-experimento','Modelagem ou simulação','Revisão sistemática ou integrativa','Combinação de estratégias']}
+    ]
+  },
+  {
+    id:'e6', bloco:'Para onde vou', titulo:'Formato da Entrega', tipo:'entrega',
+    guia:'Um projeto sem destino editorial definido tende a virar um texto sem casa. Decidir cedo o formato da entrega muda o modo de coletar dados, de escrever e de administrar o tempo.'
+  },
+  {
+    id:'e7', bloco:'Para onde vou', titulo:'Público e Alcance',
+    guia:'Escrever para todos é escrever para ninguém. Nomeie uma pessoa concreta que precisa do que você vai produzir e descreva o que ela fará de diferente depois.',
+    campos:[
+      {k:'publico', t:'textarea', r:'Quem é o público primário?',
+        d:'Evite categorias genéricas como sociedade, comunidade científica ou população em geral. Nomeie função, instituição e território: técnicos de licenciamento da secretaria estadual, professores de ciências da rede municipal, gestores de comitê de bacia.'},
+      {k:'onde', t:'textarea', r:'Onde esse público está?',
+        d:'Instituições, eventos, canais, listas, territórios. É por aqui que o seu trabalho vai chegar até ele.'},
+      {k:'oQueMuda', t:'textarea', r:'O que essa pessoa fará de diferente depois de ler ou usar seu trabalho?',
+        d:'Se a resposta for apenas ficará sabendo, o alcance previsto ainda é fraco.'},
+      {k:'barreiras', t:'textarea', r:'O que impede esse público de chegar ao seu trabalho?',
+        d:'Idioma, paywall, formato, linguagem técnica, tempo, acesso à internet, ausência de canal institucional.'},
+      {k:'adaptacao', t:'textarea', r:'Como você vai adaptar linguagem e formato para vencer essas barreiras?'},
+      {k:'publicoSec', t:'text', r:'Público secundário, se houver'}
+    ]
+  },
+  {
+    id:'e8', bloco:'Como chego', titulo:'Plano de Visibilidade',
+    guia:'Visibilidade não é vaidade: é a condição para que o trabalho seja encontrado, citado, replicado e financiado. E é o que sustenta a rede de autores que você mapeou na terceira estação.',
+    campos:[
+      {k:'perfis', t:'checks', r:'Identidade digital de pesquisador', d:'Marque o que já está criado e atualizado.',
+        op:['Currículo Lattes atualizado','ORCID','Google Acadêmico','ResearchGate ou Academia.edu','Repositório institucional','Perfil em rede social científica','Página ou portfólio próprio']},
+      {k:'eventos', t:'textarea', r:'Eventos-alvo para apresentação',
+        d:'Um por linha, com mês e ano. Congressos, simpósios, seminários de programa, encontros de comitês, feiras técnicas.'},
+      {k:'divulgacao', t:'textarea', r:'Como o trabalho será traduzido para fora da academia?',
+        d:'Texto de divulgação, vídeo, podcast, cartilha, matéria em rádio comunitária, apresentação em audiência pública.'},
+      {k:'parceiros', t:'textarea', r:'Instituições e coletivos que podem amplificar o alcance',
+        d:'Órgãos gestores, secretarias, sindicatos, escolas, associações, empresas, organizações da sociedade civil.'},
+      {k:'metas', t:'textarea', r:'Metas de visibilidade com data',
+        d:'Uma por linha, no formato ação e prazo. Exemplo: submeter resumo ao congresso estadual até março de 2027.'},
+      {k:'registroProd', t:'checks', r:'Registro e proteção previstos',
+        op:['Depósito em repositório institucional','Registro de software no INPI','ISBN ou ISSN','Licença Creative Commons','Código aberto em repositório público','Patente ou modelo de utilidade','Ainda não definido']}
+    ]
+  },
+  {
+    id:'e9', bloco:'Como chego', titulo:'Devolutiva',
+    guia:'Quem forneceu dado, tempo, acesso ou confiança tem direito ao retorno. A devolutiva é obrigação ética antes de ser exigência de avaliação, e é a evidência mais forte de impacto que um programa profissional pode apresentar.',
+    campos:[
+      {k:'paraQuem', t:'textarea', r:'A quem você deve retorno?',
+        d:'Comunidade, órgão gestor, escola, comitê, empresa, associação, os próprios participantes da pesquisa.'},
+      {k:'formato', t:'checks', r:'Formato da devolutiva',
+        op:['Oficina presencial','Reunião técnica','Relatório entregue formalmente','Cartilha ou material impresso','Audiência ou assembleia pública','Material audiovisual','Apresentação em escola','Entrega com ofício e protocolo']},
+      {k:'quando', t:'text', r:'Quando a devolutiva acontecerá', d:'Mês e ano. Devolutiva sem data marcada raramente acontece.', meia:true},
+      {k:'onde', t:'text', r:'Onde acontecerá', meia:true},
+      {k:'comoRegistra', t:'textarea', r:'Como a devolutiva será documentada?',
+        d:'Lista de presença, ata, ofício de recebimento, registro fotográfico, formulário de avaliação, declaração institucional. Sem registro, não há evidência.'},
+      {k:'compromisso', t:'textarea', r:'Que compromisso você assume publicamente com esse público?',
+        d:'Escreva na primeira pessoa. Este parágrafo pode entrar na sua dissertação ou tese.'}
+    ]
+  },
+  {
+    id:'e10', bloco:'Como chego', titulo:'Recursos e Viabilidade',
+    guia:'Projetos de pós-graduação raramente falham por falta de boa ideia. Falham por falta de tempo, de dado, de técnica ou de dinheiro. Este é o diagnóstico honesto que evita descobrir isso no último semestre. Quem declarou estar na fase final encontra aqui um bloco adicional sobre o estado real do trabalho.',
+    campos:[
+      {k:'seiFazer', t:'textarea', r:'O que você já sabe fazer e que o projeto exige?',
+        d:'Técnicas de campo, análise estatística, programação, entrevista, sensoriamento remoto, redação científica, idioma.'},
+      {k:'precisoAprender', t:'textarea', r:'O que você precisa aprender, e como vai aprender?',
+        d:'Disciplina, curso, treinamento, colaboração, orientação técnica. Com prazo.'},
+      {k:'dadosTenho', t:'textarea', r:'Que dados você já tem em mãos?'},
+      {k:'dadosFaltam', t:'textarea', r:'Que dados faltam, e de quem dependem?',
+        d:'Identifique dependências externas: autorização, licença ambiental, comitê de ética, cessão de base, acesso a campo.'},
+      {k:'tempo', t:'number', r:'Horas por semana efetivamente disponíveis para a pesquisa', meia:true},
+      {k:'financiamento', t:'select', r:'Situação de financiamento', op:['Bolsa de agência de fomento','Projeto financiado do grupo','Apoio institucional ou do empregador','Recursos próprios','Sem definição'], meia:true},
+      {k:'riscos', t:'textarea', r:'Os três maiores riscos do projeto e o plano B para cada um',
+        d:'Um por linha. Risco sem plano B é apenas uma preocupação.'}
+    ]
+  }
+];
+
+/* =======================================================================
+   ESTADO
+   ======================================================================= */
+let estado = { versao:1, criadoEm:new Date().toISOString(), atualizadoEm:null, dados:{}, autores:[], entrega:{formatos:[]} };
+let estacaoAtual = 0;
+let telaAtual = 'form';
+
+function carregar(){
+  const bruto = Cofre.ler(CHAVE);
+  if(bruto){
+    try{
+      const o = JSON.parse(bruto);
+      estado = Object.assign(estado, o);
+      if(!estado.dados) estado.dados = {};
+      if(!Array.isArray(estado.autores)) estado.autores = [];
+      if(!estado.entrega) estado.entrega = {formatos:[]};
+      if(!Array.isArray(estado.entrega.formatos)) estado.entrega.formatos = [];
+    }catch(e){ console.warn('Registro anterior ilegível.'); }
+  }
+}
+let temporizador = null;
+function salvar(){
+  estado.atualizadoEm = new Date().toISOString();
+  clearTimeout(temporizador);
+  temporizador = setTimeout(()=>{
+    Cofre.gravar(CHAVE, JSON.stringify(estado));
+  }, 350);
+  atualizarProgresso();
+  desenharNav();
+}
+const ADIADAS = [4,5,6,7,8];
+function faseAtual(){ return (estado.dados.e1 && estado.dados.e1.momento) || 'Em desenvolvimento'; }
+function ehIngressante(){ return faseAtual().indexOf('Ingressante') === 0; }
+function ehFinal(){ return faseAtual().indexOf('Fase final') === 0; }
+function adiada(i){ return ehIngressante() && ADIADAS.indexOf(i) > -1; }
+
+function v(estId, campo){ return (estado.dados[estId] && estado.dados[estId][campo]) || ''; }
+function setV(estId, campo, valor){
+  if(!estado.dados[estId]) estado.dados[estId] = {};
+  estado.dados[estId][campo] = valor;
+  salvar();
+}
+function texto(x){ return (x===undefined||x===null) ? '' : String(x).trim(); }
+function cheio(x){ return texto(x).length > 0; }
+function escapar(s){
+  return String(s===undefined||s===null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* =======================================================================
+   PROGRESSO
+   ======================================================================= */
+function totalCampos(){
+  let n = 0;
+  ESTACOES.forEach((e,idx)=>{
+    if(adiada(idx)) return;
+    if(e.tipo === 'autores') n += 3;
+    else if(e.tipo === 'entrega') n += 4;
+    else n += e.campos.length;
+  });
+  return n;
+}
+function camposPreenchidos(){
+  let n = 0;
+  ESTACOES.forEach((e,idx)=>{
+    if(adiada(idx)) return;
+    if(e.tipo === 'autores'){
+      const a = estado.autores.length;
+      n += Math.min(3, a > 0 ? 1 : 0);
+      if(estado.autores.some(x=>cheio(x.instituicao))) n += 1;
+      if(estado.autores.some(x=>cheio(x.acao))) n += 1;
+    } else if(e.tipo === 'entrega'){
+      const en = estado.entrega;
+      if(en.formatos.length) n += 1;
+      if(cheio(en.revista) || cheio(en.tipoProduto)) n += 1;
+      if(cheio(en.prazoArtigo) || cheio(en.prazoProduto)) n += 1;
+      if(cheio(en.validacao) || cheio(en.porQueRevista)) n += 1;
+    } else {
+      e.campos.forEach(c=>{
+        const val = v(e.id, c.k);
+        if(Array.isArray(val) ? val.length > 0 : cheio(val)) n += 1;
+      });
+    }
+  });
+  return n;
+}
+function estacaoCompleta(e){
+  if(e.tipo === 'autores') return estado.autores.length > 0 && estado.autores.some(a=>cheio(a.nome));
+  if(e.tipo === 'entrega') return estado.entrega.formatos.length > 0;
+  const n = e.campos.filter(c=>{ const val = v(e.id,c.k); return Array.isArray(val)? val.length>0 : cheio(val); }).length;
+  return n >= Math.ceil(e.campos.length * 0.7);
+}
+function atualizarProgresso(){
+  const pc = Math.round(camposPreenchidos() / totalCampos() * 100);
+  document.getElementById('barraFill').style.width = pc + '%';
+  document.getElementById('barraTxt').textContent = pc + '%';
+}
+
+/* =======================================================================
+   NAVEGAÇÃO
+   ======================================================================= */
+function desenharNav(){
+  const blocos = [];
+  ESTACOES.forEach((e,i)=>{
+    let b = blocos.find(x=>x.nome === e.bloco);
+    if(!b){ b = {nome:e.bloco, itens:[]}; blocos.push(b); }
+    b.itens.push({e, i});
+  });
+  document.getElementById('nav').innerHTML = blocos.map(b=>`
+    <div class="bloco-nav">
+      <h4>${escapar(b.nome)}</h4>
+      <div class="itens">${b.itens.map(({e,i})=>`
+        <div class="item ${i===estacaoAtual && telaAtual==='form'?'ativo':''} ${estacaoCompleta(e)?'cheio':''} ${adiada(i)?'adiada':''}" onclick="abrirEstacao(${i})">
+          <div class="num">${estacaoCompleta(e)?'&#10003;':(i+1)}</div>
+          <div>${escapar(e.titulo)}</div>
+        </div>`).join('')}</div>
+    </div>`).join('');
+}
+function abrirEstacao(i){
+  estacaoAtual = i; telaAtual = 'form';
+  mostrarTela('form');
+  desenharEstacao();
+  desenharNav();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function mostrarTela(qual){
+  telaAtual = qual;
+  document.getElementById('tela-form').classList.toggle('ativa', qual==='form');
+  document.getElementById('tela-painel').classList.toggle('ativa', qual==='painel');
+  document.getElementById('tela-mapa').classList.toggle('ativa', qual==='mapa');
+  document.getElementById('tela-astro').classList.toggle('ativa', qual==='astro');
+}
+function irPara(qual){
+  mostrarTela(qual);
+  if(qual==='painel') desenharPainel();
+  if(qual==='mapa') desenharMapa();
+  if(qual==='astro') desenharAstro();
+  desenharNav();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* =======================================================================
+   RENDERIZAÇÃO DE CAMPOS
+   ======================================================================= */
+function campoHTML(estId, c){
+  const val = v(estId, c.k);
+  const dica = c.d ? `<div class="dica">${escapar(c.d)}</div>` : '';
+  let entrada = '';
+  if(c.t === 'text'){
+    entrada = `<input type="text" value="${escapar(val)}" oninput="setV('${estId}','${c.k}',this.value)">`;
+  } else if(c.t === 'number'){
+    entrada = `<input type="number" min="0" value="${escapar(val)}" oninput="setV('${estId}','${c.k}',this.value)">`;
+  } else if(c.t === 'textarea'){
+    entrada = `<textarea oninput="setV('${estId}','${c.k}',this.value)">${escapar(val)}</textarea>`;
+  } else if(c.t === 'select'){
+    entrada = `<select onchange="setV('${estId}','${c.k}',this.value)">
+      <option value="">Selecione</option>
+      ${c.op.map(o=>`<option value="${escapar(o)}" ${val===o?'selected':''}>${escapar(o)}</option>`).join('')}
+    </select>`;
+  } else if(c.t === 'checks'){
+    const arr = Array.isArray(val) ? val : [];
+    entrada = `<div class="opcoes">${c.op.map(o=>`
+      <label class="opcao ${arr.includes(o)?'marcada':''}">
+        <input type="checkbox" ${arr.includes(o)?'checked':''} onchange="alternarCheck('${estId}','${c.k}',${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)">
+        ${escapar(o)}
+      </label>`).join('')}</div>`;
+  }
+  return `<div class="campo">
+    <label>${escapar(c.r)}</label>${dica}${entrada}
+  </div>`;
+}
+function alternarCheck(estId, campo, opcao, ligado){
+  let arr = v(estId, campo);
+  if(!Array.isArray(arr)) arr = [];
+  if(ligado){ if(!arr.includes(opcao)) arr.push(opcao); }
+  else { arr = arr.filter(x=>x!==opcao); }
+  setV(estId, campo, arr);
+  desenharEstacao();
+}
+
+function desenharEstacao(){
+  const e = ESTACOES[estacaoAtual];
+  let corpo = '';
+  if(e.tipo === 'autores') corpo = htmlAutores();
+  else if(e.tipo === 'entrega') corpo = htmlEntrega();
+  else {
+    let i = 0;
+    while(i < e.campos.length){
+      const c = e.campos[i];
+      if(c.meia && e.campos[i+1] && e.campos[i+1].meia){
+        corpo += `<div class="dupla">${campoHTML(e.id,c)}${campoHTML(e.id,e.campos[i+1])}</div>`;
+        i += 2;
+      } else {
+        corpo += campoHTML(e.id, c); i += 1;
+      }
+    }
+  }
+  const avisoFase = adiada(estacaoAtual) ? `<div class="adiada-aviso">
+      <b>Ainda não é hora desta estação.</b>
+      Você marcou o momento do percurso como ingressante. Nesta fase o que importa é reconstituir a origem, a leitura, a rede de autores e a lacuna. Objetivo, formato de entrega, público e visibilidade só ganham sentido depois que a lacuna estiver firme, e responder cedo demais costuma produzir um projeto de fantasia que o aluno depois passa meses tentando não contradizer.
+      Você pode preencher assim mesmo, e nada será perdido, mas esta estação não entra no diagnóstico nem no cálculo de progresso enquanto o momento for este.
+    </div>` : '';
+  const blocoEstado = (e.id === 'e10' && ehFinal()) ? htmlEstado() : '';
+  document.getElementById('tela-form').innerHTML = `
+    <div class="cabeca-estacao">
+      <div class="etiqueta">Estação ${estacaoAtual+1} de ${ESTACOES.length} &middot; ${escapar(e.bloco)}</div>
+      <h2 class="serif">${escapar(e.titulo)}</h2>
+      <div class="guia">${escapar(e.guia)}</div>
+    </div>
+    ${avisoFase}
+    ${corpo}
+    ${blocoEstado}
+    <div class="rodape-nav">
+      <button onclick="abrirEstacao(${Math.max(0,estacaoAtual-1)})" ${estacaoAtual===0?'disabled style="opacity:.4"':''}>Estação anterior</button>
+      ${estacaoAtual === ESTACOES.length-1
+        ? `<button class="primario" onclick="irPara('painel')">Gerar panorama</button>`
+        : `<button class="primario" onclick="abrirEstacao(${estacaoAtual+1})">Próxima estação</button>`}
+    </div>`;
+}
+
+/* ---------- autores ---------- */
+const PAPEIS = ['Autor do texto inspirador','Referência teórica central','Referência metodológica','Referência do contexto ou território','Autor emergente ou contemporâneo'];
+const APROX = ['Ler a obra completa','Contato por e-mail','Convite para banca','Coautoria de artigo','Estágio, missão ou visita técnica','Parceria institucional','Encontro em evento','Participação em projeto ou edital'];
+const STATUS = ['Não iniciado','E-mail enviado','Resposta recebida','Conversa em andamento','Colaboração em curso'];
+
+function htmlAutores(){
+  const lista = estado.autores.map((a,i)=>`
+    <div class="autor">
+      <div class="autor-topo">
+        <strong>Autor ${i+1}${a.nome?': '+escapar(a.nome):''}</strong>
+        <button class="mini risco" onclick="removerAutor(${i})">Remover</button>
+      </div>
+      <div class="campo"><label>Nome</label>
+        <input type="text" value="${escapar(a.nome||'')}" oninput="setAutor(${i},'nome',this.value)"></div>
+      <div class="dupla">
+        <div class="campo"><label>Papel na sua pesquisa</label>
+          <select onchange="setAutor(${i},'papel',this.value)"><option value="">Selecione</option>
+          ${PAPEIS.map(p=>`<option ${a.papel===p?'selected':''}>${escapar(p)}</option>`).join('')}</select></div>
+        <div class="campo"><label>Instituição de vínculo</label>
+          <input type="text" value="${escapar(a.instituicao||'')}" oninput="setAutor(${i},'instituicao',this.value)"></div>
+      </div>
+      <div class="dupla">
+        <div class="campo"><label>País ou estado</label>
+          <input type="text" value="${escapar(a.pais||'')}" oninput="setAutor(${i},'pais',this.value)"></div>
+        <div class="campo"><label>Grupo de pesquisa ou laboratório</label>
+          <input type="text" value="${escapar(a.grupo||'')}" oninput="setAutor(${i},'grupo',this.value)"></div>
+      </div>
+      <div class="campo"><label>Perfil acadêmico</label>
+        <div class="dica">Endereço do Lattes, ORCID, Google Acadêmico ou página institucional. Consulte antes de responder o campo seguinte.</div>
+        <input type="text" value="${escapar(a.perfil||'')}" oninput="setAutor(${i},'perfil',this.value)"></div>
+      <div class="campo"><label>O que este autor produz além da obra que você leu?</label>
+        <div class="dica">Linhas de pesquisa, projetos em andamento, orientações, softwares, bases de dados, redes, editais coordenados. Este é o campo que transforma citação em possibilidade de parceria.</div>
+        <textarea oninput="setAutor(${i},'produzAlem',this.value)">${escapar(a.produzAlem||'')}</textarea></div>
+      <div class="campo"><label>Qual é a interseção concreta entre o trabalho dele e o seu?</label>
+        <div class="dica">Método compartilhado, mesmo objeto em outro território, escala complementar, base de dados aproveitável.</div>
+        <textarea oninput="setAutor(${i},'intersecao',this.value)">${escapar(a.intersecao||'')}</textarea></div>
+      <div class="campo"><label>Formas de aproximação viáveis</label>
+        <div class="opcoes">${APROX.map(o=>{
+          const arr = a.aproximacao||[];
+          return `<label class="opcao ${arr.includes(o)?'marcada':''}">
+            <input type="checkbox" ${arr.includes(o)?'checked':''} onchange="alternarAprox(${i},${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)"> ${escapar(o)}</label>`;
+        }).join('')}</div></div>
+      <div class="dupla">
+        <div class="campo"><label>Ação concreta e prazo</label>
+          <div class="dica">Exemplo: enviar e-mail apresentando o projeto até maio de 2027.</div>
+          <input type="text" value="${escapar(a.acao||'')}" oninput="setAutor(${i},'acao',this.value)"></div>
+        <div class="campo"><label>Situação do contato</label>
+          <select onchange="setAutor(${i},'status',this.value)"><option value="">Selecione</option>
+          ${STATUS.map(s=>`<option ${a.status===s?'selected':''}>${escapar(s)}</option>`).join('')}</select></div>
+      </div>
+    </div>`).join('');
+  return (estado.autores.length ? lista : `<div class="vazio">Nenhum autor registrado. Comece pelo autor do texto inspirador da estação anterior e avance para quem ele cita com mais frequência.</div>`)
+    + `<button class="primario" style="margin-top:14px" onclick="adicionarAutor()">Adicionar autor</button>
+       <p class="dica" style="margin-top:10px">Recomendação: entre quatro e oito autores. Menos que isso indica leitura ainda incipiente; muito mais indica dispersão.</p>`;
+}
+function adicionarAutor(){ estado.autores.push({aproximacao:[]}); salvar(); desenharEstacao(); }
+function removerAutor(i){ if(confirm('Remover este autor?')){ estado.autores.splice(i,1); salvar(); desenharEstacao(); } }
+function setAutor(i,k,val){ estado.autores[i][k]=val; salvar(); }
+function alternarAprox(i,op,ligado){
+  const a = estado.autores[i];
+  if(!Array.isArray(a.aproximacao)) a.aproximacao=[];
+  if(ligado){ if(!a.aproximacao.includes(op)) a.aproximacao.push(op); }
+  else a.aproximacao = a.aproximacao.filter(x=>x!==op);
+  salvar(); desenharEstacao();
+}
+
+/* ---------- diagnóstico de estado, apenas na fase final ---------- */
+const SIT_COLETA = ['Não iniciada','Em andamento, dentro do prazo','Em andamento, com atraso','Concluída'];
+const SIT_ESCRITA = ['Não iniciada','Estrutura definida, sem redação','Em redação','Versão completa em revisão','Submetida ou entregue'];
+const SIT_PRODUTO = ['Não iniciado','Em construção','Primeira versão pronta, sem validação','Validado com usuários','Entregue e registrado'];
+function htmlEstado(){
+  const d = estado.dados.e10 || {};
+  const sel = (k, ops) => `<select onchange="setV('e10','${k}',this.value)"><option value="">Selecione</option>` +
+    ops.map(o=>`<option ${d[k]===o?'selected':''}>${escapar(o)}</option>`).join('') + `</select>`;
+  return `<div class="condicional" style="border-left-color:#96140F;background:#FEF7F6">
+    <h3 style="color:#96140F">Diagnóstico de estado</h3>
+    <div class="sub">Este bloco aparece porque você marcou o momento do percurso como fase final. Aqui a pergunta deixa de ser de onde você veio e passa a ser o que falta e o que travou.</div>
+    <div class="tripla">
+      <div class="campo"><label>Situação da coleta ou do levantamento</label>${sel('sitColeta', SIT_COLETA)}</div>
+      <div class="campo"><label>Situação da redação</label>${sel('sitEscrita', SIT_ESCRITA)}</div>
+      <div class="campo"><label>Situação do produto técnico</label>${sel('sitProduto', SIT_PRODUTO)}</div>
+    </div>
+    <div class="campo"><label>O que está travado hoje, e há quanto tempo?</label>
+      <div class="dica">Nomeie a trava real: espera de autorização, laboratório indisponível, dado que não chegou, capítulo que não sai, parecer que não volta. Uma por linha, com o tempo de espera.</div>
+      <textarea oninput="setV('e10','travas',this.value)">${escapar(d.travas||'')}</textarea></div>
+    <div class="dupla">
+      <div class="campo"><label>Atraso acumulado em relação ao cronograma original, em semanas</label>
+        <input type="number" min="0" value="${escapar(d.atraso||'')}" oninput="setV('e10','atraso',this.value)"></div>
+      <div class="campo"><label>Próxima entrega concreta e sua data</label>
+        <input type="text" value="${escapar(d.proxEntrega||'')}" oninput="setV('e10','proxEntrega',this.value)"></div>
+    </div>
+    <div class="campo"><label>Se fosse preciso reduzir o escopo esta semana, o que sairia primeiro?</label>
+      <div class="dica">Decidir isso agora, com calma, é diferente de decidir em pânico dois meses antes da defesa.</div>
+      <textarea oninput="setV('e10','corte',this.value)">${escapar(d.corte||'')}</textarea></div>
+  </div>`;
+}
+
+/* ---------- entrega ---------- */
+const FORMATOS = ['Artigo científico','Produto Técnico e Tecnológico','Dissertação ou tese em formato tradicional','Capítulo de livro','Outro formato'];
+function setEnt(k,val){ estado.entrega[k]=val; salvar(); }
+function alternarFormato(op, ligado){
+  let arr = estado.entrega.formatos || [];
+  if(ligado){ if(!arr.includes(op)) arr.push(op); } else arr = arr.filter(x=>x!==op);
+  estado.entrega.formatos = arr; salvar(); desenharEstacao();
+}
+function alternarHosp(op, ligado){
+  let arr = estado.entrega.hospedagem || [];
+  if(ligado){ if(!arr.includes(op)) arr.push(op); } else arr = arr.filter(x=>x!==op);
+  estado.entrega.hospedagem = arr; salvar(); desenharEstacao();
+}
+function htmlEntrega(){
+  const en = estado.entrega;
+  const fs = en.formatos || [];
+  let h = `<div class="campo">
+    <label>Que formatos a sua entrega assumirá?</label>
+    <div class="dica">Pode ser mais de um. No mestrado profissional, o produto técnico é obrigatório e costuma conviver com pelo menos um artigo.</div>
+    <div class="opcoes">${FORMATOS.map(o=>`
+      <label class="opcao ${fs.includes(o)?'marcada':''}">
+        <input type="checkbox" ${fs.includes(o)?'checked':''} onchange="alternarFormato(${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)"> ${escapar(o)}
+      </label>`).join('')}</div></div>`;
+
+  if(fs.includes('Artigo científico')){
+    h += `<div class="condicional">
+      <h3>Rota do artigo científico</h3>
+      <div class="sub">A revista não se escolhe depois de escrever. Escolher antes define extensão, estrutura, idioma e tipo de dado exigido.</div>
+      <div class="dupla">
+        <div class="campo"><label>Revista alvo</label>
+          <input type="text" value="${escapar(en.revista||'')}" oninput="setEnt('revista',this.value)"></div>
+        <div class="campo"><label>Estrato Qualis ou fator de impacto</label>
+          <input type="text" value="${escapar(en.qualis||'')}" oninput="setEnt('qualis',this.value)"></div>
+      </div>
+      <div class="campo"><label>Por que essa revista?</label>
+        <div class="dica">Escopo, público leitor, tempo médio de avaliação, aderência da sua abordagem ao que a revista publica. Cite dois artigos recentes dela que dialogam com o seu.</div>
+        <textarea oninput="setEnt('porQueRevista',this.value)">${escapar(en.porQueRevista||'')}</textarea></div>
+      <div class="tripla">
+        <div class="campo"><label>Idioma</label>
+          <input type="text" value="${escapar(en.idioma||'')}" oninput="setEnt('idioma',this.value)"></div>
+        <div class="campo"><label>Taxa de publicação</label>
+          <input type="text" value="${escapar(en.taxa||'')}" oninput="setEnt('taxa',this.value)"></div>
+        <div class="campo"><label>Prazo de submissão</label>
+          <input type="text" value="${escapar(en.prazoArtigo||'')}" oninput="setEnt('prazoArtigo',this.value)"></div>
+      </div>
+      <div class="dupla">
+        <div class="campo"><label>Segunda opção de revista</label>
+          <input type="text" value="${escapar(en.revista2||'')}" oninput="setEnt('revista2',this.value)"></div>
+        <div class="campo"><label>Terceira opção de revista</label>
+          <input type="text" value="${escapar(en.revista3||'')}" oninput="setEnt('revista3',this.value)"></div>
+      </div>
+    </div>`;
+  }
+  if(fs.includes('Produto Técnico e Tecnológico')){
+    const hosp = en.hospedagem || [];
+    h += `<div class="condicional">
+      <h3>Rota do produto técnico e tecnológico</h3>
+      <div class="sub">O produto responde a como fazer e para quem serve. Ele é autônomo em relação à dissertação e precisa de usuário, hospedagem, validação e evidência de uso.</div>
+      <div class="dupla">
+        <div class="campo"><label>Tipo de produto</label>
+          <select onchange="setEnt('tipoProduto',this.value)"><option value="">Selecione</option>
+          ${TIPOS_PTT.map(t=>`<option ${en.tipoProduto===t?'selected':''}>${escapar(t)}</option>`).join('')}</select></div>
+        <div class="campo"><label>Nome provisório do produto</label>
+          <input type="text" value="${escapar(en.nomeProduto||'')}" oninput="setEnt('nomeProduto',this.value)"></div>
+      </div>
+      <div class="campo"><label>Quem vai usar o produto, em que situação de trabalho?</label>
+        <div class="dica">Descreva a cena de uso: em que momento da rotina dessa pessoa o produto entra e que decisão ele apoia.</div>
+        <textarea oninput="setEnt('usuario',this.value)">${escapar(en.usuario||'')}</textarea></div>
+      <div class="campo"><label>Hospedagem, distribuição e registro</label>
+        <div class="opcoes">${['Repositório institucional','Registro de software no INPI','ISBN ou ISSN','Repositório público de código','Servidor ou site institucional','Loja de aplicativos','Impressão e distribuição física','Plataforma de ensino a distância','Ainda não definido'].map(o=>`
+          <label class="opcao ${hosp.includes(o)?'marcada':''}">
+            <input type="checkbox" ${hosp.includes(o)?'checked':''} onchange="alternarHosp(${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)"> ${escapar(o)}</label>`).join('')}</div></div>
+      <div class="campo"><label>Como o produto será validado?</label>
+        <div class="dica">Com quantos usuários reais, por qual método, com qual instrumento. Escala de usabilidade para sistemas, escala de concordância para materiais didáticos, parecer de especialistas, aplicação piloto documentada.</div>
+        <textarea oninput="setEnt('validacao',this.value)">${escapar(en.validacao||'')}</textarea></div>
+      <div class="campo"><label>Que evidências de uso você vai reunir?</label>
+        <div class="dica">Lista de participantes, ofício de recebimento, declaração institucional, registro fotográfico, número de downloads, ata de reunião.</div>
+        <textarea oninput="setEnt('evidencias',this.value)">${escapar(en.evidencias||'')}</textarea></div>
+      <div class="dupla">
+        <div class="campo"><label>Prazo para a primeira versão utilizável</label>
+          <input type="text" value="${escapar(en.prazoProduto||'')}" oninput="setEnt('prazoProduto',this.value)"></div>
+        <div class="campo"><label>O que já existe de semelhante, e o que o seu produto acrescenta?</label>
+          <input type="text" value="${escapar(en.diferencial||'')}" oninput="setEnt('diferencial',this.value)"></div>
+      </div>
+    </div>`;
+  }
+  if(fs.includes('Dissertação ou tese em formato tradicional') || fs.includes('Capítulo de livro') || fs.includes('Outro formato')){
+    h += `<div class="condicional">
+      <h3>Outras entregas previstas</h3>
+      <div class="sub">Descreva estrutura, editora, coletânea, prazo ou qualquer outro compromisso de entrega assumido.</div>
+      <div class="campo"><label>Descrição</label>
+        <textarea oninput="setEnt('outros',this.value)">${escapar(en.outros||'')}</textarea></div>
+    </div>`;
+  }
+  return h;
+}
+
+/* =======================================================================
+   MOTOR DE COERÊNCIA
+   ======================================================================= */
+const VAGOS = ['sociedade','sociedade em geral','todos','população em geral','publico em geral','público em geral','comunidade cientifica','comunidade científica','a academia','pessoas','o povo','geral'];
+
+function diagnosticar(){
+  const A = [];
+  const suprimidas = ehIngressante() ? ['Estação 5','Estação 6','Estação 7','Estação 8','Estação 9'] : [];
+  const add = (nivel, est, texto, saida) => {
+    if(suprimidas.indexOf(est) > -1) return;
+    if(ehIngressante() && texto.indexOf('não há produto técnico') > -1) return;
+    A.push({nivel, est, texto, saida});
+  };
+  if(ehIngressante())
+    add('ok','Modo ingressante','As estações 5 a 9 não são cobradas nesta fase.','O que importa agora é a origem, a leitura, a rede de autores e a lacuna. Quando a lacuna estiver firme, mude o momento do percurso na estação 1 e o diagnóstico completo é liberado.');
+  if(ehFinal())
+    add('ok','Modo fase final','As estações 1 a 4 passam a valer como auditoria.','Se a esta altura você ainda não consegue enunciar a lacuna ou nomear o público, o problema é grave e provavelmente invisível para você. Os alertas abaixo sobre essas estações merecem atenção maior do que mereceriam no início.');
+  const en = estado.entrega, fs = en.formatos || [];
+  const nivel = v('e1','nivel');
+
+  if(!cheio(v('e1','incomodo')))
+    add('critico','Estação 1','O incômodo de origem não foi declarado.','Sem ele, o percurso não tem por que existir. Volte e escreva o que não funciona no mundo real e o levou até aqui.');
+
+  if(!cheio(v('e2','referencia')))
+    add('atencao','Estação 2','Nenhum texto inspirador foi registrado.','Identifique a leitura que reorganizou sua forma de ver o problema. Ela será a primeira citação da sua introdução.');
+
+  if(cheio(v('e2','referencia')) && !cheio(v('e2','semResposta')))
+    add('critico','Estação 2','Você registrou o texto inspirador mas não disse o que ele deixou sem resposta.','Esta é a ponte entre origem e lacuna. Sem ela, o projeto parece surgir do nada.');
+
+  if(estado.autores.length === 0)
+    add('critico','Estação 3','Nenhum autor foi mapeado.','Você não sabe ainda quem já trabalha no seu tema. Comece pelas referências mais citadas do texto inspirador.');
+  else if(estado.autores.length < 4)
+    add('atencao','Estação 3','Apenas '+estado.autores.length+' autor(es) mapeado(s).','Entre quatro e oito autores dão base para situar o seu trabalho no campo.');
+
+  const semInst = estado.autores.filter(a=>cheio(a.nome) && !cheio(a.instituicao)).length;
+  if(estado.autores.length && semInst >= Math.ceil(estado.autores.length/2))
+    add('atencao','Estação 3','Metade ou mais dos autores está sem instituição de vínculo.','A instituição indica onde estão os grupos, os laboratórios e os editais aos quais você pode se vincular.');
+
+  const semPerfil = estado.autores.filter(a=>cheio(a.nome) && !cheio(a.perfil)).length;
+  if(estado.autores.length && semPerfil === estado.autores.length)
+    add('atencao','Estação 3','Nenhum perfil acadêmico foi consultado.','Sem abrir o Lattes, o ORCID ou o Google Acadêmico desses autores, você só conhece uma obra de cada um.');
+
+  if(estado.autores.length && !estado.autores.some(a=>cheio(a.acao)))
+    add('critico','Estação 3','Nenhuma ação de aproximação com prazo foi definida.','Rede de contatos não se forma por intenção. Defina ao menos um contato com data.');
+
+  if(!cheio(v('e4','naoSeSabe')))
+    add('critico','Estação 4','A lacuna não foi declarada.','Um objetivo sem lacuna é uma tarefa, não uma pesquisa. Este é o item mais cobrado em qualificação.');
+
+  if(cheio(v('e4','naoSeSabe')) && !cheio(v('e4','evidencia')))
+    add('atencao','Estação 4','A lacuna foi afirmada sem evidência de busca.','Registre quantas referências consultou, em que bases e com quais termos. Lacuna sem busca é suposição.');
+
+  const nRefs = parseInt(v('e4','nRefs')||'0',10);
+  if(nRefs > 0 && nRefs < 15)
+    add('atencao','Estação 4','Apenas '+nRefs+' referências consultadas até aqui.','É pouco para afirmar que algo não foi estudado. Amplie antes de fixar a lacuna.');
+
+  if(!cheio(v('e4','porQueImporta')) && nivel.indexOf('profissional') > -1)
+    add('critico','Estação 4','A relevância extra-acadêmica da lacuna não foi justificada.','Em programa profissional, a justificativa social do problema é critério de avaliação, não item opcional.');
+
+  const perg = texto(v('e5','pergunta'));
+  if(cheio(perg) && perg.indexOf('?') === -1)
+    add('atencao','Estação 5','A pergunta central não está formulada como pergunta.','Reescreva em forma interrogativa. Se não couber um ponto de interrogação, provavelmente ainda é um tema.');
+
+  const og = texto(v('e5','objetivoGeral'));
+  if(cheio(og) && og.length < 55)
+    add('atencao','Estação 5','O objetivo geral está curto demais para conter verbo, objeto e recorte.','Um objetivo precisa dizer o que será feito, sobre o quê, onde e em que período.');
+
+  const oe = texto(v('e5','objetivosEsp')).split('\n').filter(x=>x.trim().length>3);
+  if(cheio(og) && oe.length < 2)
+    add('atencao','Estação 5','Menos de dois objetivos específicos declarados.','Cada objetivo específico deve corresponder a uma etapa executável e a um resultado verificável.');
+
+  if(cheio(v('e5','objetivoGeral')) && !cheio(v('e4','naoSeSabe')))
+    add('critico','Coerência','Existe objetivo definido sem lacuna correspondente.','O objetivo está flutuando. Volte à estação 4 e ancore-o.');
+
+  if(fs.length === 0)
+    add('critico','Estação 6','Nenhum formato de entrega foi definido.','Sem destino editorial, o texto tende a não encontrar casa e o cronograma perde referência.');
+
+  if(fs.includes('Artigo científico') && !cheio(en.revista))
+    add('critico','Estação 6','Artigo previsto sem revista alvo.','A revista define extensão, estrutura, idioma e tipo de dado. Escolha antes de escrever.');
+
+  if(fs.includes('Artigo científico') && cheio(en.revista) && !cheio(en.revista2))
+    add('atencao','Estação 6','Apenas uma revista listada.','Rejeição é rotina. Tenha ao menos duas alternativas definidas de antemão.');
+
+  if(fs.includes('Produto Técnico e Tecnológico')){
+    if(!cheio(en.tipoProduto))
+      add('critico','Estação 6','Produto técnico previsto sem tipo definido.','Cartilha, protocolo, aplicativo, dashboard e plano de gestão exigem métodos de construção diferentes.');
+    if(!cheio(en.usuario))
+      add('critico','Estação 6','O produto não tem usuário descrito.','Produto sem cena de uso é material sem destino. Descreva quem usa, quando e para decidir o quê.');
+    if(!(en.hospedagem||[]).length || (en.hospedagem||[]).includes('Ainda não definido'))
+      add('atencao','Estação 6','Hospedagem e registro do produto ainda indefinidos.','Sem registro formal, o produto não é reconhecido na avaliação do programa.');
+    if(!cheio(en.validacao))
+      add('critico','Estação 6','Nenhum plano de validação do produto.','Produto sem teste com usuários reais é a falha mais comum na avaliação de programas profissionais.');
+    if(!cheio(en.diferencial))
+      add('atencao','Estação 6','Não foi declarado o que já existe de semelhante.','Sem esse levantamento, não há como sustentar inovação nem justificar a necessidade do produto.');
+  }
+
+  if(nivel.indexOf('profissional') > -1 && !fs.includes('Produto Técnico e Tecnológico'))
+    add('critico','Coerência','O nível declarado é profissional, mas não há produto técnico entre os formatos previstos.','Nos programas profissionais o produto é exigência formativa, não alternativa.');
+
+  const pub = texto(v('e7','publico')).toLowerCase();
+  if(cheio(pub) && (pub.length < 45 || VAGOS.some(t=>pub === t || pub.replace(/[.]/g,'').trim() === t)))
+    add('atencao','Estação 7','A definição do público está genérica.','Nomeie função, instituição e território. Público difuso produz linguagem difusa.');
+
+  if(fs.includes('Produto Técnico e Tecnológico') && cheio(pub) && (pub.includes('cientific') || pub.includes('científ') || pub.includes('acadêmic') || pub.includes('academic')))
+    add('critico','Coerência','O produto técnico é destinado a público acadêmico.','Existe contradição. O produto técnico existe justamente para alcançar quem está fora da universidade. Reveja a estação 7 ou o formato escolhido.');
+
+  if(!cheio(v('e7','oQueMuda')))
+    add('atencao','Estação 7','Não está dito o que muda na prática do público.','Se o efeito esperado é apenas informar, o alcance previsto ainda é fraco.');
+
+  const perfis = v('e8','perfis');
+  if(!Array.isArray(perfis) || perfis.length === 0)
+    add('atencao','Estação 8','Nenhum perfil de pesquisador criado ou atualizado.','Sem Lattes e ORCID atualizados, seu trabalho não é encontrado nem contabilizado.');
+
+  const metas = texto(v('e8','metas'));
+  if(cheio(metas) && !/\d{4}|jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez/i.test(metas))
+    add('atencao','Estação 8','As metas de visibilidade estão sem data.','Meta sem prazo não é meta. Acrescente mês e ano a cada linha.');
+  if(!cheio(metas))
+    add('atencao','Estação 8','Nenhuma meta de visibilidade registrada.','Defina ao menos três, com data, para o próximo ano.');
+
+  if(!cheio(v('e9','paraQuem')))
+    add(nivel.indexOf('profissional')>-1 ? 'critico' : 'atencao','Estação 9','Não há destinatário da devolutiva.','Quem cedeu dado, tempo ou acesso tem direito ao retorno. É obrigação ética antes de ser exigência de avaliação.');
+
+  if(cheio(v('e9','paraQuem')) && !cheio(v('e9','quando')))
+    add('atencao','Estação 9','Devolutiva prevista sem data.','Devolutiva sem data marcada raramente acontece.');
+
+  if(cheio(v('e9','paraQuem')) && !cheio(v('e9','comoRegistra')))
+    add('atencao','Estação 9','A devolutiva não terá registro documental.','Sem lista, ata, ofício ou registro fotográfico, a devolutiva existe mas não pode ser comprovada.');
+
+  const horas = parseInt(v('e10','tempo')||'0',10);
+  if(horas > 0 && horas < 10)
+    add('atencao','Estação 10','Apenas '+horas+' horas semanais disponíveis.','Com essa carga, reduza o escopo do projeto agora, e não no último semestre.');
+
+  if(cheio(v('e10','dadosFaltam')) && !cheio(v('e10','precisoAprender')))
+    add('atencao','Estação 10','Há dados faltantes sem plano de capacitação correspondente.','Verifique se obter e tratar esses dados exige alguma técnica que você ainda não domina.');
+
+  if(!cheio(v('e10','riscos')))
+    add('atencao','Estação 10','Nenhum risco identificado.','Todo projeto tem três. Nomeá-los agora é mais barato do que descobri-los depois.');
+
+  const dep = texto(v('e10','dadosFaltam')).toLowerCase();
+  if((dep.includes('ética') || dep.includes('etica') || dep.includes('autoriza') || dep.includes('licen')) && !cheio(v('e10','riscos')))
+    add('critico','Estação 10','Há dependência de autorização ou comitê de ética sem plano de contingência.','Esses trâmites levam meses. Inclua os prazos no cronograma imediatamente.');
+
+  if(ehFinal()){
+    const d10 = estado.dados.e10 || {};
+    if(!cheio(d10.sitColeta))
+      add('atencao','Diagnóstico de estado','A situação da coleta não foi declarada.','Na fase final, saber exatamente onde a coleta parou é mais urgente do que qualquer refinamento conceitual.');
+    if(d10.sitColeta === 'Não iniciada')
+      add('critico','Diagnóstico de estado','A coleta ainda não começou e o percurso está na fase final.','Renegocie escopo e prazo com o orientador esta semana. Adiar essa conversa é a decisão mais cara disponível agora.');
+    if(d10.sitColeta === 'Em andamento, com atraso')
+      add('atencao','Diagnóstico de estado','A coleta está em atraso.','Defina hoje qual parte dos dados é indispensável e qual pode ser abandonada sem comprometer a resposta à pergunta central.');
+    if(fs.includes('Artigo científico') && d10.sitEscrita === 'Não iniciada')
+      add('critico','Diagnóstico de estado','Artigo previsto e redação não iniciada na fase final.','Escrever a seção de métodos não depende de ter todos os resultados. Comece por ela ainda esta semana.');
+    if(fs.includes('Produto Técnico e Tecnológico') && (d10.sitProduto === 'Não iniciado' || d10.sitProduto === 'Em construção'))
+      add('critico','Diagnóstico de estado','O produto técnico não está pronto para validação e o prazo é curto.','A validação com usuários reais exige agenda de terceiros. Sem uma versão utilizável agora, não haverá tempo de testar, corrigir e documentar evidência.');
+    if(fs.includes('Produto Técnico e Tecnológico') && d10.sitProduto === 'Primeira versão pronta, sem validação')
+      add('atencao','Diagnóstico de estado','Existe versão do produto, mas ainda sem validação.','Produto sem teste com usuários reais é a falha mais comum na avaliação. Marque a aplicação piloto antes de continuar refinando o material.');
+    const atraso = parseInt(d10.atraso||'0',10);
+    if(atraso >= 8)
+      add('critico','Diagnóstico de estado','Atraso acumulado de '+atraso+' semanas.','Acima de dois meses, ajustar o ritmo não resolve. O que resolve é cortar escopo, e essa decisão precisa ser tomada com o orientador, por escrito.');
+    else if(atraso >= 4)
+      add('atencao','Diagnóstico de estado','Atraso acumulado de '+atraso+' semanas.','Ainda é recuperável, mas só com redução de alguma frente. Verifique o campo sobre o que sairia primeiro.');
+    if(!cheio(d10.travas))
+      add('atencao','Diagnóstico de estado','Nenhuma trava identificada.','Na fase final sempre existe pelo menos uma. Trava não nomeada é trava que ninguém está resolvendo.');
+    if(!cheio(d10.proxEntrega))
+      add('atencao','Diagnóstico de estado','Nenhuma entrega concreta com data.','Sem próxima entrega definida, as semanas passam sem marco de verificação.');
+    if(!cheio(d10.corte))
+      add('atencao','Diagnóstico de estado','Não há plano de redução de escopo.','Decidir o que cortar agora, com calma, é diferente de decidir em pânico dois meses antes da defesa.');
+    if(cheio(v('e1','defesa')) && d10.sitProduto === 'Entregue e registrado' && !cheio(v('e9','quando')))
+      add('atencao','Coerência','Produto entregue e registrado, mas sem devolutiva agendada.','A devolutiva é a evidência de impacto mais forte disponível. Não a perca por falta de data.');
+  }
+
+  const pcAtual = Math.round(camposPreenchidos()/totalCampos()*100);
+  if(pcAtual < 70)
+    add('atencao','Percurso','O percurso está preenchido em '+pcAtual+'%.','O diagnóstico examina apenas o que foi escrito. Campo vazio não gera alerta, mas também não gera orientação. Complete as estações antes de tratar a ausência de alertas como sinal de que está tudo resolvido.');
+
+  if(A.filter(x=>x.nivel !== 'ok').length === 0)
+    add('ok','Percurso','Nenhuma incoerência estrutural detectada.','As dez estações estão preenchidas de forma consistente. Leve o panorama para a reunião de orientação e use os alertas resolvidos como pauta.');
+
+  return A;
+}
+
+/* =======================================================================
+   PANORAMA
+   ======================================================================= */
+function ou(x, alt){ return cheio(x) ? escapar(x) : `<span class="nulo">${alt||'não informado'}</span>`; }
+function bloco(titulo, pares){
+  const linhas = pares.filter(p=>p).map(([r,val])=>`<dt>${escapar(r)}</dt><dd>${cheio(val)?escapar(val):'<span class="nulo">não informado</span>'}</dd>`).join('');
+  return `<div class="secao-pan"><h3 class="serif">${escapar(titulo)}</h3><dl class="ficha">${linhas}</dl></div>`;
+}
+function desenharPainel(){
+  const d = diagnosticar();
+  const nC = d.filter(x=>x.nivel==='critico').length;
+  const nA = d.filter(x=>x.nivel==='atencao').length;
+  const pc = Math.round(camposPreenchidos()/totalCampos()*100);
+  const en = estado.entrega, fs = en.formatos||[];
+
+  const nome = texto(v('e1','nome')) || 'O pesquisador';
+  const niv = texto(v('e1','nivel')) || 'pós-graduação';
+  const prog = texto(v('e1','programa'));
+  const inst = texto(v('e1','instituicao'));
+
+  let n1 = `${escapar(nome)} cursa ${escapar(niv.toLowerCase())}`;
+  if(prog) n1 += ` no programa ${escapar(prog)}`;
+  if(inst) n1 += `, na ${escapar(inst)}`;
+  if(cheio(v('e1','linha'))) n1 += `, na linha de pesquisa ${escapar(v('e1','linha'))}`;
+  if(cheio(v('e1','orientador'))) n1 += `, sob orientação de ${escapar(v('e1','orientador'))}`;
+  n1 += '. ';
+  if(cheio(v('e1','incomodo'))) n1 += `O percurso nasce do seguinte incômodo: ${escapar(v('e1','incomodo'))} `;
+  if(cheio(v('e2','referencia'))) n1 += `A leitura que reorganizou essa percepção foi ${escapar(v('e2','referencia'))}`;
+  if(cheio(v('e2','semResposta'))) n1 += `, que deixou em aberto o seguinte: ${escapar(v('e2','semResposta'))}`;
+  if(cheio(v('e2','referencia'))) n1 += '.';
+
+  let n2 = '';
+  if(cheio(v('e4','naoSeSabe'))) n2 += `A lacuna identificada é: ${escapar(v('e4','naoSeSabe'))} `;
+  if(cheio(v('e5','pergunta'))) n2 += `Daí decorre a pergunta central: ${escapar(v('e5','pergunta'))} `;
+  if(cheio(v('e5','objetivoGeral'))) n2 += `O objetivo geral é ${escapar(v('e5','objetivoGeral'))} `;
+  if(fs.length) n2 += `A entrega assumirá o formato de ${escapar(fs.join(', ').toLowerCase())}. `;
+  if(cheio(v('e7','publico'))) n2 += `O público primário é ${escapar(v('e7','publico'))}`;
+  if(!n2) n2 = '<span class="nulo">As estações do bloco Para onde vou ainda não foram preenchidas.</span>';
+
+  let n3 = '';
+  if(cheio(v('e9','paraQuem'))) n3 += `O retorno dos resultados será feito a ${escapar(v('e9','paraQuem'))}`;
+  if(cheio(v('e9','quando'))) n3 += `, em ${escapar(v('e9','quando'))}`;
+  if(n3) n3 += '. ';
+  if(cheio(v('e10','tempo'))) n3 += `A carga semanal declarada é de ${escapar(v('e10','tempo'))} horas. `;
+  if(cheio(v('e1','defesa'))) n3 += `A defesa está prevista para ${escapar(v('e1','defesa'))}. `;
+  if(ehIngressante()) n3 += `O percurso está declarado como fase inicial, de modo que as estações 5 a 9 ainda não foram diagnosticadas.`;
+  if(ehFinal() && cheio(v('e10','proxEntrega'))) n3 += `A próxima entrega concreta é ${escapar(v('e10','proxEntrega'))}.`;
+  if(!n3) n3 = '<span class="nulo">As estações do bloco Como chego ainda não foram preenchidas.</span>';
+
+  const autoresHTML = estado.autores.length ? estado.autores.map((a,i)=>`
+    <div class="secao-pan" style="margin-bottom:16px">
+      <dl class="ficha">
+        <dt>Autor ${i+1}</dt><dd>${ou(a.nome)} ${a.papel?'&middot; '+escapar(a.papel):''}</dd>
+        <dt>Vínculo</dt><dd>${ou(a.instituicao)}${a.pais?', '+escapar(a.pais):''}${a.grupo?' &middot; '+escapar(a.grupo):''}</dd>
+        <dt>Perfil</dt><dd>${ou(a.perfil,'perfil não consultado')}</dd>
+        <dt>Produção além da obra lida</dt><dd>${ou(a.produzAlem)}</dd>
+        <dt>Interseção com o seu trabalho</dt><dd>${ou(a.intersecao)}</dd>
+        <dt>Aproximação</dt><dd>${(a.aproximacao&&a.aproximacao.length)?escapar(a.aproximacao.join('; ')):'<span class="nulo">não definida</span>'}</dd>
+        <dt>Ação e prazo</dt><dd>${ou(a.acao,'sem ação definida')} ${a.status?'&middot; '+escapar(a.status):''}</dd>
+      </dl>
+    </div>`).join('') : '<p class="nulo">Nenhum autor mapeado.</p>';
+
+  let entregaPares = [['Formatos previstos', fs.join(', ')]];
+  if(fs.includes('Artigo científico')){
+    entregaPares.push(['Revista alvo', en.revista], ['Estrato ou impacto', en.qualis],
+      ['Justificativa da escolha', en.porQueRevista], ['Alternativas', [en.revista2,en.revista3].filter(Boolean).join(' | ')],
+      ['Prazo de submissão', en.prazoArtigo]);
+  }
+  if(fs.includes('Produto Técnico e Tecnológico')){
+    entregaPares.push(['Tipo de produto', en.tipoProduto], ['Nome provisório', en.nomeProduto],
+      ['Usuário e cena de uso', en.usuario], ['Hospedagem e registro', (en.hospedagem||[]).join(', ')],
+      ['Plano de validação', en.validacao], ['Evidências previstas', en.evidencias],
+      ['Diferencial', en.diferencial], ['Prazo da primeira versão', en.prazoProduto]);
+  }
+  if(cheio(en.outros)) entregaPares.push(['Outras entregas', en.outros]);
+
+  document.getElementById('conteudoPainel').innerHTML = `
+    <div class="fase-tag" style="background:${ehIngressante()?'#EEF4F6':(ehFinal()?'#FEF0EE':'#F2F7E9')};color:${ehIngressante()?'var(--azul)':(ehFinal()?'var(--critico)':'var(--ok)')};border:2px solid ${ehIngressante()?'var(--azul)':(ehFinal()?'var(--critico)':'var(--ok)')}">Momento do percurso: ${escapar(faseAtual())}</div>
+    <div class="placar">
+      <div class="metro"><b>${pc}%</b><span>Preenchimento</span></div>
+      <div class="metro"><b>${estado.autores.length}</b><span>Autores mapeados</span></div>
+      <div class="metro"><b style="color:${nC?'var(--critico)':'var(--ok)'}">${nC}</b><span>Pontos críticos</span></div>
+      <div class="metro"><b style="color:${nA?'var(--atencao)':'var(--ok)'}">${nA}</b><span>Pontos de atenção</span></div>
+    </div>
+
+    <div class="secao-pan"><h3 class="serif">Leitura do percurso</h3>
+      <p class="narrativa"><b>Onde estou. </b>${n1}</p>
+      <p class="narrativa"><b>Para onde vou. </b>${n2}</p>
+      <p class="narrativa"><b>Como chego. </b>${n3}</p>
+    </div>
+
+    <div class="secao-pan"><h3 class="serif">Diagnóstico de coerência</h3>
+      ${d.map(x=>`<div class="alerta ${x.nivel}"><b>${escapar(x.est)}: ${escapar(x.texto)}</b><em>${escapar(x.saida)}</em></div>`).join('')}
+    </div>
+
+    ${bloco('Estação 1. Ponto de partida', [
+      ['Instituição e programa', [inst,prog].filter(Boolean).join(' | ')],
+      ['Nível', v('e1','nivel')], ['Momento do percurso', v('e1','momento')],
+      ['Área', v('e1','area')], ['Linha de pesquisa', v('e1','linha')],
+      ['Grupo ou laboratório', v('e1','grupo')],
+      ['Orientação', [v('e1','orientador'),v('e1','coorientador')].filter(Boolean).join(' | ')],
+      ['Ingresso e defesa prevista', [v('e1','ingresso'),v('e1','defesa')].filter(Boolean).join(' | ')],
+      ['Trajetória', v('e1','trajetoria')], ['Incômodo de origem', v('e1','incomodo')],
+      ['Expectativa ao final', v('e1','expectativa')]
+    ])}
+
+    ${bloco('Estação 2. Texto inspirador', [
+      ['Referência', v('e2','referencia')], ['Natureza', v('e2','tipo')],
+      ['Acesso', v('e2','link')], ['Como chegou ao texto', v('e2','comoChegou')],
+      ['O que mudou na sua percepção', v('e2','oQueMexeu')], ['Trecho marcante', v('e2','trecho')],
+      ['O que ficou sem resposta', v('e2','semResposta')], ['Ao aplicar ao seu contexto', v('e2','noSeuContexto')]
+    ])}
+
+    <div class="secao-pan"><h3 class="serif">Estação 3. Constelação de autores</h3>${autoresHTML}</div>
+
+    ${bloco('Estação 4. A lacuna', [
+      ['O que já se sabe', v('e4','jaSeSabe')], ['O que não se sabe', v('e4','naoSeSabe')],
+      ['Evidência da busca', v('e4','evidencia')],
+      ['Referências consultadas', v('e4','nRefs')], ['Bases consultadas', v('e4','bases')],
+      ['Por que importa fora da academia', v('e4','porQueImporta')]
+    ])}
+
+    ${bloco('Estação 5. O projeto', [
+      ['Título provisório', v('e5','titulo')], ['Pergunta central', v('e5','pergunta')],
+      ['Objetivo geral', v('e5','objetivoGeral')], ['Objetivos específicos', v('e5','objetivosEsp')],
+      ['Recorte', [v('e5','territorio'),v('e5','temporal')].filter(Boolean).join(' | ')],
+      ['Abordagem e finalidade', [v('e5','abordagem'),v('e5','finalidade')].filter(Boolean).join(' | ')],
+      ['Hipótese ou pressuposto', v('e5','hipotese')], ['Estratégia predominante', v('e5','delineamento')]
+    ])}
+
+    ${bloco('Estação 6. Formato da entrega', entregaPares)}
+
+    ${bloco('Estação 7. Público e alcance', [
+      ['Público primário', v('e7','publico')], ['Onde está', v('e7','onde')],
+      ['O que muda na prática', v('e7','oQueMuda')], ['Barreiras', v('e7','barreiras')],
+      ['Adaptação de linguagem', v('e7','adaptacao')], ['Público secundário', v('e7','publicoSec')]
+    ])}
+
+    ${bloco('Estação 8. Plano de visibilidade', [
+      ['Identidade digital', (v('e8','perfis')||[]).join(', ')],
+      ['Eventos alvo', v('e8','eventos')], ['Divulgação fora da academia', v('e8','divulgacao')],
+      ['Parceiros amplificadores', v('e8','parceiros')], ['Metas com data', v('e8','metas')],
+      ['Registro e proteção', (v('e8','registroProd')||[]).join(', ')]
+    ])}
+
+    ${bloco('Estação 9. Devolutiva', [
+      ['Destinatários', v('e9','paraQuem')], ['Formato', (v('e9','formato')||[]).join(', ')],
+      ['Quando e onde', [v('e9','quando'),v('e9','onde')].filter(Boolean).join(' | ')],
+      ['Documentação', v('e9','comoRegistra')], ['Compromisso assumido', v('e9','compromisso')]
+    ])}
+
+    ${bloco('Estação 10. Recursos e viabilidade', [
+      ['Competências disponíveis', v('e10','seiFazer')], ['A aprender', v('e10','precisoAprender')],
+      ['Dados em mãos', v('e10','dadosTenho')], ['Dados faltantes e dependências', v('e10','dadosFaltam')],
+      ['Horas semanais', v('e10','tempo')], ['Financiamento', v('e10','financiamento')],
+      ['Riscos e planos B', v('e10','riscos')]
+    ])}
+
+    ${ehFinal() ? bloco('Diagnóstico de estado', [
+      ['Coleta ou levantamento', v('e10','sitColeta')],
+      ['Redação', v('e10','sitEscrita')],
+      ['Produto técnico', v('e10','sitProduto')],
+      ['Travas atuais', v('e10','travas')],
+      ['Atraso acumulado em semanas', v('e10','atraso')],
+      ['Próxima entrega', v('e10','proxEntrega')],
+      ['Primeiro corte de escopo', v('e10','corte')]
+    ]) : ''}
+
+    <p style="font-size:12px;color:var(--cinza);border-top:1px solid var(--linha);padding-top:12px">
+      ASTROLÁBIO. Concepção de Ernandes Sobreira e Carla Galbiati, UNEMAT.
+      Panorama gerado em ${new Date().toLocaleDateString('pt-BR')}.
+    </p>`;
+}
+
+/* =======================================================================
+   MAPA MENTAL
+   ======================================================================= */
+function quebrar(txt, max){
+  const palavras = texto(txt).replace(/\s+/g,' ').split(' ');
+  const linhas = []; let atual = '';
+  palavras.forEach(p=>{
+    if((atual + ' ' + p).trim().length <= max) atual = (atual + ' ' + p).trim();
+    else { if(atual) linhas.push(atual); atual = p; }
+  });
+  if(atual) linhas.push(atual);
+  return linhas;
+}
+function cortar(txt, maxLinhas, max){
+  let l = quebrar(txt, max);
+  if(l.length > maxLinhas){ l = l.slice(0, maxLinhas); l[maxLinhas-1] = l[maxLinhas-1].replace(/[,;.]?$/,'') + '...'; }
+  return l;
+}
+function cartao(x, y, w, titulo, conteudo, cor, maxL){
+  const linhas = cheio(conteudo) ? cortar(conteudo, maxL||4, Math.floor(w/6.4)) : ['não informado'];
+  const vazio = !cheio(conteudo);
+  const h = 30 + linhas.length * 15 + 12;
+  let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#ffffff" stroke="${cor}" stroke-width="1.8"/>`;
+  s += `<rect x="${x}" y="${y}" width="${w}" height="21" rx="6" fill="${cor}"/>`;
+  s += `<rect x="${x}" y="${y+14}" width="${w}" height="7" fill="${cor}"/>`;
+  s += `<text x="${x+9}" y="${y+15}" font-size="10.5" font-weight="700" fill="#ffffff" letter-spacing="0.7">${escapar(titulo.toUpperCase())}</text>`;
+  linhas.forEach((l,i)=>{
+    s += `<text x="${x+9}" y="${y+38+i*15}" font-size="11.5" fill="${vazio?'#a8b2b8':'#12303a'}" ${vazio?'font-style="italic"':''}>${escapar(l)}</text>`;
+  });
+  return {svg:s, h};
+}
+function seta(x1,y1,x2,y2,cor){
+  return `<line x1="${x1}" y1="${y1}" x2="${x2-9}" y2="${y2}" stroke="${cor}" stroke-width="2"/>
+          <polygon points="${x2},${y2} ${x2-10},${y2-5} ${x2-10},${y2+5}" fill="${cor}"/>`;
+}
+function montarSVG(){
+  const AZ='#0d4f5c', TE='#b4611f', VD='#1a6b48', CZ='#5b6670';
+  const en = estado.entrega, fs = en.formatos||[];
+  const colW = 290, gap = 42, x0 = 40;
+  const cx = [0,1,2,3,4].map(i=>x0 + i*(colW+gap));
+  const largura = cx[4] + colW + 40;
+  const topo = 96;
+  const colunas = [[],[],[],[],[]];
+
+  // coluna 1 origem
+  colunas[0].push(['Incômodo de origem', v('e1','incomodo'), AZ, 4]);
+  colunas[0].push(['Texto inspirador', v('e2','referencia'), AZ, 4]);
+  colunas[0].push(['Ficou sem resposta', v('e2','semResposta'), AZ, 4]);
+  const listaAut = estado.autores.filter(a=>cheio(a.nome)).slice(0,5)
+    .map(a=>a.nome + (a.instituicao? ' ('+a.instituicao+')' : '')).join('; ');
+  colunas[0].push(['Constelação de autores', listaAut, CZ, 6]);
+
+  // coluna 2 lacuna
+  colunas[1].push(['O que já se sabe', v('e4','jaSeSabe'), CZ, 4]);
+  colunas[1].push(['A lacuna', v('e4','naoSeSabe'), TE, 6]);
+  colunas[1].push(['Por que importa', v('e4','porQueImporta'), TE, 4]);
+
+  // coluna 3 projeto
+  colunas[2].push(['Pergunta central', v('e5','pergunta'), AZ, 5]);
+  colunas[2].push(['Objetivo geral', v('e5','objetivoGeral'), AZ, 5]);
+  colunas[2].push(['Recorte e estratégia',
+    [v('e5','territorio'), v('e5','temporal'), v('e5','abordagem'), v('e5','delineamento')].filter(Boolean).join(' | '), CZ, 4]);
+
+  // coluna 4 entrega
+  colunas[3].push(['Formatos', fs.join('; '), TE, 4]);
+  if(fs.includes('Artigo científico'))
+    colunas[3].push(['Revista alvo', [en.revista, en.qualis, en.prazoArtigo].filter(Boolean).join(' | '), TE, 4]);
+  if(fs.includes('Produto Técnico e Tecnológico')){
+    colunas[3].push(['Produto técnico', [en.tipoProduto, en.nomeProduto].filter(Boolean).join(' | '), TE, 3]);
+    colunas[3].push(['Hospedagem e registro', (en.hospedagem||[]).join('; '), TE, 4]);
+    colunas[3].push(['Validação', en.validacao, TE, 4]);
+  }
+
+  // coluna 5 alcance
+  colunas[4].push(['Público primário', v('e7','publico'), VD, 5]);
+  colunas[4].push(['O que muda na prática', v('e7','oQueMuda'), VD, 4]);
+  colunas[4].push(['Visibilidade', v('e8','metas'), VD, 5]);
+  colunas[4].push(['Devolutiva', [v('e9','paraQuem'), v('e9','quando')].filter(Boolean).join(' | '), VD, 4]);
+
+  let corpo = '', alturas = [];
+  const centros = [];
+  colunas.forEach((col, ci)=>{
+    let y = topo, primeiro = null;
+    col.forEach(([t, c, cor, ml])=>{
+      const r = cartao(cx[ci], y, colW, t, c, cor, ml);
+      corpo += r.svg;
+      if(primeiro === null) primeiro = y + r.h/2;
+      y += r.h + 14;
+    });
+    alturas.push(y);
+    centros.push(primeiro || topo+30);
+  });
+  const maxY = Math.max.apply(null, alturas);
+
+  // trilha inferior
+  const marcos = [];
+  if(cheio(v('e1','ingresso'))) marcos.push('Ingresso: ' + v('e1','ingresso'));
+  estado.autores.filter(a=>cheio(a.acao)).slice(0,2).forEach(a=>marcos.push('Contato ' + (a.nome||'autor') + ': ' + a.acao));
+  if(cheio(en.prazoProduto)) marcos.push('Produto: ' + en.prazoProduto);
+  if(cheio(en.prazoArtigo)) marcos.push('Submissão: ' + en.prazoArtigo);
+  if(cheio(v('e9','quando'))) marcos.push('Devolutiva: ' + v('e9','quando'));
+  if(cheio(v('e1','defesa'))) marcos.push('Defesa: ' + v('e1','defesa'));
+
+  const yTrilha = maxY + 34;
+  let trilha = `<text x="${x0}" y="${yTrilha-10}" font-size="11" font-weight="700" fill="${TE}" letter-spacing="1.4">CAMINHO E MARCOS TEMPORAIS</text>`;
+  trilha += `<line x1="${x0}" y1="${yTrilha+22}" x2="${largura-40}" y2="${yTrilha+22}" stroke="${TE}" stroke-width="2.5"/>`;
+  if(marcos.length){
+    const passo = (largura - 80) / Math.max(1, marcos.length);
+    marcos.forEach((m,i)=>{
+      const mx = x0 + passo*i + passo/2;
+      trilha += `<circle cx="${mx}" cy="${yTrilha+22}" r="6" fill="#ffffff" stroke="${TE}" stroke-width="2.5"/>`;
+      cortar(m, 3, 26).forEach((l,j)=>{
+        trilha += `<text x="${mx}" y="${yTrilha+46+j*13}" font-size="10.5" fill="#12303a" text-anchor="middle">${escapar(l)}</text>`;
+      });
+    });
+  } else {
+    trilha += `<text x="${x0}" y="${yTrilha+52}" font-size="11.5" fill="#a8b2b8" font-style="italic">Nenhum marco temporal definido. Preencha os prazos nas estações 3, 6, 9 e 1.</text>`;
+  }
+
+  const altura = yTrilha + 108;
+
+  // cabeçalhos de coluna e setas
+  const rot = ['ORIGEM','LACUNA','PROJETO','ENTREGA','ALCANCE'];
+  const cores = [AZ,TE,AZ,TE,VD];
+  let heads = '';
+  rot.forEach((r,i)=>{
+    heads += `<rect x="${cx[i]}" y="${topo-34}" width="${colW}" height="22" rx="3" fill="${cores[i]}" opacity="0.09"/>`;
+    heads += `<text x="${cx[i]+colW/2}" y="${topo-19}" font-size="11.5" font-weight="700" fill="${cores[i]}" text-anchor="middle" letter-spacing="2.2">${r}</text>`;
+  });
+  let setas = '';
+  for(let i=0;i<4;i++){
+    setas += seta(cx[i]+colW+4, centros[i], cx[i+1]-4, centros[i+1], '#93a5ad');
+  }
+
+  const nome = texto(v('e1','nome'));
+  const titulo = texto(v('e5','titulo')) || texto(v('e1','programa')) || 'Percurso de pesquisa';
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${largura} ${altura}" width="${largura}" height="${altura}" font-family="Helvetica, Arial, sans-serif">
+  <rect width="${largura}" height="${altura}" fill="#ffffff"/>
+  <text x="${x0}" y="34" font-size="19" font-weight="700" fill="${AZ}" font-family="Georgia, serif">${escapar(cortar(titulo,1,90)[0])}</text>
+  <text x="${x0}" y="53" font-size="12" fill="${CZ}">${escapar(nome)}${nome && cheio(v('e1','programa'))?' &#183; ':''}${escapar(v('e1','programa'))}</text>
+  <text x="${largura-40}" y="34" font-size="13" font-weight="700" fill="${AZ}" text-anchor="end" letter-spacing="2.4">ASTROLÁBIO</text>
+  <text x="${largura-40}" y="51" font-size="10" fill="${CZ}" text-anchor="end">Mapa do percurso acadêmico</text>
+  <line x1="${x0}" y1="64" x2="${largura-40}" y2="64" stroke="${AZ}" stroke-width="1.5"/>
+  ${heads}${setas}${corpo}${trilha}
+  <text x="${x0}" y="${altura-16}" font-size="9.5" fill="${CZ}">ASTROLÁBIO &#183; concepção de Ernandes Sobreira e Carla Galbiati &#183; UNEMAT &#183; gerado em ${new Date().toLocaleDateString('pt-BR')}</text>
+</svg>`;
+}
+function desenharMapa(){ document.getElementById('caixaMapa').innerHTML = montarSVG(); }
+
+function nomeArquivo(ext){
+  const n = texto(v('e1','nome')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'percurso';
+  return 'astrolabio-' + n + '.' + ext;
+}
+function baixarBlob(blob, nome){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nome; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url), 1200);
+}
+function baixarSVG(){
+  baixarBlob(new Blob([montarSVG()], {type:'image/svg+xml;charset=utf-8'}), nomeArquivo('svg'));
+}
+function baixarPNG(){
+  const svg = montarSVG();
+  const m = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+  const w = m ? parseFloat(m[1]) : 1600, h = m ? parseFloat(m[2]) : 900;
+  const escala = 2;
+  const img = new Image();
+  const blob = new Blob([svg], {type:'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  img.onload = function(){
+    const cv = document.createElement('canvas');
+    cv.width = w*escala; cv.height = h*escala;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.drawImage(img, 0, 0, cv.width, cv.height);
+    URL.revokeObjectURL(url);
+    cv.toBlob(b => baixarBlob(b, nomeArquivo('png')), 'image/png');
+  };
+  img.onerror = function(){
+    URL.revokeObjectURL(url);
+    alert('Não foi possível gerar o PNG neste navegador. Use o botão Baixar SVG, que abre em qualquer editor de imagem.');
+  };
+  img.src = url;
+}
+
+/* =======================================================================
+   EXPORTAR E IMPORTAR
+   ======================================================================= */
+function exportar(){
+  estado.atualizadoEm = new Date().toISOString();
+  baixarBlob(new Blob([JSON.stringify(estado, null, 2)], {type:'application/json'}), nomeArquivo('json'));
+}
+function importar(ev){
+  const f = ev.target.files[0]; if(!f) return;
+  const leitor = new FileReader();
+  leitor.onload = function(e){
+    try{
+      const o = JSON.parse(e.target.result);
+      if(!o || typeof o !== 'object' || !o.dados) throw new Error('estrutura');
+      if(!confirm('Isto substituirá o percurso atualmente aberto. Continuar?')) return;
+      estado = Object.assign({versao:1, dados:{}, autores:[], entrega:{formatos:[]}}, o);
+      if(!Array.isArray(estado.autores)) estado.autores = [];
+      if(!estado.entrega) estado.entrega = {formatos:[]};
+      if(!Array.isArray(estado.entrega.formatos)) estado.entrega.formatos = [];
+      salvar(); abrirEstacao(0);
+      alert('Percurso carregado.');
+    }catch(err){
+      alert('Arquivo inválido. Selecione um arquivo gerado pelo próprio ASTROLÁBIO.');
+    }
+  };
+  leitor.readAsText(f);
+  ev.target.value = '';
+}
+function limpar(){
+  if(!confirm('Isto apaga todas as respostas deste dispositivo. Você baixou uma cópia?')) return;
+  if(!confirm('Confirma o apagamento definitivo?')) return;
+  Cofre.apagar(CHAVE);
+  estado = { versao:1, criadoEm:new Date().toISOString(), atualizadoEm:null, dados:{}, autores:[], entrega:{formatos:[]} };
+  salvar(); abrirEstacao(0);
+}
+
+/* =======================================================================
+   INÍCIO
+   ======================================================================= */
+/* =======================================================================
+   ASTROLÁBIO INTERATIVO
+   As dez estações são as dez estrelas da rete, em espiral do centro
+   (o incômodo de origem) até a borda (o alcance público). A régua
+   aponta para uma estação por vez. Girar o instrumento é navegar nele.
+   ======================================================================= */
+const CX = 310, CY = 372, RAIO = 280;
+let anguloRete = 0, anguloRegua = 18;
+let inerciaRete = 0.055, inerciaRegua = 0;
+let arrastando = null, ultimoAngulo = 0, deslocado = 0, ultimoDelta = 0;
+let laco = null;
+
+function pol(a, r){ const rad = (a - 90) * Math.PI / 180; return [CX + r*Math.cos(rad), CY + r*Math.sin(rad)]; }
+function f(n){ return Math.round(n*100)/100; }
+
+function estrelaPos(i){ return { a: i*36, r: 78 + i*13.6 }; }
+
+function glifoEstrela(x, y, tam, ativa){
+  const p = [];
+  for(let k=0;k<8;k++){
+    const ang = (k*45) * Math.PI/180;
+    const rr = (k%2===0) ? tam : tam*0.42;
+    p.push(f(x + rr*Math.cos(ang - Math.PI/2)) + ',' + f(y + rr*Math.sin(ang - Math.PI/2)));
+  }
+  if(ativa){
+    return `<circle cx="${f(x)}" cy="${f(y)}" r="${tam*1.9}" fill="#C48A1F" opacity="0.16"/>
+            <polygon points="${p.join(' ')}" fill="#C48A1F" stroke="#8E6413" stroke-width="1.2"/>
+            <circle cx="${f(x)}" cy="${f(y)}" r="${tam*0.28}" fill="#FFF6E2"/>`;
+  }
+  return `<polygon points="${p.join(' ')}" fill="#FFFFFF" stroke="#7A939F" stroke-width="1.8"/>`;
+}
+
+function montarAstrolabio(){
+  const pct = camposPreenchidos()/totalCampos();
+  let s = '';
+
+  /* trono e argola */
+  s += `<path d="M ${CX-26} ${112} L ${CX-16} ${64} Q ${CX} ${48} ${CX+16} ${64} L ${CX+26} ${112} Z" fill="#C9A24B" stroke="#8E6413" stroke-width="2.5"/>`;
+  s += `<circle cx="${CX}" cy="40" r="19" fill="none" stroke="#8E6413" stroke-width="7"/>`;
+  s += `<circle cx="${CX}" cy="40" r="19" fill="none" stroke="#C9A24B" stroke-width="3.5"/>`;
+
+  /* limbo externo */
+  s += `<circle cx="${CX}" cy="${CY}" r="${RAIO}" fill="#F6EFDF" stroke="#8E6413" stroke-width="6"/>`;
+  s += `<circle cx="${CX}" cy="${CY}" r="${RAIO-34}" fill="#FFFFFF" stroke="#8E6413" stroke-width="4"/>`;
+
+  /* escala de graus no limbo */
+  for(let g=0; g<360; g+=3){
+    const grande = (g % 30 === 0), medio = (g % 15 === 0);
+    const r1 = RAIO - 34, r2 = RAIO - (grande ? 22 : medio ? 15 : 9);
+    const [x1,y1] = pol(g, r1), [x2,y2] = pol(g, r2);
+    s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${grande?'#8E6413':'#B39A63'}" stroke-width="${grande?2.4:1.2}"/>`;
+    if(grande){
+      const [tx,ty] = pol(g, RAIO - 12);
+      s += `<text x="${f(tx)}" y="${f(ty+4)}" font-size="12.5" font-weight="700" fill="#7A5510" text-anchor="middle">${g}</text>`;
+    }
+  }
+
+  /* tímpano fixo: circulos, horizonte e almucantarados */
+  s += `<circle cx="${CX}" cy="${CY}" r="${RAIO-38}" fill="#FBFDFE"/>`;
+  [66,110,154,198,238].forEach((r,i)=>{
+    s += `<circle cx="${CX}" cy="${CY}" r="${r}" fill="none" stroke="#B9CBD3" stroke-width="${i===2?1.9:1.2}" ${i%2?'stroke-dasharray="3 4"':''}/>`;
+  });
+  for(let g=0; g<360; g+=15){
+    const [x1,y1] = pol(g, 30), [x2,y2] = pol(g, 240);
+    s += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="#DCE7EB" stroke-width="1"/>`;
+  }
+  /* almucantarados: arcos deslocados, recortados pelo prato */
+  s += `<clipPath id="prato"><circle cx="${CX}" cy="${CY}" r="${RAIO-38}"/></clipPath><g clip-path="url(#prato)">`;
+  [[-58,196],[-96,176],[-128,150],[-152,120],[-168,88]].forEach(([dy,r])=>{
+    s += `<circle cx="${CX}" cy="${CY+dy}" r="${r}" fill="none" stroke="#9DB8C2" stroke-width="1.15" opacity="0.75"/>`;
+  });
+  s += `<line x1="${CX-242}" y1="${CY+34}" x2="${CX+242}" y2="${CY+34}" stroke="#084C63" stroke-width="2.4"/>`;
+  s += `</g>`;
+
+  /* arco de progresso, desenhado sobre o prato */
+  const rp = RAIO - 44, varredura = pct*359.99;
+  s += `<circle cx="${CX}" cy="${CY}" r="${rp}" fill="none" stroke="#EADFC6" stroke-width="9"/>`;
+  if(varredura > 0.4){
+    const [ax,ay] = pol(0, rp), [bx,by] = pol(varredura, rp);
+    const grande = varredura > 180 ? 1 : 0;
+    s += `<path d="M ${f(ax)} ${f(ay)} A ${rp} ${rp} 0 ${grande} 1 ${f(bx)} ${f(by)}" fill="none" stroke="#A85C0A" stroke-width="9" stroke-linecap="round"/>`;
+  }
+  s += `<text x="${CX}" y="668" font-size="16" font-weight="800" fill="#A85C0A" text-anchor="middle" letter-spacing="1.2">${Math.round(pct*100)}% DO PERCURSO</text>`;
+
+  /* faixas dos tres blocos do percurso */
+  [[124,'#A85C0A'],[166,'#084C63'],[208,'#14663C']].forEach(([r,c])=>{
+    s += `<circle cx="${CX}" cy="${CY}" r="${r}" fill="none" stroke="${c}" stroke-width="2.6" opacity="0.32"/>`;
+  });
+
+  /* rete giratória */
+  let rete = '';
+  rete += `<circle cx="${CX}" cy="${CY-72}" r="146" fill="none" stroke="#A85C0A" stroke-width="4.5" opacity="0.92"/>`;
+  rete += `<circle cx="${CX}" cy="${CY-72}" r="132" fill="none" stroke="#C9A24B" stroke-width="1.6"/>`;
+  for(let g=0; g<360; g+=30){
+    const rad = (g-90)*Math.PI/180;
+    const x1 = CX + 132*Math.cos(rad), y1 = (CY-72) + 132*Math.sin(rad);
+    const x2 = CX + 146*Math.cos(rad), y2 = (CY-72) + 146*Math.sin(rad);
+    rete += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="#A85C0A" stroke-width="2"/>`;
+  }
+  /* espiral do percurso */
+  let d = '';
+  for(let t=0; t<=9.02; t+=0.06){
+    const a = t*36, r = 78 + t*13.6;
+    const [x,y] = pol(a, r);
+    d += (d ? ' L ' : 'M ') + f(x) + ' ' + f(y);
+  }
+  rete += `<path d="${d}" fill="none" stroke="#A85C0A" stroke-width="2.6" stroke-dasharray="7 5" opacity="0.75"/>`;
+  rete += `<circle cx="${CX}" cy="${CY}" r="26" fill="#FFFFFF" stroke="#A85C0A" stroke-width="3"/>`;
+  rete += `<circle cx="${CX}" cy="${CY}" r="8" fill="#084C63"/>`;
+
+  ESTACOES.forEach((e,i)=>{
+    const {a,r} = estrelaPos(i);
+    const [x,y] = pol(a, r);
+    const ativa = estacaoCompleta(e);
+    const espera = adiada(i) && !ativa;
+    let glifo;
+    if(espera){
+      glifo = `<circle cx="${f(x)}" cy="${f(y)}" r="11" fill="#FFFFFF" stroke="#B7C4CB" stroke-width="2" stroke-dasharray="4 3.5"/>`;
+    } else {
+      glifo = glifoEstrela(x, y, 12.5, ativa);
+    }
+    rete += `<g class="estrela-alvo" data-i="${i}">
+      <circle cx="${f(x)}" cy="${f(y)}" r="21" fill="#ffffff" fill-opacity="0.01" stroke="transparent"/>
+      ${glifo}
+      <circle cx="${f(x)}" cy="${f(y)}" r="19" fill="none" stroke="${ativa?'#C48A1F':'#9FB3BC'}" stroke-width="1.6" stroke-dasharray="${espera?'4 4':'0'}" opacity="${espera?0.6:0.85}"/>
+      <text x="${f(x)}" y="${f(y+4.5)}" font-size="12" font-weight="800" fill="${ativa?'#5C4109':(espera?'#8C9BA3':'#3B4A52')}" text-anchor="middle" pointer-events="none">${i+1}</text>
+    </g>`;
+  });
+
+  /* régua (alidade) */
+  let regua = '';
+  regua += `<rect x="${CX-244}" y="${CY-7}" width="488" height="14" rx="4" fill="#D9C58A" stroke="#8E6413" stroke-width="2.2"/>`;
+  regua += `<polygon points="${CX+244},${CY} ${CX+218},${CY-13} ${CX+218},${CY+13}" fill="#A85C0A" stroke="#6E4308" stroke-width="1.8"/>`;
+  regua += `<rect x="${CX+150}" y="${CY-25}" width="13" height="50" rx="3" fill="#C9A24B" stroke="#6E4308" stroke-width="2"/>`;
+  regua += `<rect x="${CX-163}" y="${CY-25}" width="13" height="50" rx="3" fill="#C9A24B" stroke="#6E4308" stroke-width="2"/>`;
+  regua += `<circle cx="${CX+156.5}" cy="${CY}" r="3.4" fill="#FFFDF6"/>`;
+  regua += `<circle cx="${CX-156.5}" cy="${CY}" r="3.4" fill="#FFFDF6"/>`;
+  regua += `<circle cx="${CX}" cy="${CY}" r="15" fill="#A85C0A" stroke="#6E4308" stroke-width="2.5"/>`;
+  regua += `<circle cx="${CX}" cy="${CY}" r="5" fill="#FFF6E2"/>`;
+
+  return `<svg viewBox="0 0 620 700" xmlns="http://www.w3.org/2000/svg" id="svgAstro" role="img" aria-label="Astrolábio das dez estações">
+    <rect width="620" height="700" fill="#ffffff"/>
+    ${s}
+    <g id="grupoRete" transform="rotate(${f(anguloRete)} ${CX} ${CY})">${rete}</g>
+    <g id="grupoRegua" transform="rotate(${f(anguloRegua)} ${CX} ${CY})" style="cursor:grab">${regua}</g>
+    <text x="${CX}" y="692" font-size="13" fill="#5A6C76" text-anchor="middle">Arraste o disco para girar a espiral. Arraste a régua para escolher uma estação. Toque em uma estrela para abri-la.</text>
+  </svg>`;
+}
+
+function estacaoApontada(){
+  let melhor = 0, dif = 999;
+  for(let i=0;i<ESTACOES.length;i++){
+    const alvo = ((estrelaPos(i).a + anguloRete) % 360 + 360) % 360;
+    const reg = ((anguloRegua % 360) + 360) % 360;
+    let dd = Math.abs(alvo - reg); if(dd > 180) dd = 360 - dd;
+    if(dd < dif){ dif = dd; melhor = i; }
+  }
+  return melhor;
+}
+let alvoAtual = -1;
+function atualizarLeitura(){
+  const i = estacaoApontada();
+  if(i === alvoAtual) return;
+  alvoAtual = i;
+  const e = ESTACOES[i];
+  const compl = estacaoCompleta(e);
+  document.getElementById('astroAlvo').textContent = (i+1) + '. ' + e.titulo;
+  document.getElementById('astroDesc').innerHTML =
+    '<b>' + escapar(e.bloco) + '</b><br>' + escapar(e.guia.split('.')[0]) + '.' +
+    '<br><br><b style="color:' + (compl ? 'var(--ok)' : (adiada(i) ? '#5A6C76' : 'var(--atencao)')) + '">' +
+    (compl ? 'Estrela acesa. Estação preenchida.'
+           : (adiada(i) ? 'Estrela em espera. Não é cobrada no momento do percurso que você declarou.'
+                        : 'Estrela apagada. Estação ainda incompleta.')) + '</b>';
+}
+function abrirAlvo(){ abrirEstacao(alvoAtual < 0 ? 0 : alvoAtual); }
+
+function anguloDoPonteiro(ev, svg){
+  const cx = svg.getBoundingClientRect();
+  const esc = 620 / cx.width;
+  const px = (ev.clientX - cx.left) * esc, py = (ev.clientY - cx.top) * esc;
+  return Math.atan2(py - CY, px - CX) * 180 / Math.PI + 90;
+}
+
+function ligarInteracao(){
+  const svg = document.getElementById('svgAstro');
+  if(!svg) return;
+  const rete = document.getElementById('grupoRete');
+  const regua = document.getElementById('grupoRegua');
+
+  svg.addEventListener('pointerdown', function(ev){
+    const naRegua = ev.target.closest && ev.target.closest('#grupoRegua');
+    arrastando = naRegua ? 'regua' : 'rete';
+    ultimoAngulo = anguloDoPonteiro(ev, svg);
+    deslocado = 0; ultimoDelta = 0;
+    if(arrastando === 'rete') inerciaRete = 0; else inerciaRegua = 0;
+    svg.classList.add('arrastando');
+    svg.setPointerCapture(ev.pointerId);
+  });
+  svg.addEventListener('pointermove', function(ev){
+    if(!arrastando) return;
+    const a = anguloDoPonteiro(ev, svg);
+    let delta = a - ultimoAngulo;
+    if(delta > 180) delta -= 360; if(delta < -180) delta += 360;
+    ultimoAngulo = a; deslocado += Math.abs(delta); ultimoDelta = delta;
+    if(arrastando === 'rete') anguloRete += delta; else anguloRegua += delta;
+    aplicar(rete, regua);
+    atualizarLeitura();
+  });
+  function soltar(ev){
+    if(!arrastando) return;
+    if(arrastando === 'rete') inerciaRete = Math.max(-6, Math.min(6, ultimoDelta));
+    else inerciaRegua = Math.max(-6, Math.min(6, ultimoDelta));
+    if(deslocado < 3){
+      const alvo = ev.target.closest && ev.target.closest('.estrela-alvo');
+      if(alvo) abrirEstacao(parseInt(alvo.getAttribute('data-i'), 10));
+    }
+    arrastando = null;
+    svg.classList.remove('arrastando');
+  }
+  svg.addEventListener('pointerup', soltar);
+  svg.addEventListener('pointercancel', soltar);
+  svg.addEventListener('pointerleave', soltar);
+
+  function aplicar(r, g){
+    r.setAttribute('transform', 'rotate(' + f(anguloRete) + ' ' + CX + ' ' + CY + ')');
+    g.setAttribute('transform', 'rotate(' + f(anguloRegua) + ' ' + CX + ' ' + CY + ')');
+  }
+
+  cancelAnimationFrame(laco);
+  (function passo(){
+    if(!document.getElementById('tela-astro').classList.contains('ativa')){ laco = requestAnimationFrame(passo); return; }
+    if(!arrastando){
+      inerciaRete *= 0.955; inerciaRegua *= 0.94;
+      if(Math.abs(inerciaRete) < 0.055) inerciaRete = inerciaRete >= 0 ? 0.055 : -0.055;
+      if(Math.abs(inerciaRegua) < 0.01) inerciaRegua = 0;
+      anguloRete += inerciaRete; anguloRegua += inerciaRegua;
+      aplicar(rete, regua);
+      atualizarLeitura();
+    }
+    laco = requestAnimationFrame(passo);
+  })();
+}
+
+function desenharAstro(){
+  document.getElementById('astroSVG').innerHTML = montarAstrolabio();
+  alvoAtual = -1;
+  atualizarLeitura();
+  ligarInteracao();
+}
+
+carregar();
+desenharNav();
+desenharEstacao();
+atualizarProgresso();
+if(camposPreenchidos() === 0){ irPara('astro'); }
+window.addEventListener('beforeunload', function(){
+  clearTimeout(temporizador);
+  Cofre.gravar(CHAVE, JSON.stringify(estado));
+});
+</script>
+</body>
+</html>
