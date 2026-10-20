@@ -113,8 +113,8 @@ function extrairCronograma(){
  return t?t.split(/\r?\n/).map(s=>s.split(/\s*\|\s*/)).filter(a=>a[0].trim()):[['Definir as atividades','Definir o período']];
 }
 function tabela(linhas){
- const W=[6300,2970];
- let out='<w:tbl><w:tblPr><w:tblW w:w="9270" w:type="dxa"/><w:tblBorders>'+
+ const W=[6072,3000];
+ let out='<w:tbl><w:tblPr><w:tblW w:w="9072" w:type="dxa"/><w:tblBorders>'+
  '<w:top w:val="single" w:sz="5"/><w:left w:val="single" w:sz="5"/>'+
  '<w:bottom w:val="single" w:sz="5"/><w:right w:val="single" w:sz="5"/>'+
  '<w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/>'+
@@ -186,10 +186,10 @@ function cel(content,width,alinhamento){
  '<w:p><w:pPr><w:jc w:val="'+(alinhamento||'center')+'"/><w:spacing w:after="0"/></w:pPr>'+content+'</w:p></w:tc>';
 }
 function table3(a,b,c){
- return '<w:tbl><w:tblPr><w:tblW w:w="9360" w:type="dxa"/><w:tblBorders><w:top w:val="nil"/><w:bottom w:val="nil"/>'+
+ return '<w:tbl><w:tblPr><w:tblW w:w="9072" w:type="dxa"/><w:tblBorders><w:top w:val="nil"/><w:bottom w:val="nil"/>'+
  '<w:left w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders></w:tblPr>'+
- '<w:tblGrid><w:gridCol w:w="1600"/><w:gridCol w:w="6160"/><w:gridCol w:w="1600"/></w:tblGrid>'+
- '<w:tr>'+cel(a,1600)+cel(b,6160)+cel(c,1600)+'</w:tr></w:tbl>';
+ '<w:tblGrid><w:gridCol w:w="1540"/><w:gridCol w:w="5992"/><w:gridCol w:w="1540"/></w:tblGrid>'+
+ '<w:tr>'+cel(a,1540)+cel(b,5992)+cel(c,1540)+'</w:tr></w:tbl>';
 }
 function header(){
  const ins=[
@@ -207,11 +207,12 @@ function header(){
  return xmlH;
 }
 function footerCover(){
- const a=img('rId1',3,1120000,440000);
- const b=img('rId2',4,1320000,370000);
- const c=img('rId3',5,2640000,510000);
- return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr '+NS_DOC+'>'+
- table3(a,b,c)+'</w:ftr>';
+ const a=img('rId1',3,1120000,440000), b=img('rId2',4,1320000,370000), c=img('rId3',5,2640000,510000);
+ const cols=[2050,2320,4702];
+ const celMarcas=(pic,w)=>'<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr>'+pic+'</w:p></w:tc>';
+ const grid=cols.map(w=>'<w:gridCol w:w="'+w+'"/>').join('');
+ const table='<w:tbl><w:tblPr><w:tblW w:w="9072" w:type="dxa"/></w:tblPr><w:tblGrid>'+grid+'</w:tblGrid><w:tr>'+celMarcas(a,cols[0])+celMarcas(b,cols[1])+celMarcas(c,cols[2])+'</w:tr></w:tbl>';
+ return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr '+NS_DOC+'>'+table+'</w:ftr>';
 }
 function footerDefault(){
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr '+NS_DOC+'>'+
@@ -226,7 +227,7 @@ function doc(){
  '<w:footerReference w:type="first" r:id="rId3"/>'+
  '<w:footerReference w:type="default" r:id="rId4"/>'+
  '<w:titlePg/><w:pgSz w:w="11906" w:h="16838"/>'+
- '<w:pgMar w:top="2350" w:right="1700" w:bottom="1750" w:left="1700" w:header="380" w:footer="450" w:gutter="0"/>'+
+ '<w:pgMar w:top="2350" w:right="1134" w:bottom="1750" w:left="1700" w:header="380" w:footer="450" w:gutter="0"/>'+
  '</w:sectPr>';
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+NS_DOC+'><w:body>'+conteudo()+sect+'</w:body></w:document>';
 }
