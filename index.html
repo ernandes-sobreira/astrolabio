@@ -249,7 +249,7 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
       <button class="ouro" onclick="irPara('astro')">Astrolábio</button>
       <button onclick="irPara('painel')" id="btPan">Panorama</button>
       <button onclick="irPara('mapa')" id="btMapa">Mapa mental</button>
-      <button class="primario" onclick="abrirProjeto()" title="Redigir e baixar projeto de pesquisa formatado em Word">Projeto Word</button>
+      <button class="primario" onclick="baixarProjetoProfagua()" title="Gera automaticamente um projeto de pesquisa Word a partir das respostas das dez estações, sem preencher novamente">Baixar projeto Word</button>
        <button onclick="exportar()">Backup JSON</button>
       <button onclick="document.getElementById('arq').click()">Carregar</button>
       <button class="risco" onclick="limpar()">Limpar</button>
@@ -267,7 +267,7 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
   <main>
     <div class="tela ativa" id="tela-form"></div>
 
-    <div class="tela" id="tela-projeto"></div>
+
 
      <div class="tela panorama" id="tela-painel">
       <h2 class="serif">Panorama do Percurso</h2>
@@ -650,7 +650,7 @@ function mostrarTela(qual){
   document.getElementById('tela-painel').classList.toggle('ativa', qual==='painel');
   document.getElementById('tela-mapa').classList.toggle('ativa', qual==='mapa');
   document.getElementById('tela-astro').classList.toggle('ativa', qual==='astro');
-   document.getElementById('tela-projeto').classList.toggle('ativa', qual==='projeto');
+ 
 }
 function irPara(qual){
   mostrarTela(qual);
