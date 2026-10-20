@@ -207,6 +207,15 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
   .secao-pan h3{background:#fff!important;color:#000!important;border-bottom:2px solid #000;border-radius:0}
 }
 
+
+/* Editor do projeto: compacto, legível no celular e adequado a capítulos longos */
+.projeto-campo textarea{min-height:190px;font-size:16px;line-height:1.7;background:#fff}
+.projeto-campo input{background:#fff}
+.projeto-titulo{font-size:23px;color:var(--azul);border-bottom:2px solid var(--bronze);margin:28px 0 20px;padding-bottom:10px}
+.projeto-acoes{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:var(--suave2);border:2px solid var(--linha);padding:16px;margin:18px 0 24px;border-radius:8px}
+.projeto-status{font-weight:700;font-size:14px;color:var(--azul)}
+.projeto-aviso{font-size:15px;border-left:5px solid var(--bronze);padding:14px 18px;background:#FFF9F0;margin-bottom:26px}
+@media(max-width:900px){.projeto-acoes button{width:100%}}
 </style>
 </head>
 <body>
@@ -240,7 +249,8 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
       <button class="ouro" onclick="irPara('astro')">Astrolábio</button>
       <button onclick="irPara('painel')" id="btPan">Panorama</button>
       <button onclick="irPara('mapa')" id="btMapa">Mapa mental</button>
-      <button onclick="exportar()">Baixar</button>
+      <button class="primario" onclick="abrirProjeto()" title="Redigir e baixar projeto de pesquisa formatado em Word">Projeto Word</button>
+       <button onclick="exportar()">Backup JSON</button>
       <button onclick="document.getElementById('arq').click()">Carregar</button>
       <button class="risco" onclick="limpar()">Limpar</button>
       <input type="file" id="arq" accept=".json" style="display:none" onchange="importar(event)">
@@ -257,7 +267,9 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
   <main>
     <div class="tela ativa" id="tela-form"></div>
 
-    <div class="tela panorama" id="tela-painel">
+    <div class="tela" id="tela-projeto"></div>
+
+     <div class="tela panorama" id="tela-painel">
       <h2 class="serif">Panorama do Percurso</h2>
       <p class="assinatura">Síntese gerada a partir das dez estações. Documento de trabalho para discussão com o orientador.</p>
       <div id="conteudoPainel"></div>
@@ -638,6 +650,7 @@ function mostrarTela(qual){
   document.getElementById('tela-painel').classList.toggle('ativa', qual==='painel');
   document.getElementById('tela-mapa').classList.toggle('ativa', qual==='mapa');
   document.getElementById('tela-astro').classList.toggle('ativa', qual==='astro');
+   document.getElementById('tela-projeto').classList.toggle('ativa', qual==='projeto');
 }
 function irPara(qual){
   mostrarTela(qual);
@@ -2045,5 +2058,8 @@ window.addEventListener('beforeunload', function(){
   Cofre.gravar(CHAVE, JSON.stringify(estado));
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+<script src="profagua-marcas.js" defer></script>
+<script src="projeto-profagua.js" defer></script>
 </body>
 </html>
