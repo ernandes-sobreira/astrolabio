@@ -166,6 +166,7 @@ function conteudo(){
 
   b+=titulo('1 INTRODUÇÃO');
   b+=bloco([
+    ['Introdução previamente redigida na versão anterior',valor('introducao')],
     ['Motivação e contextualização',vv('e1','incomodo')],
     ['Trajetória e contexto',vv('e1','trajetoria')],
     ['O que já se sabe',vv('e4','jaSeSabe')],
@@ -179,6 +180,7 @@ function conteudo(){
   if(vv('e5','hipotese'))b+=subtitulo('2.1 Hipótese ou pressuposto')+texto(vv('e5','hipotese'),'');
   b+=titulo('3 JUSTIFICATIVA');
   b+=bloco([
+    ['Justificativa anteriormente redigida',valor('justificativa')],
     ['Relevância científica e social',vv('e4','porQueImporta')],
     ['Importância para o contexto profissional',vv('e1','expectativa')],
     ['Mudança prática desejada',vv('e7','oQueMuda')],
@@ -192,6 +194,7 @@ function conteudo(){
   b+=obj.length?obj.map(x=>p('• '+x,{align:'left',space:80})).join(''):p('[Objetivos específicos ainda não informados na estação 5.]');
   b+=titulo('5 FUNDAMENTAÇÃO TEÓRICA');
   b+=bloco([
+    ['Fundamentação anteriormente redigida',valor('fundamentacao')],
     ['Referência inspiradora',vv('e2','referencia')],
     ['Contribuição da leitura',vv('e2','oQueMexeu')],
     ['Questão que permaneceu em aberto',vv('e2','semResposta')],
@@ -205,6 +208,7 @@ function conteudo(){
   }
   b+=titulo('6 MATERIAL E MÉTODOS')+subtitulo('6.1 Área e período de estudo');
   b+=bloco([
+    ['Caracterização da área anteriormente redigida',valor('areaEstudo')],
     ['Território',vv('e5','territorio')],['Período',vv('e5','temporal')],
     ['Contexto de aplicação',vv('e2','noSeuContexto')]
   ],'[Área e período a especificar na estação 5.]');
@@ -215,6 +219,7 @@ function conteudo(){
   ],'[Abordagem e delineamento a especificar na estação 5.]');
   b+=subtitulo('6.3 Dados, instrumentos e procedimentos');
   b+=bloco([
+    ['Metodologia anteriormente redigida',valor('metodos')],
     ['Dados já disponíveis',vv('e10','dadosTenho')],
     ['Dados a obter e fontes responsáveis',vv('e10','dadosFaltam')],
     ['Técnicas dominadas pelo pesquisador',vv('e10','seiFazer')],
@@ -229,6 +234,7 @@ function conteudo(){
 
   b+=titulo('7 PRODUTO TÉCNICO E TECNOLÓGICO PREVISTO');
   b+=bloco([
+    ['Produto anteriormente redigido',valor('produto')],
     ['Tipo de entrega',list(en.formatos)],['Tipologia técnica',en.tipoProduto||en.tipoCapes],
     ['Produto provisoriamente nomeado',en.nomeProduto],
     ['Destinatário do produto',en.usuario||vv('e7','publico')],
@@ -238,6 +244,7 @@ function conteudo(){
   ],'[Produto técnico a detalhar na estação 6.]');
   b+=titulo('8 RESULTADOS ESPERADOS');
   b+=bloco([
+    ['Resultados esperados anteriormente redigidos',valor('esperados')],
     ['Mudança prática esperada',vv('e7','oQueMuda')],
     ['Contribuição ao final do mestrado',vv('e1','expectativa')],
     ['Público a beneficiar',vv('e7','publico')],
