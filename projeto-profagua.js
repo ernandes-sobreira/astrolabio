@@ -39,7 +39,7 @@ function mostrarProjeto(){
  '<h2>Seu projeto, pronto para Word</h2><div class="guia">Escreva as seções completas aqui. Capa, logos, cabeçalho, folha de rosto, estilos e paginação são compostos na exportação. Nenhuma banca, ficha catalográfica ou resultado final será inserido.</div></div>'+
  '<div class="projeto-acoes"><button class="primario" onclick="baixarProjetoProfagua()">Baixar projeto .docx</button>'+
  '<span id="projeto-percentual" class="projeto-status" aria-live="polite"></span></div>'+
- '<div class="projeto-aviso">Os campos das estações 1 e 5 aparecem aqui já vinculados ao percurso. A redação dos capítulos é salva junto ao backup JSON. Cidade padrão: Cuiabá/MT, como nas capas de referência. Confira com a secretaria eventuais mudanças posteriores no modelo institucional.</div>'+
+ '<div class="projeto-aviso">Os campos das estações 1 e 5 aparecem aqui já vinculados ao percurso. A redação dos capítulos é salva junto ao backup JSON. Cidade padrão: Cuiabá/MT, como nas capas de referência. Confira com a secretaria eventuais mudanças posteriores no modelo institucional. <strong>No celular:</strong> depois de baixar, abra o arquivo com Microsoft Word, Google Documentos ou WPS Office. Não use o explorador de arquivos para entrar no conteúdo interno do DOCX.</div>'+
  '<h3 class="projeto-titulo">Identificação e capa</h3>'+
  opc('e1.nome','estacao','Nome completo do(a) mestrando(a)','Preenchido também na estação Ponto de Partida.')+
  opc('e1.orientador','estacao','Orientador(a)','Será utilizado na folha de apresentação.')+
@@ -282,7 +282,7 @@ async function gerar(){
  for(const [campo,nome] of [['estado','estado'],['unemat','unemat'],['profagua','profagua'],['unematLogo','unematLogo'],['capesAna','capesAna']]){
   z.file('word/media/'+nome+'.jpg',m[campo],{base64:true});
  }
- return await z.generateAsync({type:'blob',compression:'DEFLATE'});
+ return await z.generateAsync({type:'blob',compression:'DEFLATE',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 }
 window.baixarProjetoProfagua=async function(){
  const bt=document.activeElement, ant=bt && bt.tagName==='BUTTON' ? bt.textContent : '';
