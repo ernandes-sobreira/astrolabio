@@ -49,8 +49,8 @@ function mostrarProjeto(){
  opc('ano','curto','Ano','Exemplo: 2026')+'</div>'+
  '<h3 class="projeto-titulo">Redação científica</h3>';
  for(const [k,n,d] of CAMPOS.slice(0,2))ins+=opc(k,'longo',n,d);
- ins+=opc('e5.pergunta','estacao','2. Problema e pergunta de pesquisa','A pergunta é recuperada da estação 5.');
  ins+=opc('introducao','longo','1. Introdução','Desenvolva o problema com citações.');
+ ins+=opc('e5.pergunta','estacao','2. Problema e pergunta de pesquisa','A pergunta é recuperada da estação 5.');
  ins+=opc('justificativa','longo','3. Justificativa','Relevância científica, social e aplicada.');
  ins+=opc('e5.objetivoGeral','estacao','4.1. Objetivo geral','')+
  opc('e5.objetivosEsp','estacao','4.2. Objetivos específicos','Um por linha.');
