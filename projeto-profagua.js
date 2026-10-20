@@ -373,9 +373,55 @@ function marcas(){
  if(!out || !['estado','unemat','profagua','unematLogo','capesAna'].every(k=>out[k]&&out[k].length>1000))throw new Error('As logomarcas institucionais não foram carregadas. Verifique a conexão e recarregue a página.');
  return out;
 }
+
+/* Os brasões do PDF original foram extraídos de imagens com transparência
+   convertida para fundo PRETO. Corrigimos SOMENTE a região preta conectada
+   às bordas, preservando o desenho interno, antes de inseri-los no Word. */
+function emblemaComFundoBranco(base64){
+  return new Promise((resolve,reject)=>{
+    const imagem=new Image();
+    imagem.onload=function(){
+      try{
+        const cv=document.createElement('canvas');
+        cv.width=imagem.naturalWidth;cv.height=imagem.naturalHeight;
+        const ctx=cv.getContext('2d',{willReadFrequently:true});
+        ctx.drawImage(imagem,0,0);
+        const quadro=ctx.getImageData(0,0,cv.width,cv.height);
+        const d=quadro.data,w=cv.width,h=cv.height,n=w*h;
+        const visitado=new Uint8Array(n),fila=[];
+        const escuro=(p)=>{
+          const i=p*4;
+          return d[i]<88&&d[i+1]<88&&d[i+2]<88;
+        };
+        function incluir(p){
+          if(p<0||p>=n||visitado[p])return;
+          visitado[p]=1;if(escuro(p))fila.push(p);
+        }
+        for(let x=0;x<w;x++){incluir(x);incluir((h-1)*w+x);}
+        for(let y=0;y<h;y++){incluir(y*w);incluir(y*w+w-1);}
+        for(let z=0;z<fila.length;z++){
+          const p=fila[z],off=p*4;
+          d[off]=255;d[off+1]=255;d[off+2]=255;d[off+3]=255;
+          const x=p%w,y=Math.floor(p/w);
+          if(x>0)incluir(p-1);
+          if(x<w-1)incluir(p+1);
+          if(y>0)incluir(p-w);
+          if(y<h-1)incluir(p+w);
+        }
+        ctx.putImageData(quadro,0,0);
+        resolve(cv.toDataURL('image/jpeg',0.95).split(',')[1]);
+      }catch(e){reject(e);}
+    };
+    imagem.onerror=()=>reject(new Error('Não foi possível corrigir uma logomarca para o Word.'));
+    imagem.src='data:image/jpeg;base64,'+base64;
+  });
+}
+
 async function gerar(){
  if(typeof window.JSZip==='undefined')throw new Error('Biblioteca para criar Word não carregada. Conecte-se à internet e recarregue.');
  const m=marcas(); const z=new JSZip();
+  m.estado=await emblemaComFundoBranco(m.estado);
+  m.unemat=await emblemaComFundoBranco(m.unemat);
  z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
  '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
  '<Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/>'+
