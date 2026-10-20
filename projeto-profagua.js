@@ -131,44 +131,164 @@ function indice(){return '<w:p><w:pPr><w:pStyle w:val="Normal"/></w:pPr><w:r><w:
  '<w:r><w:instrText xml:space="preserve"> TOC \\o "1-2" \\h \\z \\u </w:instrText></w:r>'+
  '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>Atualize o sumário no Word para inserir as páginas.</w:t></w:r>'+
  '<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>';}
+
 function conteudo(){
- let b='';
- // Primeira página: capa do PROJETO (não dissertação final).
- b+=vazio(7)+central('PROJETO DE PESQUISA','CoverLabel')+
- vazio(3)+central(tit().toUpperCase(),'CoverTitle')+
- vazio(4)+central(nome().toUpperCase(),'CoverName')+
- vazio(10)+central(cidade(),'Normal')+central(ano(),'Normal')+pg();
- // Folha de apresentação exclusiva de projeto.
- b+=vazio(2)+central(nome().toUpperCase(),'CoverName')+
- vazio(3)+central(tit().toUpperCase(),'CoverTitle')+
- vazio(3)+p('Projeto de pesquisa elaborado no âmbito do Mestrado Profissional em Rede Nacional em Gestão e Regulação de Recursos Hídricos — ProfÁgua, Unidade UNEMAT, para planejamento e desenvolvimento da pesquisa de mestrado.',{align:'both',first:true})+
- vazio(2)+p('Orientador(a): '+orient(),{align:'left'});
- if(v('e1','coorientador'))b+=p('Coorientador(a): '+v('e1','coorientador'),{align:'left'});
- b+=vazio(6)+central(cidade())+central(ano())+pg();
- // Matérias pré-textuais do projeto. Sumário de campos do Word editável.
- b+=titulo('RESUMO')+parags(valor('resumo'))+p('Palavras-chave: '+simples(valor('palavras')),{align:'left'})+pg();
- b+=titulo('SUMÁRIO')+indice()+pg();
- // Texto projetivo: nenhuma seção de resultados medidos ou defesa.
- b+=titulo('1 INTRODUÇÃO')+parags(valor('introducao'));
- b+=titulo('2 PROBLEMA DE PESQUISA')+parags(v('e5','pergunta'));
- b+=titulo('3 JUSTIFICATIVA')+parags(valor('justificativa'));
- b+=titulo('4 OBJETIVOS')+subtitulo('4.1 Objetivo geral')+parags(v('e5','objetivoGeral'));
- b+=subtitulo('4.2 Objetivos específicos');
- const obj=String(v('e5','objetivosEsp')||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
- b+=obj.length?obj.map(x=>p('• '+x,{align:'left',space:90})).join(''):p('[Liste os objetivos específicos na Estação 5.]');
- b+=titulo('5 FUNDAMENTAÇÃO TEÓRICA')+parags(valor('fundamentacao'));
- b+=titulo('6 MATERIAL E MÉTODOS');
- b+=subtitulo('6.1 Área de estudo')+parags(valor('areaEstudo'));
- b+=subtitulo('6.2 Delineamento, dados e procedimentos')+parags(valor('metodos'));
- b+=subtitulo('6.3 Estratégia de análise')+parags(valor('analises'));
- b+=titulo('7 PRODUTO TÉCNICO E TECNOLÓGICO PREVISTO')+parags(valor('produto')||estado.entrega.nomeProduto||'');
- b+=titulo('8 RESULTADOS ESPERADOS')+parags(valor('esperados'));
- b+=titulo('9 CRONOGRAMA')+tabela(extrairCronograma());
- b+=titulo('REFERÊNCIAS BIBLIOGRÁFICAS');
- const refs=String(valor('referencias')||'').trim();
- b+=refs?refs.split(/\n/).filter(x=>x.trim()).map(x=>p(x.trim(),{align:'left',space:100,line:310})).join(''):p('[Informe referências completas utilizadas no projeto, no padrão ABNT.]');
- return b;
+  const en=estado.entrega||{};
+  const vv=(e,k)=>v(e,k)||'';
+  const list=a=>Array.isArray(a)?a.join('; '):String(a||'');
+  const bloco=(pairs,pendencia)=>{
+    const itens=pairs.filter(x=>x[1]!==null&&x[1]!==undefined&&String(x[1]).trim()!=='');
+    return itens.length?itens.map(x=>parags(x[0]+': '+String(x[1]))).join(''):p(pendencia||'[A desenvolver com a orientação a partir das estações do Astrolábio.]',{first:true});
+  };
+  const texto=(x,msg)=>parags(String(x||'').trim()||msg);
+  let b='';
+  // Capa institucional de projeto — sem banca, defesa ou ficha catalográfica.
+  b+=vazio(3)+central('PROJETO DE PESQUISA','CoverLabel')+
+     vazio(3)+central(tit().toUpperCase(),'CoverTitle')+
+     vazio(4)+central(nome().toUpperCase(),'CoverName')+
+     vazio(5)+central(cidade())+central(ano())+pg();
+  b+=vazio(2)+central(nome().toUpperCase(),'CoverName')+
+    vazio(2)+central(tit().toUpperCase(),'CoverTitle')+
+    vazio(3)+p('Projeto de pesquisa elaborado no âmbito do Mestrado Profissional em Rede Nacional em Gestão e Regulação de Recursos Hídricos — ProfÁgua, Unidade UNEMAT, para planejamento e desenvolvimento de pesquisa de mestrado.',{first:true})+
+    vazio(1)+p('Orientador(a): '+orient(),{align:'left'});
+  if(vv('e1','coorientador'))b+=p('Coorientador(a): '+vv('e1','coorientador'),{align:'left'});
+  b+=vazio(4)+central(cidade())+central(ano())+pg();
+  b+=titulo('RESUMO DO PROJETO');
+  b+=bloco([
+    ['Problema',vv('e5','pergunta')],['Objetivo',vv('e5','objetivoGeral')],
+    ['Abordagem prevista',vv('e5','abordagem')],['Delineamento',vv('e5','delineamento')],
+    ['Área de estudo',vv('e5','territorio')],
+    ['Produto previsto',en.nomeProduto||en.tipoProduto],
+    ['Contribuição esperada',vv('e7','oQueMuda')]
+  ],'[Resumo em construção: as respostas das estações 5 a 7 serão incorporadas automaticamente.]');
+  b+=p('Palavras-chave: '+(valor('palavras')||'[A definir com a orientação.]'),{align:'left'})+pg();
+  b+=titulo('SUMÁRIO')+indice()+pg();
+
+  b+=titulo('1 INTRODUÇÃO');
+  b+=bloco([
+    ['Motivação e contextualização',vv('e1','incomodo')],
+    ['Trajetória e contexto',vv('e1','trajetoria')],
+    ['O que já se sabe',vv('e4','jaSeSabe')],
+    ['Lacuna identificada',vv('e4','naoSeSabe')],
+    ['Evidência da lacuna',vv('e4','evidencia')],
+    ['Recorte territorial',vv('e5','territorio')],
+    ['Recorte temporal',vv('e5','temporal')]
+  ],'[Desenvolver a introdução a partir das estações 1, 2, 4 e 5.]');
+  b+=titulo('2 PROBLEMA DE PESQUISA');
+  b+=texto(vv('e5','pergunta'),'[Pergunta científica ainda não informada na estação 5.]');
+  if(vv('e5','hipotese'))b+=subtitulo('2.1 Hipótese ou pressuposto')+texto(vv('e5','hipotese'),'');
+  b+=titulo('3 JUSTIFICATIVA');
+  b+=bloco([
+    ['Relevância científica e social',vv('e4','porQueImporta')],
+    ['Importância para o contexto profissional',vv('e1','expectativa')],
+    ['Mudança prática desejada',vv('e7','oQueMuda')],
+    ['Demanda pelo produto técnico',en.quemDemandou],
+    ['Evidência da demanda',en.evidProblema]
+  ],'[Justificativa a compor a partir das estações 4, 6 e 7.]');
+  b+=titulo('4 OBJETIVOS')+subtitulo('4.1 Objetivo geral');
+  b+=texto(vv('e5','objetivoGeral'),'[Objetivo geral ainda não informado na estação 5.]');
+  b+=subtitulo('4.2 Objetivos específicos');
+  const obj=String(vv('e5','objetivosEsp')).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  b+=obj.length?obj.map(x=>p('• '+x,{align:'left',space:80})).join(''):p('[Objetivos específicos ainda não informados na estação 5.]');
+  b+=titulo('5 FUNDAMENTAÇÃO TEÓRICA');
+  b+=bloco([
+    ['Referência inspiradora',vv('e2','referencia')],
+    ['Contribuição da leitura',vv('e2','oQueMexeu')],
+    ['Questão que permaneceu em aberto',vv('e2','semResposta')],
+    ['Conhecimento consolidado',vv('e4','jaSeSabe')],
+    ['Busca bibliográfica realizada',vv('e4','evidencia')],
+    ['Bases consultadas',vv('e4','bases')]
+  ],'[Fundamentação teórica a desenvolver com as referências das estações 2 a 4.]');
+  if((estado.autores||[]).some(a=>a.nome)){
+    b+=subtitulo('5.1 Autores identificados no percurso');
+    b+=estado.autores.filter(a=>a.nome).map(a=>p(a.nome+(a.intersecao?' — '+a.intersecao:''),{align:'left'})).join('');
+  }
+  b+=titulo('6 MATERIAL E MÉTODOS')+subtitulo('6.1 Área e período de estudo');
+  b+=bloco([
+    ['Território',vv('e5','territorio')],['Período',vv('e5','temporal')],
+    ['Contexto de aplicação',vv('e2','noSeuContexto')]
+  ],'[Área e período a especificar na estação 5.]');
+  b+=subtitulo('6.2 Tipo e delineamento do estudo');
+  b+=bloco([
+    ['Abordagem',vv('e5','abordagem')],['Finalidade',vv('e5','finalidade')],
+    ['Estratégia predominante',vv('e5','delineamento')],['Hipótese/pressuposto',vv('e5','hipotese')]
+  ],'[Abordagem e delineamento a especificar na estação 5.]');
+  b+=subtitulo('6.3 Dados, instrumentos e procedimentos');
+  b+=bloco([
+    ['Dados já disponíveis',vv('e10','dadosTenho')],
+    ['Dados a obter e fontes responsáveis',vv('e10','dadosFaltam')],
+    ['Técnicas dominadas pelo pesquisador',vv('e10','seiFazer')],
+    ['Técnicas a desenvolver e preparação',vv('e10','precisoAprender')]
+  ],'[Detalhar amostragem, coleta, instrumentos e tratamento dos dados com o orientador.]');
+  b+=subtitulo('6.4 Procedimentos de análise');
+  b+=bloco([
+    ['Abordagem prevista',vv('e5','abordagem')],
+    ['Delineamento e análise',vv('e5','delineamento')],
+    ['Detalhamento já redigido no projeto',valor('analises')]
+  ],'[A análise estatística, qualitativa ou espacial exige detalhamento metodológico adicional.]');
+
+  b+=titulo('7 PRODUTO TÉCNICO E TECNOLÓGICO PREVISTO');
+  b+=bloco([
+    ['Tipo de entrega',list(en.formatos)],['Tipologia técnica',en.tipoProduto||en.tipoCapes],
+    ['Produto provisoriamente nomeado',en.nomeProduto],
+    ['Destinatário do produto',en.usuario||vv('e7','publico')],
+    ['Vinculação com a pesquisa',en.vinculacao],
+    ['Estratégia de validação',en.validacao||list(en.modalidadesVal)],
+    ['Diferencial',en.diferencial],['Prazo estimado',en.prazoProduto]
+  ],'[Produto técnico a detalhar na estação 6.]');
+  b+=titulo('8 RESULTADOS ESPERADOS');
+  b+=bloco([
+    ['Mudança prática esperada',vv('e7','oQueMuda')],
+    ['Contribuição ao final do mestrado',vv('e1','expectativa')],
+    ['Público a beneficiar',vv('e7','publico')],
+    ['Indicadores de impacto do produto',en.indicadores],
+    ['Mudança esperada do produto',en.mudanca]
+  ],'[Resultados esperados a estabelecer a partir dos objetivos. Não foram inventados resultados empíricos.]');
+  b+=titulo('9 LIMITAÇÕES, RISCOS E PLANO DE CONTINGÊNCIA');
+  b+=bloco([
+    ['Principais riscos e alternativas',vv('e10','riscos')],
+    ['Dependências para acesso aos dados',vv('e10','dadosFaltam')],
+    ['Limitações técnicas identificadas',vv('e10','precisoAprender')],
+    ['Barreiras previstas para alcançar os usuários',vv('e7','barreiras')]
+  ],'[Limitações e contingências ainda não descritas na estação 10.]');
+  b+=titulo('10 RECURSOS E PLANEJAMENTO FINANCEIRO');
+  b+=bloco([
+    ['Situação de financiamento',vv('e10','financiamento')],
+    ['Horas semanais disponíveis',vv('e10','tempo')?vv('e10','tempo')+' horas':''],
+    ['Recursos técnicos e operacionais disponíveis',vv('e10','seiFazer')],
+    ['Demandas e capacitações necessárias',vv('e10','precisoAprender')],
+    ['Dependências financeiras ou institucionais',vv('e10','dadosFaltam')]
+  ],'[Recursos a definir com base na estação 10.]');
+  b+=p('Orçamento em reais, quantidades e custos unitários: [não informados nas estações; os valores não foram presumidos].',{first:true});
+  b+=titulo('11 CRONOGRAMA DE EXECUÇÃO');
+  let etapas=[];
+  String(vv('e8','metas')).split(/\r?\n/).map(x=>x.trim()).filter(Boolean).forEach(x=>{
+    const a=x.split(/\s+\|\s+|\s+[—–]\s+/);
+    etapas.push([a[0],a.slice(1).join(' — ')||'Conforme planejamento']);
+  });
+  if(en.prazoArtigo)etapas.push(['Submissão do artigo',en.prazoArtigo]);
+  if(en.prazoProduto)etapas.push(['Primeira versão do produto',en.prazoProduto]);
+  if(vv('e9','quando'))etapas.push(['Devolutiva dos resultados',vv('e9','quando')]);
+  if(vv('e1','defesa'))etapas.push(['Previsão de conclusão do mestrado',vv('e1','defesa')]);
+  if(!etapas.length)etapas=extrairCronograma();
+  b+=tabela(etapas);
+  b+=titulo('12 DIVULGAÇÃO E DEVOLUTIVA');
+  b+=bloco([
+    ['Público participante ou beneficiário',vv('e7','publico')],
+    ['Plano de divulgação',vv('e8','divulgacao')],
+    ['Eventos-alvo',vv('e8','eventos')],
+    ['Parceiros institucionais',vv('e8','parceiros')],
+    ['Destinatários da devolutiva',vv('e9','paraQuem')],
+    ['Formato da devolutiva',list(vv('e9','formato'))],
+    ['Local e data da devolutiva',[(vv('e9','onde')||''),(vv('e9','quando')||'')].filter(Boolean).join(' — ')],
+    ['Registro da devolutiva',vv('e9','comoRegistra')]
+  ],'[Divulgação e devolutiva ainda não preenchidas nas estações 7 a 9.]');
+  b+=titulo('REFERÊNCIAS BIBLIOGRÁFICAS');
+  const refs=[...new Set([vv('e2','referencia'),valor('referencias')].filter(Boolean).join('\n').split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
+  b+=refs.length?refs.map(x=>p(x,{align:'left',space:100,line:310})).join(''):p('[Informar as referências completas realmente utilizadas. O Astrolábio não cria citações inexistentes.]');
+  return b;
 }
+
 const NS_DOC='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
 function img(rid,id,cx,cy){
  return '<w:r><w:drawing><wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" distT="0" distB="0" distL="0" distR="0">'+
