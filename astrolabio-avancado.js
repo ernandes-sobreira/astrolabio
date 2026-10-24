@@ -64,7 +64,10 @@ function htmlRelevancia(){
     html+='<div class="astro-slider"><label for="ar-'+k+'">'+esc(t)+' <strong id="ar-num-'+k+'">'+Number(a[k]||3)+'/5</strong></label>'+
       '<p class="dica">'+esc(d)+'</p><input id="ar-'+k+'" type="range" min="1" max="5" step="1" value="'+Number(a[k]||3)+'" oninput="ASTRO_EXT.atualizarDemanda(\''+k+'\',this.value);document.getElementById(\'ar-num-'+k+'\').textContent=this.value+\'/5\'"></div>';
   });
-  html+='<p class="dica">A régua e a origem documentada da demanda serão incluídas no projeto Word. Notas sem evidência ficam explicitamente identificadas.</p></section>';
+  const media=cs.reduce((total,item)=>total+Math.max(1,Math.min(5,Number(a[item[0]])||3)),0);
+  const indice=Math.round((media-4)*100/16);
+  html+='<p class="astro-score"><b>Índice declaratório: <span id="astro-score-num">'+indice+'</span>/100</b> — média normalizada dos quatro critérios, com pesos iguais. Não é indicador oficial.</p>';
+  html+='<p class="dica">Escala sugerida: 1 = relação não demonstrada; 2 = fraca; 3 = parcial; 4 = consistente; 5 = alta, documentada e aplicável. Registre a fonte da evidência. A régua será incluída no projeto Word, mas não substitui validação da instituição demandante.</p></section>';
   return html;
 }
 function htmlGeo(){
@@ -102,7 +105,7 @@ const UI={
   adicionarLeitura(){st().leituras.push({referencia:'',frase:'',pagina:'',relacao:'',contribuicao:'',funcao:'Teoria'});persist();desenharEstacao();},
   atualizarLeitura(i,k,val){if(st().leituras[i]){st().leituras[i][k]=val;persist();}},
   excluirLeitura(i){if(!confirm('Excluir somente esta leitura complementar?'))return;st().leituras.splice(i,1);persist();desenharEstacao();},
-  atualizarDemanda(k,val){const a=st().aderencia;if(['gestao','urgencia','aplicacao','impacto'].includes(k))a[k]=Math.max(1,Math.min(5,Number(val)||3));else a[k]=val;persist();},
+  atualizarDemanda(k,val){const a=st().aderencia;if(['gestao','urgencia','aplicacao','impacto'].includes(k))a[k]=Math.max(1,Math.min(5,Number(val)||3));else a[k]=val;persist();const el=document.getElementById('astro-score-num');if(el){const total=['gestao','urgencia','aplicacao','impacto'].reduce((t,key)=>t+Number(a[key]||3),0);el.textContent=Math.round((total-4)*100/16);}},
   alterarExclusoes(val){st().nuvem.excluir=val;persist();},
   alterarUF(uf){if(!UFS.includes(uf))return;st().geo.uf=uf;persist();UI.carregarMunicipios();},
   async carregarMunicipios(){
