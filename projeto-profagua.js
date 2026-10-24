@@ -498,11 +498,12 @@ function emblemaComFundoBranco(base64){
 async function gerar(){
  if(typeof window.JSZip==='undefined')throw new Error('Biblioteca para criar Word não carregada. Conecte-se à internet e recarregue.');
  const m=marcas(); const z=new JSZip();
+  FIGURAS=window.ASTRO_FIGURAS ? await window.ASTRO_FIGURAS.renderizar() : null;
   m.estado=await emblemaComFundoBranco(m.estado);
   m.unemat=await emblemaComFundoBranco(m.unemat);
  z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
  '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
- '<Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/>'+
+ '<Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/>'+
  '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
  '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
  '<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'+
@@ -520,7 +521,9 @@ async function gerar(){
  z.file('word/styles.xml',styles());
  z.file('word/settings.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:updateFields w:val="true"/></w:settings>');
  z.file('word/header1.xml',header());z.file('word/footer1.xml',footerCover());z.file('word/footer2.xml',footerDefault());
- z.file('word/_rels/document.xml.rels',relations([['rId1','styles','styles.xml'],['rId2','header','header1.xml'],['rId3','footer','footer1.xml'],['rId4','footer','footer2.xml'],['rId5','settings','settings.xml']]));
+ z.file('word/_rels/document.xml.rels',relations([['rId1','styles','styles.xml'],['rId2','header','header1.xml'],['rId3','footer','footer1.xml'],['rId4','footer','footer2.xml'],['rId5','settings','settings.xml'],...(FIGURAS&&FIGURAS.nuvem?[['rId6','image','media/nuvem.png']]:[]),...(FIGURAS&&FIGURAS.mapa?[['rId7','image','media/mapa.png']]:[])]));
+  if(FIGURAS&&FIGURAS.nuvem)z.file('word/media/nuvem.png',FIGURAS.nuvem,{base64:true});
+  if(FIGURAS&&FIGURAS.mapa)z.file('word/media/mapa.png',FIGURAS.mapa,{base64:true});
  z.file('word/_rels/header1.xml.rels',relations([['rId1','image','media/estado.jpg'],['rId2','image','media/unemat.jpg']]));
  z.file('word/_rels/footer1.xml.rels',relations([['rId1','image','media/profagua.jpg'],['rId2','image','media/unematLogo.jpg'],['rId3','image','media/capesAna.jpg']]));
  for(const [campo,nome] of [['estado','estado'],['unemat','unemat'],['profagua','profagua'],['unematLogo','unematLogo'],['capesAna','capesAna']]){
