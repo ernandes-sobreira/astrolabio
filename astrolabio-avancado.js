@@ -127,8 +127,11 @@ const UI={
   },
   excluirMunicipio(id){st().geo.municipios=st().geo.municipios.filter(m=>m.id!==id);persist();UI.exibirSelecoes();UI.previewMapa();},
   adicionarPonto(){
-    const lat=Number(String(document.getElementById('astro-lat').value).replace(',','.'));
-    const lng=Number(String(document.getElementById('astro-lng').value).replace(',','.'));
+    const latTexto=String(document.getElementById('astro-lat').value).trim();
+    const lngTexto=String(document.getElementById('astro-lng').value).trim();
+    if(!latTexto||!lngTexto)return alert('Informe latitude e longitude. Um campo vazio não equivale a zero.');
+    const lat=Number(latTexto.replace(',','.'));
+    const lng=Number(lngTexto.replace(',','.'));
     if(!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180) return alert('Digite latitude e longitude válidas em graus decimais.');
     const pontos=st().geo.pontos;
     if(pontos.length>=12)return alert('Máximo de 12 pontos identificados por mapa.');
@@ -183,7 +186,8 @@ const figuras={
     const fs=geos.map(x=>({name:x.municipio.nome,uf:x.municipio.uf,rings:todosPontos(x.geojson)}));
     const raw=fs.flatMap(x=>x.rings.flat()).concat((config.pontos||[]).map(p=>[p.lng,p.lat]));
     if(!raw.length){figuras.avisoCanvas(cv,'Adicione municípios ou coordenadas.');return;}
-    let minX=Math.min(...raw.map(a=>a[0])),maxX=Math.max(...raw.map(a=>a[0])),minY=Math.min(...raw.map(a=>a[1])),maxY=Math.max(...raw.map(a=>a[1]));
+    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    raw.forEach(([lon,lat])=>{if(lon<minX)minX=lon;if(lon>maxX)maxX=lon;if(lat<minY)minY=lat;if(lat>maxY)maxY=lat;});
     if(minX===maxX){minX-=.15;maxX+=.15;}if(minY===maxY){minY-=.15;maxY+=.15;}
     const mean=(minY+maxY)/2,ratio=Math.cos(mean*Math.PI/180);
     const width=(maxX-minX)*ratio,height=(maxY-minY);
@@ -201,8 +205,9 @@ const figuras={
       ctx.beginPath();g.rings.forEach(r=>{r.forEach(([lon,lat],n)=>{const [x,y]=xy(lon,lat);if(n===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.closePath();});
       ctx.fillStyle=i%2?'#D2E7D5':'#BDDBD4';ctx.fill('evenodd');
       ctx.strokeStyle='#1C6170';ctx.lineWidth=2.5;ctx.stroke();
-      const lons=g.rings.flat().map(a=>a[0]),lats=g.rings.flat().map(a=>a[1]);
-      const [tx,ty]=xy((Math.min(...lons)+Math.max(...lons))/2,(Math.min(...lats)+Math.max(...lats))/2);
+      let x1=Infinity,x2=-Infinity,y1=Infinity,y2=-Infinity;
+      g.rings.forEach(r=>r.forEach(([lon,lat])=>{x1=Math.min(x1,lon);x2=Math.max(x2,lon);y1=Math.min(y1,lat);y2=Math.max(y2,lat)}));
+      const [tx,ty]=xy((x1+x2)/2,(y1+y2)/2);
       ctx.fillStyle='#073a4d';ctx.textAlign='center';ctx.font='bold 18px Arial';ctx.fillText(g.name,tx,ty);ctx.font='14px Arial';ctx.fillText(g.uf,tx,ty+19);
     });
     (config.pontos||[]).forEach((p,i)=>{
