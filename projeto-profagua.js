@@ -132,16 +132,31 @@ function indice(){return '<w:p><w:pPr><w:pStyle w:val="Normal"/></w:pPr><w:r><w:
  '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>Atualize o sumário no Word para inserir as páginas.</w:t></w:r>'+
  '<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p>';}
 
+let FIGURAS=null;
+function rotulado(label,value){
+  const original=p(label+': '+String(value||''),{first:true});
+  const head='<w:r><w:t xml:space="preserve">'+xml(label+': ');
+  const replacement='<w:r><w:rPr><w:u w:val="single"/></w:rPr><w:t xml:space="preserve">'+xml(label+':')+'</w:t></w:r><w:r><w:t xml:space="preserve"> ';
+  return original.replace(head,replacement);
+}
+function figuraWord(rid,id,nome,fonte,largura,altura){
+  return '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="140" w:after="90"/></w:pPr>'+
+    img(rid,id,largura,altura)+'</w:p>'+
+    p(nome,{style:'FigureCaption',align:'center',space:55,line:260})+
+    p(fonte,{style:'FigureSource',align:'center',space:140,line:250});
+}
 function conteudo(){
   const en=estado.entrega||{};
   const vv=(e,k)=>v(e,k)||'';
   const list=a=>Array.isArray(a)?a.join('; '):String(a||'');
   const bloco=(pairs,pendencia)=>{
     const itens=pairs.filter(x=>x[1]!==null&&x[1]!==undefined&&String(x[1]).trim()!=='');
-    return itens.length?itens.map(x=>parags(x[0]+': '+String(x[1]))).join(''):p(pendencia||'[A desenvolver com a orientação a partir das estações do Astrolábio.]',{first:true});
+    return itens.length?itens.map(x=>rotulado(x[0],x[1])).join(''):p(pendencia||'[A desenvolver com a orientação a partir das estações do Astrolábio.]',{first:true});
   };
   const texto=(x,msg)=>parags(String(x||'').trim()||msg);
   let b='';
+  let numeroFigura=0;
+  const ext=estado.extensoes||{};
   // Capa institucional de projeto — sem banca, defesa ou ficha catalográfica.
   b+=vazio(3)+central('PROJETO DE PESQUISA','CoverLabel')+
      vazio(3)+central(tit().toUpperCase(),'CoverTitle')+
@@ -202,8 +217,25 @@ function conteudo(){
     ['Busca bibliográfica realizada',vv('e4','evidencia')],
     ['Bases consultadas',vv('e4','bases')]
   ],'[Fundamentação teórica a desenvolver com as referências das estações 2 a 4.]');
+  const leituras=[];
+  if(vv('e2','referencia'))leituras.push({
+    referencia:vv('e2','referencia'),frase:vv('e2','trecho'),
+    pagina:'(conferir página na obra original)',relacao:vv('e2','noSeuContexto'),
+    contribuicao:vv('e2','oQueMexeu'),funcao:'Texto inspirador'
+  });
+  (ext.leituras||[]).forEach(l=>{if(l&&l.referencia)leituras.push(l);});
+  b+=subtitulo('5.1 Leituras estruturantes e relações com o projeto');
+  if(!leituras.length)b+=p('[Registre leituras e trechos direcionais na estação 2; nenhuma citação será inventada.]');
+  else leituras.forEach((l,i)=>{
+    b+=p('LEITURA '+(i+1)+(l.funcao?' — '+l.funcao.toUpperCase():''),{align:'left',space:90,keep:true});
+    b+=rotulado('Referência',l.referencia);
+    b+=rotulado('Frase ou trecho direcional',l.frase||'[Selecionar trecho fiel à fonte.]');
+    if(l.pagina)b+=rotulado('Página ou localização',l.pagina);
+    if(l.relacao)b+=rotulado('Relação com o projeto',l.relacao);
+    if(l.contribuicao)b+=rotulado('Decisão apoiada pela leitura',l.contribuicao);
+  });
   if((estado.autores||[]).some(a=>a.nome)){
-    b+=subtitulo('5.1 Autores identificados no percurso');
+    b+=subtitulo('5.2 Autores identificados no percurso');
     b+=estado.autores.filter(a=>a.nome).map(a=>p(a.nome+(a.intersecao?' — '+a.intersecao:''),{align:'left'})).join('');
   }
   b+=titulo('6 MATERIAL E MÉTODOS')+subtitulo('6.1 Área e período de estudo');
@@ -291,7 +323,7 @@ function conteudo(){
     ['Registro da devolutiva',vv('e9','comoRegistra')]
   ],'[Divulgação e devolutiva ainda não preenchidas nas estações 7 a 9.]');
   b+=titulo('REFERÊNCIAS BIBLIOGRÁFICAS');
-  const refs=[...new Set([vv('e2','referencia'),valor('referencias')].filter(Boolean).join('\n').split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
+  const refs=[...new Set([vv('e2','referencia'),...(ext.leituras||[]).map(x=>x.referencia),valor('referencias')].filter(Boolean).join('\n').split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
   b+=refs.length?refs.map(x=>p(x,{align:'left',space:100,line:310})).join(''):p('[Informar as referências completas realmente utilizadas. O Astrolábio não cria citações inexistentes.]');
   return b;
 }
