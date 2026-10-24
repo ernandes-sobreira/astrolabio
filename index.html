@@ -723,6 +723,7 @@ function desenharEstacao(){
       Você pode preencher assim mesmo, e nada será perdido, mas esta estação não entra no diagnóstico nem no cálculo de progresso enquanto o momento for este.
     </div>` : '';
   const blocoEstado = (e.id === 'e10' && ehFinal()) ? htmlEstado() : '';
+  const extras = (window.ASTRO_EXT && window.ASTRO_EXT.html) ? window.ASTRO_EXT.html(e.id) : '';
   document.getElementById('tela-form').innerHTML = `
     <div class="cabeca-estacao">
       <div class="etiqueta">Estação ${estacaoAtual+1} de ${ESTACOES.length} &middot; ${escapar(e.bloco)}</div>
@@ -731,6 +732,7 @@ function desenharEstacao(){
     </div>
     ${avisoFase}
     ${corpo}
+    ${extras}
     ${blocoEstado}
     <div class="rodape-nav">
       <button onclick="abrirEstacao(${Math.max(0,estacaoAtual-1)})" ${estacaoAtual===0?'disabled style="opacity:.4"':''}>Estação anterior</button>
@@ -738,6 +740,7 @@ function desenharEstacao(){
         ? `<button class="primario" onclick="irPara('painel')">Gerar panorama</button>`
         : `<button class="primario" onclick="abrirEstacao(${estacaoAtual+1})">Próxima estação</button>`}
     </div>`;
+  if(window.ASTRO_EXT && window.ASTRO_EXT.mount) window.ASTRO_EXT.mount(e.id);
 }
 
 /* ---------- autores ---------- */
@@ -2060,6 +2063,7 @@ window.addEventListener('beforeunload', function(){
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
 <script src="profagua-marcas.js" defer></script>
+<script src="astrolabio-avancado.js?v=20261024a" defer></script>
 <script src="projeto-profagua.js?v=20261019-auto4" defer></script>
 </body>
 </html>
