@@ -342,6 +342,9 @@ function conteudo(){
   ],'[Demanda e origem ainda não informadas na estação 7.]');
   if([ad.origem,ad.instituicao,ad.demanda,ad.territorio,ad.evidencia].some(x=>String(x||'').trim())){
     b+=subtitulo('13.1 Régua de aderência — autoavaliação do discente');
+    const soma=['gestao','urgencia','aplicacao','impacto'].reduce((acc,k)=>acc+Math.max(1,Math.min(5,Number(ad[k])||3)),0);
+    const indice=Math.round((soma-4)*100/16);
+    b+=rotulado('Índice declaratório de aderência',indice+'/100 — quatro critérios com peso igual e escala de 1 a 5');
     for(const [k,label] of [
       ['gestao','Aderência à gestão pública'],
       ['urgencia','Urgência territorial'],
