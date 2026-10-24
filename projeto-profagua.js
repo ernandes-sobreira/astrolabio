@@ -244,6 +244,15 @@ function conteudo(){
     ['Território',vv('e5','territorio')],['Período',vv('e5','temporal')],
     ['Contexto de aplicação',vv('e2','noSeuContexto')]
   ],'[Área e período a especificar na estação 5.]');
+  if(FIGURAS&&FIGURAS.mapa){
+    numeroFigura++;
+    const g=ext.geo||{};
+    b+=figuraWord('rId7',71,'Figura '+numeroFigura+' – Localização da área de estudo: '+(FIGURAS.municipios||'municípios selecionados')+'.',
+      'Fonte: limites municipais do IBGE (API de Malhas Geográficas); pontos e elaboração cartográfica: Astrolábio, a partir das coordenadas informadas pelo discente.',5400000,3420000);
+    (g.pontos||[]).forEach(o=>b+=rotulado('Coordenada '+o.rotulo,Number(o.lat).toFixed(5)+'°, '+Number(o.lng).toFixed(5)+'°'));
+  }else{
+    b+=p('[Para gerar a figura cartográfica, selecione municípios e, opcionalmente, coordenadas na estação 5.]',{first:true});
+  }
   b+=subtitulo('6.2 Tipo e delineamento do estudo');
   b+=bloco([
     ['Abordagem',vv('e5','abordagem')],['Finalidade',vv('e5','finalidade')],
@@ -322,9 +331,39 @@ function conteudo(){
     ['Local e data da devolutiva',[(vv('e9','onde')||''),(vv('e9','quando')||'')].filter(Boolean).join(' — ')],
     ['Registro da devolutiva',vv('e9','comoRegistra')]
   ],'[Divulgação e devolutiva ainda não preenchidas nas estações 7 a 9.]');
+  b+=titulo('13 DEMANDA TERRITORIAL E RELEVÂNCIA DO PROJETO');
+  const ad=ext.aderencia||{};
+  b+=bloco([
+    ['Origem da demanda',ad.origem],
+    ['Instituição ou coletivo demandante',ad.instituicao],
+    ['Necessidade concreta a suprir',ad.demanda],
+    ['Território ao qual responde',ad.territorio],
+    ['Evidências e registros da demanda',ad.evidencia]
+  ],'[Demanda e origem ainda não informadas na estação 7.]');
+  if([ad.origem,ad.instituicao,ad.demanda,ad.territorio,ad.evidencia].some(x=>String(x||'').trim())){
+    b+=subtitulo('13.1 Régua de aderência — autoavaliação do discente');
+    for(const [k,label] of [
+      ['gestao','Aderência à gestão pública'],
+      ['urgencia','Urgência territorial'],
+      ['aplicacao','Aplicabilidade do produto'],
+      ['impacto','Benefício socioambiental esperado']
+    ]){
+      const n=Math.max(1,Math.min(5,Number(ad[k])||3));
+      b+=rotulado(label, '■'.repeat(n)+'□'.repeat(5-n)+'  '+n+'/5');
+    }
+    b+=p('Escala declaratória: 1 = baixa aderência; 5 = alta aderência. Pontuações atribuídas pelo discente, não constituindo avaliação oficial do Estado ou endosso da instituição demandante.',{align:'left',space:110});
+    if(!ad.evidencia)b+=p('[Falta evidência documental da origem da demanda: informar fonte, data e registro.]');
+  }
   b+=titulo('REFERÊNCIAS BIBLIOGRÁFICAS');
   const refs=[...new Set([vv('e2','referencia'),...(ext.leituras||[]).map(x=>x.referencia),valor('referencias')].filter(Boolean).join('\n').split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
   b+=refs.length?refs.map(x=>p(x,{align:'left',space:100,line:310})).join(''):p('[Informar as referências completas realmente utilizadas. O Astrolábio não cria citações inexistentes.]');
+  if(FIGURAS&&FIGURAS.nuvem){
+    b+=titulo('APÊNDICE A — NUVEM DE PALAVRAS DO PROJETO');
+    numeroFigura++;
+    b+=figuraWord('rId6',61,'Figura '+numeroFigura+' – Síntese lexical dos termos mais frequentes no projeto.',
+      'Fonte: elaboração automática do Astrolábio a partir das respostas registradas, após remoção de termos comuns e institucionais.',5400000,3150000);
+    b+=p('A frequência lexical constitui descrição textual, não avaliação de qualidade científica.',{align:'left',space:100});
+  }
   return b;
 }
 
