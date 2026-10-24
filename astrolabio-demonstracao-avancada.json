@@ -1,0 +1,295 @@
+{
+  "versao": 1,
+  "criadoEm": "2026-03-10T13:00:00.000Z",
+  "atualizadoEm": "2026-10-24T16:00:00.000Z",
+  "dados": {
+    "e1": {
+      "nome": "Discente de demonstração",
+      "instituicao": "Universidade do Estado de Mato Grosso, UNEMAT, Campus de Cáceres",
+      "programa": "ProfÁgua, Mestrado Profissional em Rede Nacional em Gestão e Regulação de Recursos Hídricos",
+      "nivel": "Mestrado profissional",
+      "area": "Ciências Ambientais",
+      "linha": "Gestão de recursos hídricos e monitoramento ambiental",
+      "grupo": "LIPAN e LEFA, laboratórios de limnologia e biogeoquímica da UNEMAT, Campus de Cáceres",
+      "orientador": "Ernandes Sobreira Oliveira Junior",
+      "coorientador": "Carla Galbiati",
+      "ingresso": "março de 2026",
+      "defesa": "dezembro de 2027",
+      "trajetoria": "Formação em Engenharia Ambiental, com oito anos de atuação em análise de processos de licenciamento e outorga em municípios da planície pantaneira. No trabalho cotidiano, a avaliação de empreendimentos em áreas alagáveis é feita com base em parâmetros de qualidade da água e supressão de vegetação, sem qualquer consideração sobre o papel dos ambientes aquáticos no ciclo do carbono. A procura pelo ProfÁgua nasceu dessa limitação prática, percebida repetidamente na análise técnica.",
+      "incomodo": "Os instrumentos de gestão hídrica aplicados no Pantanal tratam a planície como um sistema estático. As decisões de outorga, licenciamento e enquadramento são tomadas sem nenhuma informação sobre as trocas de carbono entre os corpos d'água e a atmosfera, que variam enormemente conforme a fase do pulso de inundação. O resultado é que uma mesma lagoa pode ser avaliada em cheia e em seca com o mesmo critério, ignorando que seu comportamento biogeoquímico é completamente distinto nas duas situações. Não existe protocolo que um técnico de órgão gestor consiga aplicar em campo para incorporar essa dimensão.",
+      "expectativa": "Ao final do curso, a equipe técnica que analisa processos em áreas alagáveis no órgão gestor estadual precisa dispor de um procedimento padronizado, executável com equipamento acessível, que permita registrar fluxos de carbono em pontos de monitoramento já existentes. A dimensão do carbono deixaria de ser assunto exclusivo de pesquisa e passaria a compor a rotina de avaliação ambiental na planície.",
+      "momento": "Em desenvolvimento",
+      "marco": "Instrução Normativa de PTT do ProfÁgua"
+    },
+    "e2": {
+      "referencia": "JUNK, W. J.; BAYLEY, P. B.; SPARKS, R. E. The flood pulse concept in river-floodplain systems. Canadian Special Publication of Fisheries and Aquatic Sciences, v. 106, p. 110-127, 1989.",
+      "tipo": "Artigo científico",
+      "anoLeitura": "2024",
+      "link": "Conferir DOI e versão definitiva no acervo do grupo de pesquisa",
+      "comoChegou": "Indicação do coordenador de uma capacitação sobre licenciamento em áreas úmidas, promovida pelo órgão gestor estadual em 2024. O texto foi apresentado como fundamento conceitual do porquê a planície não pode ser avaliada com os mesmos critérios aplicados a rios de canal fixo.",
+      "oQueMexeu": "O artigo desloca o eixo da análise. Até então, a inundação era vista no trabalho técnico como um evento perturbador, algo que atrapalha a coleta e distorce os parâmetros. Os autores demonstram o contrário: o pulso é o próprio organizador do sistema, e a alternância entre fase aquática e fase terrestre é o que sustenta a produtividade da planície. Isso reposiciona a sazonalidade de obstáculo metodológico para variável central de qualquer avaliação.",
+      "trecho": "A passagem em que os autores estabelecem que a maior parte da biomassa em sistemas rio-planície deriva da produção na zona de transição aquático-terrestre, e não do transporte a partir do canal principal. Transcrever a frase exata e a página na versão consultada antes de citar.",
+      "semResposta": "O conceito explica como o pulso organiza a produtividade primária, mas não trata do destino desse carbono depois de produzido. Não há no artigo nenhuma quantificação de trocas gasosas com a atmosfera, nem discussão sobre em que fase do pulso o sistema atua como fonte e em que fase atua como sumidouro. A pergunta que fica é: se o pulso comanda a produção, o que ele comanda na emissão?",
+      "noSeuContexto": "O conceito foi formulado a partir de sistemas com pulso previsível e amplitude regular. No Pantanal Norte, o regime de inundação vem apresentando alteração de amplitude e de duração, com sequências de secas severas nos últimos anos. Aplicar o conceito localmente exige verificar se a relação entre pulso e processo biogeoquímico se mantém quando o próprio pulso perde regularidade. É justamente essa instabilidade que interessa a quem decide sobre outorga."
+    },
+    "e4": {
+      "jaSeSabe": "Ambientes aquáticos continentais são componentes ativos do ciclo global do carbono e não meros condutores de material até o oceano. Planícies de inundação tropicais figuram entre os sistemas de maior variabilidade de emissão de gases de efeito estufa. O pulso de inundação organiza a produtividade primária e a estrutura trófica em sistemas rio-planície. A magnitude das trocas gasosas em corpos d'água rasos depende fortemente de temperatura, profundidade, ação do vento e concentração de matéria orgânica.",
+      "naoSeSabe": "Não existe, para o Pantanal Norte, uma série de medidas de fluxo de CO2 e CH4 que cubra um ciclo hidrológico completo em ambientes lênticos e lóticos comparáveis. Não se sabe em que fase do pulso ocorre a inversão entre condição de fonte e condição de sumidouro, nem qual a magnitude dessa inversão. E não existe procedimento padronizado que permita a um técnico de órgão gestor, sem infraestrutura de laboratório, registrar essa variável em pontos de monitoramento já estabelecidos.",
+      "evidencia": "Busca conduzida entre março e julho de 2026 no Portal de Periódicos CAPES, Scopus, Web of Science e SciELO, combinando os descritores carbon flux, greenhouse gas, floodplain, wetland, Pantanal e flood pulse, em português, inglês e espanhol, sem recorte temporal. Foram recuperados trabalhos sobre reservatórios, sobre a planície amazônica e sobre estoque de carbono em solos pantaneiros, mas nenhum apresentando série de fluxos gás-atmosfera cobrindo ciclo hidrológico completo no Pantanal Norte. A busca por protocolos operacionais em literatura cinzenta, incluindo publicações da ANA, do SNIRH e de órgãos gestores estaduais, não retornou instrumento aplicável por equipe técnica de campo.",
+      "nRefs": "68",
+      "bases": "Portal de Periódicos CAPES, Scopus, Web of Science, SciELO, Google Acadêmico, repositórios da UNEMAT e da UFMT, publicações técnicas da ANA e do SNIRH",
+      "porQueImporta": "Porque decisões de outorga e licenciamento em áreas alagáveis afetam diretamente o uso da água por ribeirinhos, pescadores e produtores da planície, e hoje são tomadas com base em uma fotografia única de um sistema que muda completamente entre a cheia e a seca. Um critério que ignora essa variação pode autorizar um uso na fase em que o corpo d'água tem menor capacidade de suportá-lo, e a conta chega para quem depende dele."
+    },
+    "e5": {
+      "titulo": "Fluxos de CO2 e CH4 em ambientes aquáticos do Pantanal Norte ao longo do pulso de inundação: subsídio técnico ao monitoramento de carbono em bacias hidrográficas",
+      "pergunta": "Como os fluxos de dióxido de carbono e de metano entre a água e a atmosfera variam ao longo das fases do pulso de inundação em ambientes lênticos e lóticos do Pantanal Norte, e que procedimento simplificado permitiria a um órgão gestor incorporar essa variação à sua rotina de monitoramento?",
+      "objetivoGeral": "Quantificar os fluxos de CO2 e CH4 entre a superfície da água e a atmosfera em ambientes lênticos e lóticos do Pantanal Norte ao longo de um ciclo hidrológico completo, entre 2026 e 2027, e converter os resultados em protocolo técnico aplicável pelo órgão gestor estadual de recursos hídricos.",
+      "objetivosEsp": "Caracterizar as fases do pulso de inundação no período amostral a partir de dados fluviométricos da estação de Cáceres e de imagens de satélite.\nMedir os fluxos difusivos de CO2 e CH4 por câmaras estáticas em pontos pareados de rio e de lagoa marginal, em quatro campanhas correspondentes às fases de enchente, cheia, vazante e seca.\nRelacionar a variação dos fluxos com variáveis limnológicas de apoio, incluindo temperatura, oxigênio dissolvido, condutividade, pH, profundidade e transparência.\nIdentificar em que fase do pulso ocorre a transição entre condição de fonte e condição de sumidouro de carbono.\nElaborar e validar, com a equipe técnica do órgão gestor, um protocolo simplificado de registro de fluxos aplicável a pontos de monitoramento já existentes.",
+      "territorio": "Trecho do rio Paraguai e lagoas marginais associadas, no entorno de Cáceres, Pantanal Norte, Mato Grosso",
+      "temporal": "Ciclo hidrológico completo, de outubro de 2026 a setembro de 2027",
+      "abordagem": "Mista",
+      "finalidade": "Explicativa",
+      "hipotese": "Hipótese de pesquisa: os ambientes lênticos apresentam maior emissão de metano e maior amplitude de variação entre as fases do pulso do que os ambientes lóticos, com a transição de sumidouro para fonte ocorrendo na passagem da cheia para a vazante, quando a decomposição da matéria orgânica acumulada na fase aquática se intensifica em coluna d'água reduzida. Hipótese nula: não há diferença significativa nos fluxos entre ambientes lênticos e lóticos nem entre as fases do pulso.",
+      "delineamento": "Levantamento amostral"
+    },
+    "e7": {
+      "publico": "Técnicos e analistas ambientais da secretaria estadual de meio ambiente que atuam na análise de processos de outorga e licenciamento em áreas alagáveis, e integrantes das câmaras técnicas dos comitês de bacia da região hidrográfica do Paraguai em Mato Grosso.",
+      "onde": "Escritórios regionais do órgão gestor estadual em Cáceres e em Cuiabá, reuniões ordinárias do comitê de bacia, encontros técnicos promovidos pela secretaria, listas internas de comunicação da equipe de licenciamento e a plataforma de capacitação continuada do próprio órgão.",
+      "oQueMuda": "O analista passa a solicitar, no rol de informações de processos localizados em ambientes lênticos da planície, o registro de fluxos de carbono conforme o protocolo, com identificação da fase do pulso em que a medição foi feita. Deixa de aceitar campanha única de amostragem como representativa do comportamento anual do corpo d'água. Na câmara técnica do comitê, o dado passa a compor a discussão sobre priorização de áreas para conservação.",
+      "barreiras": "Ausência de equipamento analítico nos escritórios regionais. Equipe técnica reduzida, com pouca disponibilidade para campanhas adicionais. Linguagem da literatura de biogeoquímica distante do vocabulário de quem trabalha com processo administrativo. Inexistência de campo específico nos formulários eletrônicos do órgão para registrar esse tipo de informação. Acesso de campo dependente de embarcação nas fases de cheia.",
+      "adaptacao": "O protocolo será redigido em formato de passo a passo numerado, com fotografias de cada etapa e sem equação no corpo do texto, remetendo os cálculos a uma planilha automatizada de preenchimento direto. Toda a terminologia será apresentada em glossário na abertura. As campanhas serão dimensionadas para caber na rotina de vistoria já existente, aproveitando deslocamentos programados, e não como atividade adicional. Uma versão resumida de duas páginas servirá como ficha de campo plastificada.",
+      "publicoSec": "Docentes e discentes de cursos técnicos e de graduação em meio ambiente da região, e gestores municipais de meio ambiente dos municípios pantaneiros"
+    },
+    "e10": {
+      "seiFazer": "Coleta limnológica de rotina e operação de sonda multiparâmetro. Interpretação de séries fluviométricas e uso de dados da rede hidrometeorológica nacional. Elaboração de parecer técnico e de relatório para órgão gestor. Leitura de literatura científica em inglês. Organização e limpeza de planilhas de dados de campo.",
+      "precisoAprender": "Montagem e operação de câmaras estáticas de fluxo, incluindo controle de vedação e de tempo de incubação, a ser aprendido em treinamento com a equipe do laboratório da UNEMAT no segundo semestre de 2026. Cálculo de fluxo a partir de curvas de concentração e tratamento de dados de cromatografia, com apoio do orientador entre outubro e dezembro de 2026. Análise estatística de dados com estrutura temporal e modelos mistos, por meio da disciplina de estatística aplicada do programa em 2027.",
+      "dadosTenho": "Série histórica de cotas da estação fluviométrica de Cáceres, obtida na base pública nacional. Dados limnológicos básicos de campanhas anteriores do grupo de pesquisa nos mesmos pontos. Cartografia de base da planície e delimitação das lagoas marginais em imagens de satélite de acesso livre.",
+      "dadosFaltam": "Todos os dados de fluxo, que dependem integralmente das quatro campanhas de campo. A análise cromatográfica das amostras gasosas depende de agendamento no laboratório parceiro, cuja fila é variável. O acesso aos pontos em propriedades particulares depende de autorização formal dos proprietários. A coleta em unidade de conservação exige autorização específica do órgão ambiental, cujo trâmite pode levar vários meses.",
+      "tempo": "16",
+      "financiamento": "Apoio institucional ou do empregador",
+      "riscos": "Seca severa que impeça o acesso às lagoas marginais na fase de vazante, comprometendo uma das quatro campanhas. Plano B: substituir por pontos de acesso terrestre previamente mapeados e registrar a limitação como resultado, já que a própria inacessibilidade é informação de gestão.\nAtraso na autorização de coleta em unidade de conservação. Plano B: protocolar o pedido já em setembro de 2026 e manter um conjunto alternativo de pontos fora da área protegida, com características comparáveis.\nIndisponibilidade do laboratório para a análise cromatográfica no prazo previsto. Plano B: acordo prévio com laboratório de instituição parceira e armazenamento adequado das amostras, com registro do tempo de estocagem para avaliação de perda."
+    },
+    "e8": {
+      "perfis": [
+        "Currículo Lattes atualizado",
+        "ORCID",
+        "Google Acadêmico",
+        "Repositório institucional"
+      ],
+      "eventos": "Simpósio de Recursos Hídricos da região hidrográfica do Paraguai, apresentação de resultados parciais, outubro de 2027.\nCongresso Brasileiro de Limnologia, apresentação da série completa de fluxos, prevista para 2027.\nSeminário anual do ProfÁgua em rede, apresentação do protocolo e da experiência de validação, novembro de 2027.\nReunião ordinária do comitê de bacia, apresentação do protocolo à câmara técnica, agosto de 2027.",
+      "divulgacao": "Texto de divulgação de duas páginas em linguagem acessível, com infográfico do ciclo do carbono na planície ao longo do pulso, destinado ao boletim do comitê de bacia. Entrevista em programa de rádio local de Cáceres, no período de cheia, quando o assunto tem apelo imediato. Sequência de imagens comentadas das campanhas de campo para o perfil institucional do grupo de pesquisa. Aula aberta em escola pública ribeirinha do município.",
+      "parceiros": "Secretaria estadual de meio ambiente, por meio da coordenadoria de recursos hídricos. Comitê de bacia da região hidrográfica do Paraguai. Grupos de pesquisa em áreas úmidas da UFMT. Unidade da Embrapa com atuação no Pantanal. Prefeitura de Cáceres, secretaria municipal de meio ambiente. Colônia de pescadores local, para apoio logístico e conhecimento dos ambientes.",
+      "metas": "Criar e atualizar ORCID e Lattes com a produção do mestrado até setembro de 2026.\nSubmeter resumo ao simpósio regional de recursos hídricos até junho de 2027.\nDepositar a versão pública do protocolo no repositório institucional até agosto de 2027.\nApresentar o protocolo à câmara técnica do comitê de bacia até agosto de 2027.\nSubmeter o artigo principal até setembro de 2027.\nPublicar o texto de divulgação no boletim do comitê até outubro de 2027.",
+      "registroProd": [
+        "Depósito em repositório institucional",
+        "ISBN ou ISSN",
+        "Licença Creative Commons"
+      ]
+    },
+    "e9": {
+      "paraQuem": "À equipe técnica da secretaria estadual de meio ambiente que participou da validação do protocolo. À câmara técnica do comitê de bacia da região hidrográfica do Paraguai. Aos proprietários rurais que autorizaram o acesso aos pontos de coleta. À colônia de pescadores que forneceu apoio logístico e indicou os ambientes amostrados. À prefeitura de Cáceres, por meio da secretaria municipal de meio ambiente.",
+      "formato": [
+        "Oficina presencial",
+        "Reunião técnica",
+        "Relatório entregue formalmente",
+        "Entrega com ofício e protocolo"
+      ],
+      "quando": "novembro de 2027, antes da defesa",
+      "onde": "Escritório regional do órgão gestor em Cáceres, com transmissão para a equipe de Cuiabá, e reunião presencial na sede da colônia de pescadores",
+      "comoRegistra": "Lista de presença assinada em cada atividade. Ofício de entrega do protocolo ao órgão gestor, com número de protocolo administrativo de recebimento. Ata da reunião da câmara técnica do comitê registrando a apresentação. Registro fotográfico da oficina. Formulário de avaliação preenchido pelos participantes ao final da oficina, com escala de concordância sobre clareza e aplicabilidade. Declaração institucional de recebimento emitida pela secretaria.",
+      "compromisso": "Assumo o compromisso de entregar o protocolo em versão final e de acesso aberto às instituições que viabilizaram esta pesquisa, antes da defesa e independentemente do resultado das análises. Comprometo-me a apresentar os resultados às pessoas que autorizaram o acesso às suas propriedades e aos pescadores que indicaram os ambientes, em linguagem que dispense formação técnica. Se os dados indicarem que o procedimento proposto não é viável na rotina do órgão gestor, comprometo-me a registrar isso com a mesma clareza com que registraria um resultado favorável."
+    }
+  },
+  "autores": [
+    {
+      "nome": "Wolfgang J. Junk",
+      "papel": "Autor do texto inspirador",
+      "instituicao": "Instituto Nacional de Ciência e Tecnologia em Áreas Úmidas, com atuação junto à UFMT",
+      "pais": "Brasil e Alemanha",
+      "grupo": "Rede de pesquisa em áreas úmidas brasileiras, conferir vínculo atual",
+      "perfil": "Consultar Google Acadêmico e a página do INCT em Áreas Úmidas",
+      "produzAlem": "Além do conceito de pulso de inundação, coordena e integra a classificação e o inventário das áreas úmidas brasileiras, com produção sobre políticas de conservação e sobre a delimitação legal desses ambientes. Essa vertente normativa interessa diretamente ao produto técnico deste projeto, porque conecta o conceito ecológico ao instrumento de gestão.",
+      "intersecao": "O projeto testa empiricamente, na dimensão biogeoquímica, a consequência do conceito que ele formulou na dimensão ecológica. A interseção é o próprio pulso como variável organizadora, aplicada a um processo que o conceito original não abordou.",
+      "aproximacao": [
+        "Ler a obra completa",
+        "Convite para banca"
+      ],
+      "acao": "Levantar a produção recente sobre classificação de áreas úmidas até outubro de 2026 e avaliar com o orientador a pertinência de convite para banca de qualificação",
+      "status": "Não iniciado"
+    },
+    {
+      "nome": "Cátia Nunes da Cunha",
+      "papel": "Referência do contexto ou território",
+      "instituicao": "Universidade Federal de Mato Grosso, conferir vínculo atual",
+      "pais": "Brasil",
+      "grupo": "Grupos de pesquisa em ecologia e conservação de áreas úmidas, Cuiabá",
+      "perfil": "Consultar Currículo Lattes",
+      "produzAlem": "Produção extensa sobre vegetação, classificação de fitofisionomias e dinâmica de inundação no Pantanal, com envolvimento em processos de delimitação e de política de conservação da planície. Coordena e orienta trabalhos que cobrem justamente a caracterização dos ambientes onde as campanhas serão realizadas.",
+      "intersecao": "A caracterização dos ambientes lênticos e da vegetação associada é insumo direto para a interpretação dos fluxos medidos, já que a fonte de matéria orgânica condiciona a emissão. Há complementaridade evidente entre a descrição do ambiente e a medida do processo.",
+      "aproximacao": [
+        "Contato por e-mail",
+        "Encontro em evento",
+        "Convite para banca"
+      ],
+      "acao": "Enviar e-mail apresentando o projeto e solicitando orientação sobre a caracterização dos pontos amostrais até novembro de 2026",
+      "status": "Não iniciado"
+    },
+    {
+      "nome": "Ivan Bergier",
+      "papel": "Referência metodológica",
+      "instituicao": "Embrapa, unidade com atuação no Pantanal, conferir vínculo atual",
+      "pais": "Brasil",
+      "grupo": "Pesquisa em biogeoquímica e sistemas ambientais do Pantanal",
+      "perfil": "Consultar Currículo Lattes e Google Acadêmico",
+      "produzAlem": "Trabalhos sobre biogeoquímica, dinâmica de carbono e modelagem de processos ambientais na planície pantaneira, além de produção sobre bioeconomia e sistemas produtivos regionais. Mantém proximidade com a estrutura de pesquisa aplicada da Embrapa, o que abre caminho para apoio analítico e para validação institucional do protocolo.",
+      "intersecao": "Metodologia de quantificação de processos de carbono no mesmo bioma, com escala e instrumentação comparáveis. É o interlocutor mais direto para discutir montagem de câmaras, tempo de incubação e tratamento das curvas de concentração.",
+      "aproximacao": [
+        "Contato por e-mail",
+        "Coautoria de artigo",
+        "Parceria institucional"
+      ],
+      "acao": "Solicitar reunião técnica para discutir o desenho amostral e a viabilidade de apoio analítico até setembro de 2026",
+      "status": "Não iniciado"
+    },
+    {
+      "nome": "Fábio Roland",
+      "papel": "Referência teórica central",
+      "instituicao": "Universidade Federal de Juiz de Fora, conferir vínculo atual",
+      "pais": "Brasil",
+      "grupo": "Laboratório de ecologia aquática, com linha em carbono e gases de efeito estufa em águas continentais",
+      "perfil": "Consultar Currículo Lattes e Google Acadêmico",
+      "produzAlem": "Produção consolidada sobre metabolismo aquático e emissões de gases de efeito estufa em águas continentais brasileiras, com forte atuação em formação de pesquisadores e em redes nacionais de pesquisa em limnologia. Coordena projetos de longa duração, o que abre possibilidade de inserção do ponto amostral deste projeto em rede maior.",
+      "intersecao": "Fundamento teórico do metabolismo aquático e da condição de fonte ou sumidouro, que é exatamente a transição que este projeto pretende localizar no pulso. A base conceitual do artigo principal virá dessa linha.",
+      "aproximacao": [
+        "Ler a obra completa",
+        "Encontro em evento",
+        "Participação em projeto ou edital"
+      ],
+      "acao": "Levantar a produção recente do grupo e buscar contato no Congresso Brasileiro de Limnologia de 2027",
+      "status": "Não iniciado"
+    },
+    {
+      "nome": "Alex Enrich-Prast",
+      "papel": "Referência metodológica",
+      "instituicao": "Universidade Federal Fluminense, com vínculo internacional, conferir situação atual",
+      "pais": "Brasil e Suécia",
+      "grupo": "Pesquisa em biogeoquímica de metano em ambientes aquáticos tropicais",
+      "perfil": "Consultar Currículo Lattes, ORCID e Google Acadêmico",
+      "produzAlem": "Trabalhos sobre produção e oxidação de metano em ambientes tropicais, com desenvolvimento de abordagens de medição e de interpretação de vias metabólicas. Mantém colaborações internacionais que ampliam o alcance de resultados regionais.",
+      "intersecao": "A fração metano dos fluxos deste projeto depende diretamente das abordagens de medição consolidadas por essa linha. É a referência para decidir entre câmara estática e alternativas, e para interpretar a variabilidade encontrada.",
+      "aproximacao": [
+        "Ler a obra completa",
+        "Contato por e-mail"
+      ],
+      "acao": "Enviar e-mail com dúvida específica sobre protocolo de incubação após a primeira campanha, até fevereiro de 2027",
+      "status": "Não iniciado"
+    }
+  ],
+  "entrega": {
+    "formatos": [
+      "Artigo científico",
+      "Produto Técnico e Tecnológico"
+    ],
+    "revista": "Frontiers in Environmental Science",
+    "qualis": "Verificar o estrato vigente na Plataforma Sucupira para a área de Ciências Ambientais antes de decidir",
+    "porQueRevista": "A revista publica com regularidade trabalhos sobre biogeoquímica de sistemas aquáticos continentais e sobre serviços ecossistêmicos em áreas úmidas, com abertura a estudos de escala regional que combinem medida de processo e implicação para gestão. O acesso aberto favorece o alcance junto a técnicos de órgãos gestores, que não têm acesso institucional a periódicos fechados. Selecionar e registrar dois artigos recentes da própria revista que dialoguem diretamente com o desenho amostral deste projeto antes da submissão.",
+    "idioma": "Inglês, com versão em português depositada no repositório institucional",
+    "taxa": "Cobra taxa de publicação. Verificar valor vigente e política de isenção ou desconto para autores de instituições brasileiras antes de fechar a escolha",
+    "prazoArtigo": "setembro de 2027",
+    "revista2": "",
+    "revista3": "",
+    "tipoProduto": "Protocolo técnico",
+    "nomeProduto": "Protocolo simplificado de registro de fluxos de carbono em ambientes aquáticos da planície pantaneira",
+    "usuario": "O analista ambiental do escritório regional durante vistoria de campo em processo de licenciamento ou de renovação de outorga em corpo d'água da planície. Ele já está no ponto, com sonda multiparâmetro e ficha de vistoria em mãos. O protocolo entra nesse momento: define o que instalar, por quanto tempo, o que anotar e como identificar a fase do pulso, para que o registro produza uma informação comparável entre campanhas. A decisão que apoia é se o corpo d'água exige monitoramento sazonal ampliado ou se a campanha única é suficiente.",
+    "hospedagem": [
+      "Repositório institucional",
+      "ISBN ou ISSN",
+      "Servidor ou site institucional",
+      "Impressão e distribuição física"
+    ],
+    "validacao": "Aplicação piloto com quinze analistas ambientais do órgão gestor estadual, em oficina de oito horas com execução do procedimento em campo. Avaliação por escala de concordância de cinco pontos em seis dimensões: clareza das instruções, adequação do tempo de execução à rotina de vistoria, suficiência do material listado, facilidade de preenchimento da ficha, confiança no resultado obtido e disposição para incorporar à prática. Parecer técnico de dois especialistas em biogeoquímica de áreas úmidas sobre a consistência do procedimento. Pré-teste com três técnicos antes da oficina, para ajuste da redação.",
+    "evidencias": "Lista de presença assinada da oficina. Formulários de avaliação preenchidos e tabulados. Fichas de campo efetivamente preenchidas durante a aplicação piloto. Registro fotográfico da montagem em campo. Ofício de entrega com número de protocolo administrativo. Pareceres dos especialistas. Declaração institucional da secretaria sobre o recebimento do protocolo. Registro de acessos ao arquivo no repositório institucional.",
+    "prazoProduto": "junho de 2027",
+    "diferencial": "Existem protocolos de medição de fluxo voltados a equipes de pesquisa, com exigência de cromatografia e de infraestrutura laboratorial. Não há procedimento dimensionado para a rotina de vistoria de órgão gestor, sem laboratório próprio, aproveitando deslocamentos já programados. O produto adapta o procedimento científico às condições reais de trabalho da equipe técnica e acrescenta a identificação da fase do pulso como variável de registro obrigatório.",
+    "outros": "",
+    "tipoCapes": "Manual ou protocolo",
+    "tipoCapes2": "Material didático ou educacional",
+    "quemDemandou": "A coordenadoria de recursos hídricos da secretaria estadual de meio ambiente, em reunião técnica realizada no escritório regional de Cáceres. A demanda foi reiterada pela câmara técnica do comitê de bacia, que registrou em ata a ausência de critério sazonal na análise de processos em ambientes lênticos da planície.",
+    "evidProblema": "Levantamento dos processos de licenciamento e renovação de outorga em corpos d'água da planície analisados pelo escritório regional em 2025, nos quais a campanha única de amostragem foi aceita como representativa do comportamento anual, sem qualquer registro da fase do pulso. Ausência de campo específico para essa informação nos formulários eletrônicos do órgão. Manifestação registrada em ata da câmara técnica do comitê de bacia.",
+    "vinculacao": "O produto deriva diretamente do quinto objetivo específico da dissertação e converte os resultados das quatro campanhas em procedimento operacional. A série de fluxos medida ao longo do ciclo hidrológico fornece os intervalos de referência e a identificação da fase crítica do pulso, que são exatamente os parâmetros que o protocolo instrui o técnico a registrar. Sem os resultados da pesquisa, o protocolo não teria como definir tempo de incubação, número mínimo de réplicas nem critério de leitura.",
+    "modalidadesVal": [
+      "Aplicação piloto",
+      "Avaliação por usuários ou beneficiários",
+      "Parecer técnico de especialista externo",
+      "Oficina participativa, grupo focal, painel de especialistas ou Delphi"
+    ],
+    "transfPrev": [
+      "Entrega formal à instituição",
+      "Disponibilização em repositório",
+      "Capacitação",
+      "Oficina de aplicação",
+      "Incorporação em sistema ou processo"
+    ],
+    "neAlvo": "NE3, produto transferido ou compartilhado",
+    "neFuturo": "NE4, produto utilizado ou adotado",
+    "indicadores": "Número de processos analisados que passam a registrar a fase do pulso na campanha de amostragem. Linha de base: zero em 2025. Fonte: sistema de processos do órgão gestor. Periodicidade: semestral.\nNúmero de analistas capacitados que aplicaram o protocolo ao menos uma vez em vistoria. Linha de base: zero. Fonte: registro de vistorias e declaração do escritório regional. Periodicidade: anual.\nIncorporação do registro de fluxos ao rol de informações exigidas em processos de ambientes lênticos da planície. Linha de base: não previsto. Fonte: instrução normativa ou ordem de serviço do órgão. Periodicidade: verificação em 12 e 24 meses.",
+    "mudanca": "Em até doze meses após a entrega, espera-se que a análise de processos em ambientes lênticos da planície passe a considerar a fase do pulso de inundação como informação obrigatória, deixando de tratar campanha única como representativa do comportamento anual do corpo d'água. O benefício direto é a comparabilidade entre campanhas e a redução do risco de decisão baseada em amostragem não representativa.",
+    "etica": "Não se aplica",
+    "dadosPes": "Não envolve dados pessoais",
+    "pi": "Não identificada",
+    "sigilo": "Acesso aberto",
+    "acessibilidade": "Ficha de campo em versão plastificada com tipografia ampliada e alto contraste, adequada a leitura sob sol direto. Versão digital em PDF com texto selecionável e estrutura de cabeçalhos, compatível com leitor de tela. Glossário de abertura dispensando formação prévia em biogeoquímica."
+  },
+  "extensoes": {
+    "leituras": [
+      {
+        "referencia": "ESTEVES, Francisco de Assis. Fundamentos de limnologia. 3. ed. Rio de Janeiro: Interciência, 2011.",
+        "frase": "Paráfrase demonstrativa, não citação literal: o metabolismo dos ambientes aquáticos depende das condições físicas, químicas e biológicas.",
+        "pagina": "Capítulo e página a conferir na edição consultada",
+        "relacao": "Fornece os conceitos limnológicos para interpretar temperatura, oxigênio dissolvido e carbono nos ambientes estudados.",
+        "contribuicao": "Definição das variáveis limnológicas de apoio às medidas de CO₂ e CH₄.",
+        "funcao": "Teoria"
+      },
+      {
+        "referencia": "DOCUMENTO ILUSTRATIVO DE EXEMPLO — substituir por artigo metodológico efetivamente lido e referenciado.",
+        "frase": "[Inserir uma citação breve, conferida no texto original, com página. Não é uma citação real.]",
+        "pagina": "[Conferir página]",
+        "relacao": "Exemplo de como registrar a relação de um segundo texto com o método de câmaras de fluxo.",
+        "contribuicao": "Critérios para decidir o desenho amostral; completar após leitura da referência real.",
+        "funcao": "Método"
+      }
+    ],
+    "aderencia": {
+      "origem": "Exemplo didático: necessidade potencial de monitoramento ambiental regional (não corresponde a demanda oficial confirmada).",
+      "instituicao": "Secretaria estadual de meio ambiente e comitê de bacia — instituições de referência, sem manifestação institucional validada neste exemplo.",
+      "demanda": "Ausência de um procedimento simplificado para observar a variação sazonal dos fluxos de carbono em corpos d'água pantaneiros.",
+      "territorio": "Município de Cáceres, rio Paraguai e ambientes alagáveis do Pantanal Norte, Mato Grosso.",
+      "evidencia": "DEMONSTRAÇÃO: ainda não há ofício, ata ou registro documental confirmado. O estudante deverá anexar a fonte e a data reais.",
+      "gestao": 3,
+      "urgencia": 4,
+      "aplicacao": 3,
+      "impacto": 4
+    },
+    "geo": {
+      "uf": "MT",
+      "municipios": [
+        {
+          "id": "5102504",
+          "nome": "Cáceres",
+          "uf": "MT"
+        }
+      ],
+      "pontos": [
+        {
+          "lat": -16.0742,
+          "lng": -57.6759,
+          "rotulo": "Ponto ilustrativo — Cáceres"
+        }
+      ]
+    },
+    "nuvem": {
+      "excluir": "instituição; pesquisa; projeto"
+    }
+  },
+  "notasDemonstracao": "Arquivo de exemplo; números, demandas e pontos não representam resultados de campo. Confirme as referências e as citações antes do uso acadêmico."
+}
