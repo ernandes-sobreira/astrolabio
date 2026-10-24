@@ -126,7 +126,7 @@ const UI={
     g.municipios.push(m);persist();UI.exibirSelecoes();UI.previewMapa();
   },
   excluirMunicipio(id){st().geo.municipios=st().geo.municipios.filter(m=>m.id!==id);persist();UI.exibirSelecoes();UI.previewMapa();},
-  adicionarPonto(){
+  async adicionarPonto(){
     const latTexto=String(document.getElementById('astro-lat').value).trim();
     const lngTexto=String(document.getElementById('astro-lng').value).trim();
     if(!latTexto||!lngTexto)return alert('Informe latitude e longitude. Um campo vazio não equivale a zero.');
@@ -136,7 +136,18 @@ const UI={
     const pontos=st().geo.pontos;
     if(pontos.length>=12)return alert('Máximo de 12 pontos identificados por mapa.');
     pontos.push({lat,lng,rotulo:ed(document.getElementById('astro-ponto').value)||'P'+(pontos.length+1)});
-    persist();UI.exibirSelecoes();UI.previewMapa();
+    persist();UI.exibirSelecoes();
+    if(!st().geo.municipios.length){
+      UI.status('Consultando município correspondente às coordenadas...');
+      try{
+        const m=await figuras.resolverMunicipioDaCoordenada(lat,lng);
+        if(m&&!st().geo.municipios.some(x=>x.id===m.id)){
+          st().geo.municipios.push(m);persist();UI.exibirSelecoes();
+          UI.status('Município confirmado pela malha do IBGE: '+m.nome+'/'+m.uf);
+        }
+      }catch(e){UI.status('Coordenada registrada. Para mapear o território oficialmente, selecione o município ou tente novamente: '+e.message);}
+    }
+    UI.previewMapa();
   },
   excluirPonto(i){st().geo.pontos.splice(i,1);persist();UI.exibirSelecoes();UI.previewMapa();},
   exibirSelecoes(){
@@ -163,6 +174,46 @@ function todosPontos(geometry){
  return [];
 }
 const figuras={
+  async resolverMunicipioDaCoordenada(lat,lng){
+    const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&zoom=10&lat='+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lng));
+    if(!r.ok)throw Error('consulta reversa indisponível');
+    const data=await r.json(),a=data.address||{};
+    const nome=a.county||a.municipality||a.city||a.town||a.village;
+    if(!nome)throw Error('não foi possível identificar o município');
+    let uf=(a['ISO3166-2-lvl4']||a.state_code||'').replace(/^BR-/,'').toUpperCase();
+    if(!UFS.includes(uf)){
+      const re=await fetch(API+'/v1/localidades/estados');
+      if(!re.ok)throw Error('IBGE não respondeu consulta das unidades federativas');
+      const estados=await re.json();
+      const uni=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+      const found=estados.find(x=>uni(x.nome)===uni(a.state));uf=found?.sigla;
+    }
+    if(!UFS.includes(uf))throw Error('UF não identificada para as coordenadas');
+    const re=await fetch(API+'/v1/localidades/estados/'+uf+'/municipios');
+    if(!re.ok)throw Error('IBGE não respondeu consulta dos municípios');
+    const list=await re.json();
+    const uni=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+    const nomes=[a.county,a.municipality,a.city,a.town,a.village].filter(Boolean);
+    const m=list.find(o=>nomes.some(n=>uni(n)===uni(o.nome)));
+    if(!m)throw Error('nome do município não encontrado no cadastro IBGE');
+    const obj={id:String(m.id),nome:m.nome,uf};
+    const geo=await figuras.buscarMalha(obj);
+    if(!figuras.contemPonto(geo,lng,lat))throw Error('ponto não pertence à malha municipal identificada; selecione o município manualmente');
+    return obj;
+  },
+  contemPonto(geo,lon,lat){
+    const rings=todosPontos(geo);
+    let inside=false;
+    for(const ring of rings){
+      let hit=false;
+      for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+        const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+        if(((yi>lat)!==(yj>lat))&&lon<((xj-xi)*(lat-yi)/(yj-yi)+xi))hit=!hit;
+      }
+      if(hit)inside=!inside;
+    }
+    return inside;
+  },
   async buscarMalha(m){
     if(CACHE.has(m.id))return CACHE.get(m.id);
     const resp=await fetch(API+'/v3/malhas/municipios/'+m.id+'?formato=application/vnd.geo%2Bjson&qualidade=minima',{headers:{Accept:'application/vnd.geo+json'}});
