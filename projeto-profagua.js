@@ -140,9 +140,9 @@ function rotulado(label,value){
   return original.replace(head,replacement);
 }
 function figuraWord(rid,id,nome,fonte,largura,altura){
-  return '<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="140" w:after="90"/></w:pPr>'+
+  return '<w:p><w:pPr><w:keepNext/><w:jc w:val="center"/><w:spacing w:before="140" w:after="90"/></w:pPr>'+
     img(rid,id,largura,altura)+'</w:p>'+
-    p(nome,{style:'FigureCaption',align:'center',space:55,line:260})+
+    p(nome,{style:'FigureCaption',align:'center',space:55,line:260,keep:true})+
     p(fonte,{style:'FigureSource',align:'center',space:140,line:250});
 }
 function conteudo(){
