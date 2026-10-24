@@ -430,7 +430,31 @@ function doc(){
  '<w:titlePg/><w:pgSz w:w="11906" w:h="16838"/>'+
  '<w:pgMar w:top="2350" w:right="1134" w:bottom="1750" w:left="1700" w:header="380" w:footer="450" w:gutter="0"/>'+
  '</w:sectPr>';
- return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+NS_DOC+'><w:body>'+conteudo()+sect+'</w:body></w:document>';
+ // Em OOXML, a seção retrato termina num parágrafo com sectPr; só a seção
+ // final do apêndice fica paisagem. O restante do projeto permanece A4 retrato.
+ const corpo=conteudo();
+ if(!FIGURAS || !FIGURAS.mental){
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+NS_DOC+'><w:body>'+corpo+sect+'</w:body></w:document>';
+ }
+ const quebra='<w:p><w:pPr>'+sect.replace('<w:sectPr>','<w:sectPr><w:type w:val="nextPage"/>')+'</w:pPr></w:p>';
+ const paisagem='<w:sectPr><w:headerReference w:type="default" r:id="rId2"/>'+
+  '<w:footerReference w:type="default" r:id="rId4"/>'+
+  '<w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>'+
+  '<w:pgMar w:top="1650" w:right="1200" w:bottom="950" w:left="1200" w:header="340" w:footer="400" w:gutter="0"/>'+
+  '</w:sectPr>';
+ const anterior=(FIGURAS.nuvem?'B':'A');
+ const figurasAnteriores=(FIGURAS.mapa?1:0)+(FIGURAS.nuvem?1:0);
+ const tituloAnexo='APÊNDICE '+anterior+' — MAPA MENTAL DO PERCURSO DE PESQUISA';
+ const razao=FIGURAS.mentalAspect||2;
+ // Área útil A4 paisagem: 10,04 x 6,46 pol; reservar espaço para título, legenda e fonte.
+ const largura=Math.min(8600000,Math.floor(4500000*razao));
+ const altura=Math.round(largura/razao);
+ const fig=figuraWord('rId8',81,
+  'Figura '+(figurasAnteriores+1)+' – Mapa mental do percurso acadêmico: origem, lacuna, projeto, entrega e alcance.',
+  'Fonte: Astrolábio — representação automática das respostas do discente nas dez estações.',largura,altura);
+ const apendice=titulo(tituloAnexo)+fig;
+ return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+NS_DOC+'><w:body>'+
+  corpo+quebra+apendice+paisagem+'</w:body></w:document>';
 }
 function styles(){
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
@@ -500,10 +524,47 @@ function emblemaComFundoBranco(base64){
   });
 }
 
+/* Gera uma imagem nítida do mesmo SVG completo usado na tela Mapa Mental.
+ * Não captura a área rolável: rasteriza diretamente o SVG, com as 5 colunas.
+ * A imagem vai para um apêndice A4 horizontal, com fonte e legenda acadêmicas. */
+async function imagemMapaMental(){
+ if(typeof montarSVG!=='function')throw new Error('O mapa mental não está disponível na página. Recarregue o Astrolábio.');
+ const svg=montarSVG();
+ const dims=svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+ if(!dims)throw new Error('O mapa mental não informou suas dimensões.');
+ const width=Number(dims[1]),height=Number(dims[2]);
+ if(!(width>0 && height>0))throw new Error('Dimensões inválidas para o mapa mental.');
+ const escala=Math.min(2.5,4600/width,3000/height);
+ const canvas=document.createElement('canvas');
+ canvas.width=Math.max(1,Math.round(width*escala));
+ canvas.height=Math.max(1,Math.round(height*escala));
+ const ctx=canvas.getContext('2d');
+ if(!ctx)throw new Error('O navegador não oferece Canvas para exportar o mapa mental.');
+ const svgBlob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+ const url=URL.createObjectURL(svgBlob);
+ try{
+  const image=await new Promise((resolve,reject)=>{
+   const im=new Image();
+   im.onload=()=>resolve(im);
+   im.onerror=()=>reject(new Error('Não foi possível converter o mapa mental para imagem.'));
+   im.src=url;
+  });
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(image,0,0,canvas.width,canvas.height);
+  const png=canvas.toDataURL('image/png');
+  if(!png.startsWith('data:image/png;base64,'))throw new Error('A exportação PNG não foi concluída.');
+  return {base64:png.split(',')[1],aspect:width/height};
+ }finally{URL.revokeObjectURL(url);}
+}
+
 async function gerar(){
  if(typeof window.JSZip==='undefined')throw new Error('Biblioteca para criar Word não carregada. Conecte-se à internet e recarregue.');
  const m=marcas(); const z=new JSZip();
-  FIGURAS=window.ASTRO_FIGURAS ? await window.ASTRO_FIGURAS.renderizar() : null;
+  FIGURAS=window.ASTRO_FIGURAS ? await window.ASTRO_FIGURAS.renderizar() : {};
+  const mapaMental=await imagemMapaMental();
+  FIGURAS.mental=mapaMental.base64;
+  FIGURAS.mentalAspect=mapaMental.aspect;
   m.estado=await emblemaComFundoBranco(m.estado);
   m.unemat=await emblemaComFundoBranco(m.unemat);
  z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
@@ -526,9 +587,10 @@ async function gerar(){
  z.file('word/styles.xml',styles());
  z.file('word/settings.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:updateFields w:val="true"/></w:settings>');
  z.file('word/header1.xml',header());z.file('word/footer1.xml',footerCover());z.file('word/footer2.xml',footerDefault());
- z.file('word/_rels/document.xml.rels',relations([['rId1','styles','styles.xml'],['rId2','header','header1.xml'],['rId3','footer','footer1.xml'],['rId4','footer','footer2.xml'],['rId5','settings','settings.xml'],...(FIGURAS&&FIGURAS.nuvem?[['rId6','image','media/nuvem.png']]:[]),...(FIGURAS&&FIGURAS.mapa?[['rId7','image','media/mapa.png']]:[])]));
+ z.file('word/_rels/document.xml.rels',relations([['rId1','styles','styles.xml'],['rId2','header','header1.xml'],['rId3','footer','footer1.xml'],['rId4','footer','footer2.xml'],['rId5','settings','settings.xml'],...(FIGURAS&&FIGURAS.nuvem?[['rId6','image','media/nuvem.png']]:[]),...(FIGURAS&&FIGURAS.mapa?[['rId7','image','media/mapa.png']]:[]),...(FIGURAS&&FIGURAS.mental?[['rId8','image','media/mapa-mental.png']]:[])]));
   if(FIGURAS&&FIGURAS.nuvem)z.file('word/media/nuvem.png',FIGURAS.nuvem,{base64:true});
   if(FIGURAS&&FIGURAS.mapa)z.file('word/media/mapa.png',FIGURAS.mapa,{base64:true});
+  if(FIGURAS&&FIGURAS.mental)z.file('word/media/mapa-mental.png',FIGURAS.mental,{base64:true});
  z.file('word/_rels/header1.xml.rels',relations([['rId1','image','media/estado.jpg'],['rId2','image','media/unemat.jpg']]));
  z.file('word/_rels/footer1.xml.rels',relations([['rId1','image','media/profagua.jpg'],['rId2','image','media/unematLogo.jpg'],['rId3','image','media/capesAna.jpg']]));
  for(const [campo,nome] of [['estado','estado'],['unemat','unemat'],['profagua','profagua'],['unematLogo','unematLogo'],['capesAna','capesAna']]){
