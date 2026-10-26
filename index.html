@@ -366,6 +366,7 @@ const ESTACOES = [
     guia:'Antes de qualquer coisa, situe-se. Um percurso de pós-graduação não começa na matrícula: começa em algum incômodo que existia antes dela. Recuperar esse ponto de origem é o que dá direção às escolhas que virão.',
     campos:[
       {k:'nome', t:'text', r:'Seu nome completo'},
+      {k:'matricula', t:'text', r:'Número de matrícula no programa, se houver'},
       {k:'instituicao', t:'text', r:'Instituição', meia:true},
       {k:'programa', t:'text', r:'Programa de pós-graduação', meia:true},
       {k:'nivel', t:'select', r:'Nível', op:['Mestrado acadêmico','Mestrado profissional','Doutorado','Doutorado profissional','Pós-doutorado'], meia:true},
@@ -374,6 +375,7 @@ const ESTACOES = [
       {k:'area', t:'text', r:'Área de avaliação ou grande área', meia:true},
       {k:'linha', t:'text', r:'Linha de pesquisa', meia:true},
       {k:'grupo', t:'text', r:'Grupo de pesquisa ou laboratório', d:'Nome do grupo no diretório institucional ou no CNPq, se houver.', meia:true},
+      {k:'projetoEstruturante', t:'text', r:'Projeto de pesquisa ou estruturante vinculado, se houver', meia:true},
       {k:'orientador', t:'text', r:'Orientador', meia:true},
       {k:'coorientador', t:'text', r:'Coorientador, se houver', meia:true},
       {k:'ingresso', t:'text', r:'Mês e ano de ingresso', meia:true},
@@ -423,7 +425,9 @@ const ESTACOES = [
       {k:'nRefs', t:'number', r:'Número aproximado de referências consultadas até aqui', meia:true},
       {k:'bases', t:'text', r:'Bases e fontes consultadas', d:'Periódicos CAPES, Scopus, Web of Science, SciELO, Google Acadêmico, repositórios, literatura cinzenta.', meia:true},
       {k:'porQueImporta', t:'textarea', r:'Por que essa lacuna importa para alguém que não é pesquisador?',
-        d:'Se você não conseguir responder, o projeto terá dificuldade de justificar relevância social, e no mestrado profissional isso é decisivo.'}
+        d:'Se você não conseguir responder, o projeto terá dificuldade de justificar relevância social, e no mestrado profissional isso é decisivo.'},
+      {k:'politicaRelacionada', t:'textarea', r:'A qual política pública, instrumento de gestão ou demanda social o problema se relaciona?',
+        d:'Descreva a relação concreta, quando existir. Esse vínculo será reaproveitado no plano do produto técnico do ProfÁgua.'}
     ]
   },
   {
@@ -442,7 +446,9 @@ const ESTACOES = [
       {k:'finalidade', t:'select', r:'Finalidade', op:['Exploratória','Descritiva','Explicativa','Interpretativa'], meia:true},
       {k:'hipotese', t:'textarea', r:'Hipótese ou pressuposto orientador',
         d:'Se a pesquisa for exploratória ou qualitativa e não comportar hipótese, escreva o pressuposto que a orienta e diga por que não há hipótese.'},
-      {k:'delineamento', t:'select', r:'Estratégia de pesquisa predominante', op:['Estudo de caso','Levantamento amostral','Pesquisa documental','Pesquisa-ação ou participante','Experimento ou quase-experimento','Modelagem ou simulação','Revisão sistemática ou integrativa','Combinação de estratégias']}
+      {k:'delineamento', t:'select', r:'Estratégia de pesquisa predominante', op:['Estudo de caso','Levantamento amostral','Pesquisa documental','Pesquisa-ação ou participante','Experimento ou quase-experimento','Modelagem ou simulação','Revisão sistemática ou integrativa','Combinação de estratégias']},
+      {k:'conhecimentoSolucao', t:'textarea', r:'Que conhecimento produzido pela pesquisa poderá se transformar em solução aplicada?',
+        d:'Diferencie o que será descoberto ou produzido na pesquisa do que será entregue ao público por meio do produto técnico, se houver.'}
     ]
   },
   {
@@ -525,6 +531,25 @@ let estado = { versao:1, criadoEm:new Date().toISOString(), atualizadoEm:null, d
 let estacaoAtual = 0;
 let telaAtual = 'form';
 
+/* Compatibilidade com formulários anteriores: transfere respostas já registradas
+ * no Anexo II para as estações existentes, sem apagar o backup nem sobrescrever
+ * respostas atuais do discente. */
+function migrarAnexoIIParaEstacoes(){
+ const antigo=estado.entrega&&estado.entrega.anexoII;
+ if(!antigo||typeof antigo!=='object')return;
+ if(!estado.dados)estado.dados={};
+ for(const [est,campo,id] of [
+  ['e1','matricula','matricula'],
+  ['e1','projetoEstruturante','projetoEstruturante'],
+  ['e4','politicaRelacionada','politicaRelacionada'],
+  ['e5','conhecimentoSolucao','conhecimentoSolucao']
+ ]){
+  if(antigo[id]!==undefined&&antigo[id]!==null&&String(antigo[id]).trim()){
+   estado.dados[est]??={};
+   if(!estado.dados[est][campo])estado.dados[est][campo]=antigo[id];
+  }
+ }
+}
 function carregar(){
   const bruto = Cofre.ler(CHAVE);
   if(bruto){
@@ -535,6 +560,7 @@ function carregar(){
       if(!Array.isArray(estado.autores)) estado.autores = [];
       if(!estado.entrega) estado.entrega = {formatos:[]};
       if(!Array.isArray(estado.entrega.formatos)) estado.entrega.formatos = [];
+      migrarAnexoIIParaEstacoes();
     }catch(e){ console.warn('Registro anterior ilegível.'); }
   }
 }
@@ -1784,6 +1810,7 @@ function importar(ev){
       if(!Array.isArray(estado.autores)) estado.autores = [];
       if(!estado.entrega) estado.entrega = {formatos:[]};
       if(!Array.isArray(estado.entrega.formatos)) estado.entrega.formatos = [];
+      migrarAnexoIIParaEstacoes();
       salvar(); abrirEstacao(0);
       alert('Percurso carregado.');
     }catch(err){
@@ -2069,6 +2096,6 @@ window.addEventListener('beforeunload', function(){
 <script src="astrolabio-avancado.js?v=20261024a" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
 <script src="projeto-profagua.js?v=20261026-anexo-ii-conforme" defer></script>
-<script src="anexo-ii-ptt.js?v=20261026-integrado-estacoes" defer></script>
+<script src="anexo-ii-ptt.js?v=20261026-integrado-sem-repeticao" defer></script>
 </body>
 </html>
