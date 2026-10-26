@@ -272,6 +272,7 @@ function conteudo(){
   b+=bloco([
     ['Justificativa anteriormente redigida',valor('justificativa')],
     ['Relevância científica e social',vv('e4','porQueImporta')],
+    ['Demanda territorial e política pública associada',vv('e4','politicaRelacionada')],
     ['Importância para o contexto profissional',vv('e1','expectativa')],
     ['Mudança prática desejada',vv('e7','oQueMuda')],
     ['Demanda pelo produto técnico',en.quemDemandou],
@@ -354,23 +355,38 @@ function conteudo(){
   b+=subtitulo('8.1 Produto principal: identificação e forma de entrega');
   b+=bloco([
     ['Nome do produto que será entregue',en.nomeProduto],
+    ['Tipologia principal prevista para o PTT',en.tipoCapes||legadoPTT.tipoPrincipal],
+    ['Tipologia secundária, quando houver',en.tipoCapes2||legadoPTT.tipoSecundaria],
     ['Objetivo aplicado do produto',composto(en.objetivoPTT,legadoPTT.objetivoPTT)],
-    ['Componentes e funcionalidades previstos',composto(en.funcionalidadesPTT,legadoPTT.funcionalidades)],
+    ['Objetivos aplicados específicos, componentes e funcionalidades',composto(en.funcionalidadesPTT,legadoPTT.funcionalidades)],
+    ['Resumo da solução que será desenvolvida',[
+      en.nomeProduto?'Será desenvolvido o produto '+en.nomeProduto+'.':'',
+      en.objetivoPTT||legadoPTT.objetivoPTT,
+      en.usuario?'Destina-se a '+en.usuario+'.':'',
+      vv('e5','territorio')?'Contexto de aplicação: '+vv('e5','territorio')+'.':''
+    ].filter(Boolean).join(' ').trim().split(/\s+/).slice(0,250).join(' ')],
     ['Tipo de produto técnico ou tecnológico',en.tipoProduto||en.tipoCapes],
     ['O que será produzido',valor('produto')||en.diferencial],
     ['Natureza da inovação',composto(en.tipoInovacaoPTT,Array.isArray(legadoPTT.tipoInovacao)?legadoPTT.tipoInovacao.join('; '):legadoPTT.tipoInovacao)],
     ['Soluções existentes e aperfeiçoamentos propostos',en.diferencial||legadoPTT.solucoesAtuais],
     ['Problema ou demanda que o produto pretende atender',en.evidProblema||vv('e1','incomodo')],
     ['Quem receberá ou utilizará',en.usuario||vv('e7','publico')],
+    ['Beneficiários diretos e indiretos', [vv('e7','publico'),vv('e7','publicoSec')].filter(Boolean).join(' | ')],
+    ['Condições de aplicação, replicação e alcance estimado',vv('e7','aplicabilidadePTT')],
     ['Formato de distribuição, hospedagem ou registro',list(en.hospedagem)],
-    ['Forma de transferência ao público',list(en.transfPrev)],
-    ['Relação com os objetivos e a pesquisa',en.vinculacao||vv('e5','conhecimentoSolucao')],
+    ['Forma de transferência ao público',list(en.transfPrev)||list(en.hospedagem)],
+    ['Relação com os objetivos e a pesquisa',en.aderenciaPTT||en.vinculacao||vv('e5','conhecimentoSolucao')],
+    ['Área de concentração e linha de atuação', [vv('e1','area'),vv('e1','linha')].filter(Boolean).join(' — ')],
+    ['Conhecimento da pesquisa convertido em solução',vv('e5','conhecimentoSolucao')],
+    ['Aderência à missão do ProfÁgua, à área, à linha, à pesquisa e à gestão hídrica',en.aderenciaPTT||legadoPTT.aderenciaMissao],
     ['Instrumento de gestão ou política pública relacionada',vv('e4','politicaRelacionada')||legadoPTT.politicaRelacionada],
     ['Condições para aplicação e adaptação',vv('e7','aplicabilidadePTT')||legadoPTT.condicoesAplicacao],
     ['Como será testado ou validado',en.validacao||list(en.modalidadesVal)],
     ['Evidências previstas da entrega e do uso',en.evidencias],
+    ['Validação: modalidade, critérios, participantes e instrumentos',en.validacao||legadoPTT.criteriosVal],
     ['Prazo previsto para a primeira versão utilizável',en.prazoProduto],
-    ['Mudança ou benefício esperado',en.mudanca]
+    ['Mudança ou benefício esperado',en.mudanca||vv('e8','impactoPTT')],
+    ['Complexidade técnica, institucional e justificativa',vv('e10','complexidadePTT')||legadoPTT.justComplexidade]
   ],'[PRODUTO A DEFINIR PELO(A) DISCENTE — escolha o tipo, nome, público, forma de entrega e validação na estação 6.]');
   b+=subtitulo('8.2 Modalidades e opções de entrega selecionadas no Astrolábio');
   b+=quadroEntregas(en);
@@ -390,6 +406,7 @@ function conteudo(){
   ],'[Descreva na estação 6 como o produto será disponibilizado, validado e comprovado.]');
   // O detalhamento normativo integral vai no apêndice, derivado das estações.
   // Não reproduzir aqui o questionário do Anexo II como outro formulário.
+  b+=p('O planejamento do produto observa os elementos do Anexo II da minuta normativa do ProfÁgua, integrados às seções do próprio projeto. A manifestação de aprovação, os comentários e as assinaturas são de responsabilidade do orientador, em momento posterior.',{align:'left',space:160});
   b+=titulo('9 RESULTADOS ESPERADOS');
   b+=bloco([
     ['Resultados esperados anteriormente redigidos',valor('esperados')],
@@ -402,6 +419,7 @@ function conteudo(){
   b+=titulo('10 LIMITAÇÕES, RISCOS E PLANO DE CONTINGÊNCIA');
   b+=bloco([
     ['Principais riscos e alternativas',vv('e10','riscos')],
+    ['Complexidade e requisitos específicos do desenvolvimento',vv('e10','complexidadePTT')],
     ['Dependências para acesso aos dados',vv('e10','dadosFaltam')],
     ['Limitações técnicas identificadas',vv('e10','precisoAprender')],
     ['Barreiras previstas para alcançar os usuários',vv('e7','barreiras')],
@@ -446,6 +464,7 @@ function conteudo(){
   const ad=ext.aderencia||{};
   b+=bloco([
     ['Origem da demanda',ad.origem],
+    ['Quem identificou o problema e evidências da demanda', [en.quemDemandou, en.evidProblema].filter(Boolean).join(' — ')],
     ['Instituição ou coletivo demandante',ad.instituicao],
     ['Necessidade concreta a suprir',ad.demanda],
     ['Território ao qual responde',ad.territorio],
