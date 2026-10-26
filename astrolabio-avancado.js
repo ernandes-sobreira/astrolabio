@@ -24,26 +24,21 @@ function campoValor(label,id,value,placeholder,kind){
     :'<input type="text" id="'+id+'" value="'+esc(value)+'" placeholder="'+esc(placeholder||'')+'">';
   return '<div class="campo"><label for="'+id+'">'+esc(label)+'</label>'+input+'</div>';
 }
+/* As classificações antigas continuam no backup, mas não são exigidas,
+ * exibidas nem exportadas como capítulos. Apenas as referências contam. */
 function htmlLeituras(){
-  const leit=st().leituras;
-  let html='<section class="astro-ext"><h3>Leituras estruturantes do projeto</h3>'+
-   '<p class="dica">O texto inspirador da estação 2 já será incluído no Word. Aqui você pode registrar outros artigos, livros e documentos, sem perder o que já respondeu.</p>';
-  leit.forEach((a,i)=>{
-    const c=(id,l,v,h)=>campoValor(l,'al-'+i+'-'+id,v,h,id==='referencia'||id==='frase'||id==='relacao'||id==='contribuicao'?'textarea':'text')
-      .replace('id="al-'+i+'-'+id+'"','id="al-'+i+'-'+id+'" oninput="ASTRO_EXT.atualizarLeitura('+i+',\''+id+'\',this.value)"');
-    html+='<div class="astro-ext-card"><div class="astro-ext-top"><strong>Leitura '+(i+2)+'</strong>'+
-      '<button class="mini risco" onclick="ASTRO_EXT.excluirLeitura('+i+')">Excluir leitura</button></div>'+
-      c('referencia','Referência bibliográfica completa',a.referencia,'Autor, título, periódico, ano, DOI')+
-      '<div class="dupla">'+c('frase','Trecho ou frase direcional',a.frase,'Use trecho breve e fiel ao artigo')+
-      c('pagina','Página/localização no texto',a.pagina,'p. 12; seção 3')+'</div>'+
-      c('relacao','Como dialoga com sua pesquisa?',a.relacao,'Convergências, diferenças, limites e conexão metodológica')+
-      c('contribuicao','O que essa leitura ajudou a definir?',a.contribuicao,'Problema, hipótese, recorte, método, produto ou análise')+
-      '<div class="campo"><label>Função principal desta leitura</label><select onchange="ASTRO_EXT.atualizarLeitura('+i+',\'funcao\',this.value)">'+
-      ['Teoria','Problema','Lacuna','Método','Território','Produto técnico','Impacto','Outra'].map(t=>'<option '+(a.funcao===t?'selected':'')+'>'+t+'</option>').join('')+
-      '</select></div></div>';
-  });
-  html+='<button class="primario" onclick="ASTRO_EXT.adicionarLeitura()">+ Adicionar leitura</button></section>';
-  return html;
+ const leit=st().leituras;
+ if(!leit.length)return '';
+ let html='<details class="astro-ext"><summary><strong>Referências recuperadas de versões anteriores</strong></summary>'+
+  '<p class="dica">Estas referências já estavam registradas. Você pode corrigi-las aqui; não é necessário escolher teoria, método nem justificar cada leitura. Novas obras podem ser adicionadas na caixa de referências acima.</p>';
+ leit.forEach((a,i)=>{
+  html+='<div class="astro-ext-card"><div class="astro-ext-top"><strong>Referência '+(i+1)+'</strong>'+
+   '<button class="mini risco" onclick="ASTRO_EXT.excluirLeitura('+i+')">Excluir</button></div>'+
+   campoValor('Referência bibliográfica','al-'+i+'-referencia',a.referencia||'','Autor, título, periódico, ano, DOI','textarea')
+    .replace('id="al-'+i+'-referencia"','id="al-'+i+'-referencia" oninput="ASTRO_EXT.atualizarLeitura('+i+',\'referencia\',this.value)"')+
+   '</div>';
+ });
+ return html+'</details>';
 }
 function htmlRelevancia(){
   const a=st().aderencia,cs=[['gestao','Aderência à gestão pública','Há relação verificável com políticas ou serviços públicos?'],['urgencia','Urgência territorial','A demanda possui gravidade atual ou prazo definido?'],['aplicacao','Viabilidade de aplicação','O produto pode ser usado por quem demandou?'],['impacto','Benefício socioambiental esperado','Há público beneficiado e indicadores plausíveis?']];
