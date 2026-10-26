@@ -206,21 +206,32 @@ function conteudo(){
   b+=p('Palavras-chave: '+(valor('palavras')||'[A definir com a orientação.]'),{align:'left'})+pg();
   b+=titulo('SUMÁRIO')+indice()+pg();
 
-  b+=titulo('1 INTRODUÇÃO');
+  b+=titulo('1 RESUMO EXECUTIVO');
   b+=bloco([
-    ['Introdução previamente redigida na versão anterior',valor('introducao')],
-    ['Motivação e contextualização',vv('e1','incomodo')],
-    ['Trajetória e contexto',vv('e1','trajetoria')],
-    ['O que já se sabe',vv('e4','jaSeSabe')],
-    ['Lacuna identificada',vv('e4','naoSeSabe')],
-    ['Evidência da lacuna',vv('e4','evidencia')],
-    ['Recorte territorial',vv('e5','territorio')],
+    ['Introdução ao problema e motivação',vv('e1','incomodo')],
+    ['Contexto profissional e territorial',vv('e1','trajetoria')],
+    ['Conhecimento já sistematizado',vv('e4','jaSeSabe')],
+    ['Lacuna e necessidade identificada',vv('e4','naoSeSabe')],
+    ['Evidências levantadas no percurso',vv('e4','evidencia')],
+    ['Abrangência territorial',vv('e5','territorio')],
     ['Recorte temporal',vv('e5','temporal')]
-  ],'[Desenvolver a introdução a partir das estações 1, 2, 4 e 5.]');
-  b+=titulo('2 PROBLEMA DE PESQUISA');
+  ],'[Resumo Executivo em construção: preencha as estações 1, 4 e 5.]');
+  b+=titulo('2 INTRODUÇÃO');
+  // A introdução científica não é inventada: redação posterior é responsabilidade do(a) discente.
+  const introducaoAcademica=String(valor('introducao')||'').trim();
+  if(introducaoAcademica){
+    b+=parags(introducaoAcademica);
+    if(!String(valor('referenciasIntroducao')||valor('referencias')||'').trim()){
+      b+=p('[CONFERÊNCIA PELO DISCENTE: verificar todas as citações da introdução e acrescentar as respectivas referências completas na bibliografia final.]',{align:'left',space:150});
+    }
+  }else{
+    b+=p('[REDAÇÃO POSTERIOR PELO(A) DISCENTE — SEÇÃO A COMPLETAR APÓS O ASTROLÁBIO.]',{align:'left',space:120});
+    b+=p('Elaborar uma introdução científica própria, com contextualização do problema, fundamentação teórica e diálogo crítico com a literatura. Incluir citações no corpo do texto conforme as normas ABNT e do ProfÁgua, conferindo autores, datas e páginas das citações diretas. Todas as fontes efetivamente citadas devem ser acrescentadas, com referência bibliográfica completa, à lista final deste projeto. O Resumo Executivo acima não substitui esta etapa de escrita acadêmica.',{first:true});
+  }
+  b+=titulo('3 PROBLEMA DE PESQUISA');
   b+=texto(vv('e5','pergunta'),'[Pergunta científica ainda não informada na estação 5.]');
-  if(vv('e5','hipotese'))b+=subtitulo('2.1 Hipótese ou pressuposto')+texto(vv('e5','hipotese'),'');
-  b+=titulo('3 JUSTIFICATIVA');
+  if(vv('e5','hipotese'))b+=subtitulo('3.1 Hipótese ou pressuposto')+texto(vv('e5','hipotese'),'');
+  b+=titulo('4 JUSTIFICATIVA');
   b+=bloco([
     ['Justificativa anteriormente redigida',valor('justificativa')],
     ['Relevância científica e social',vv('e4','porQueImporta')],
@@ -229,12 +240,12 @@ function conteudo(){
     ['Demanda pelo produto técnico',en.quemDemandou],
     ['Evidência da demanda',en.evidProblema]
   ],'[Justificativa a compor a partir das estações 4, 6 e 7.]');
-  b+=titulo('4 OBJETIVOS')+subtitulo('4.1 Objetivo geral');
+  b+=titulo('5 OBJETIVOS')+subtitulo('5.1 Objetivo geral');
   b+=texto(vv('e5','objetivoGeral'),'[Objetivo geral ainda não informado na estação 5.]');
-  b+=subtitulo('4.2 Objetivos específicos');
+  b+=subtitulo('5.2 Objetivos específicos');
   const obj=String(vv('e5','objetivosEsp')).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
   b+=obj.length?obj.map(x=>p('• '+x,{align:'left',space:80})).join(''):p('[Objetivos específicos ainda não informados na estação 5.]');
-  b+=titulo('5 FUNDAMENTAÇÃO TEÓRICA');
+  b+=titulo('6 LEITURAS E FUNDAMENTAÇÃO INICIAL DO PROJETO');
   b+=bloco([
     ['Fundamentação anteriormente redigida',valor('fundamentacao')],
     ['Referência inspiradora',vv('e2','referencia')],
@@ -251,7 +262,7 @@ function conteudo(){
     contribuicao:vv('e2','oQueMexeu'),funcao:'Texto inspirador'
   });
   (ext.leituras||[]).forEach(l=>{if(l&&l.referencia)leituras.push(l);});
-  b+=subtitulo('5.1 Leituras estruturantes e relações com o projeto');
+  b+=subtitulo('6.1 Leituras estruturantes e relações com o projeto');
   if(!leituras.length)b+=p('[Registre leituras e trechos direcionais na estação 2; nenhuma citação será inventada.]');
   else leituras.forEach((l,i)=>{
     b+=p('LEITURA '+(i+1)+(l.funcao?' — '+l.funcao.toUpperCase():''),{align:'left',space:90,keep:true});
@@ -262,10 +273,10 @@ function conteudo(){
     if(l.contribuicao)b+=rotulado('Decisão apoiada pela leitura',l.contribuicao);
   });
   if((estado.autores||[]).some(a=>a.nome)){
-    b+=subtitulo('5.2 Autores identificados no percurso');
+    b+=subtitulo('6.2 Autores identificados no percurso');
     b+=estado.autores.filter(a=>a.nome).map(a=>p(a.nome+(a.intersecao?' — '+a.intersecao:''),{align:'left'})).join('');
   }
-  b+=titulo('6 MATERIAL E MÉTODOS')+subtitulo('6.1 Área e período de estudo');
+  b+=titulo('7 MATERIAL E MÉTODOS')+subtitulo('7.1 Área e período de estudo');
   b+=bloco([
     ['Caracterização da área anteriormente redigida',valor('areaEstudo')],
     ['Território',vv('e5','territorio')],['Período',vv('e5','temporal')],
@@ -280,12 +291,12 @@ function conteudo(){
   }else{
     b+=p('[Para gerar a figura cartográfica, selecione municípios e, opcionalmente, coordenadas na estação 5.]',{first:true});
   }
-  b+=subtitulo('6.2 Tipo e delineamento do estudo');
+  b+=subtitulo('7.2 Tipo e delineamento do estudo');
   b+=bloco([
     ['Abordagem',vv('e5','abordagem')],['Finalidade',vv('e5','finalidade')],
     ['Estratégia predominante',vv('e5','delineamento')],['Hipótese/pressuposto',vv('e5','hipotese')]
   ],'[Abordagem e delineamento a especificar na estação 5.]');
-  b+=subtitulo('6.3 Dados, instrumentos e procedimentos');
+  b+=subtitulo('7.3 Dados, instrumentos e procedimentos');
   b+=bloco([
     ['Metodologia anteriormente redigida',valor('metodos')],
     ['Dados já disponíveis',vv('e10','dadosTenho')],
@@ -293,14 +304,14 @@ function conteudo(){
     ['Técnicas dominadas pelo pesquisador',vv('e10','seiFazer')],
     ['Técnicas a desenvolver e preparação',vv('e10','precisoAprender')]
   ],'[Detalhar amostragem, coleta, instrumentos e tratamento dos dados com o orientador.]');
-  b+=subtitulo('6.4 Procedimentos de análise');
+  b+=subtitulo('7.4 Procedimentos de análise');
   b+=bloco([
     ['Abordagem prevista',vv('e5','abordagem')],
     ['Delineamento e análise',vv('e5','delineamento')],
     ['Detalhamento já redigido no projeto',valor('analises')]
   ],'[A análise estatística, qualitativa ou espacial exige detalhamento metodológico adicional.]');
 
-  b+=titulo('7 PRODUTO TÉCNICO E TECNOLÓGICO PREVISTO');
+  b+=titulo('8 PRODUTO TÉCNICO E TECNOLÓGICO PREVISTO');
   b+=bloco([
     ['Produto anteriormente redigido',valor('produto')],
     ['Tipo de entrega',list(en.formatos)],['Tipologia técnica',en.tipoProduto||en.tipoCapes],
@@ -310,7 +321,7 @@ function conteudo(){
     ['Estratégia de validação',en.validacao||list(en.modalidadesVal)],
     ['Diferencial',en.diferencial],['Prazo estimado',en.prazoProduto]
   ],'[Produto técnico a detalhar na estação 6.]');
-  b+=titulo('8 RESULTADOS ESPERADOS');
+  b+=titulo('9 RESULTADOS ESPERADOS');
   b+=bloco([
     ['Resultados esperados anteriormente redigidos',valor('esperados')],
     ['Mudança prática esperada',vv('e7','oQueMuda')],
@@ -319,14 +330,14 @@ function conteudo(){
     ['Indicadores de impacto do produto',en.indicadores],
     ['Mudança esperada do produto',en.mudanca]
   ],'[Resultados esperados a estabelecer a partir dos objetivos. Não foram inventados resultados empíricos.]');
-  b+=titulo('9 LIMITAÇÕES, RISCOS E PLANO DE CONTINGÊNCIA');
+  b+=titulo('10 LIMITAÇÕES, RISCOS E PLANO DE CONTINGÊNCIA');
   b+=bloco([
     ['Principais riscos e alternativas',vv('e10','riscos')],
     ['Dependências para acesso aos dados',vv('e10','dadosFaltam')],
     ['Limitações técnicas identificadas',vv('e10','precisoAprender')],
     ['Barreiras previstas para alcançar os usuários',vv('e7','barreiras')]
   ],'[Limitações e contingências ainda não descritas na estação 10.]');
-  b+=titulo('10 RECURSOS E PLANEJAMENTO FINANCEIRO');
+  b+=titulo('11 RECURSOS E PLANEJAMENTO FINANCEIRO');
   b+=bloco([
     ['Situação de financiamento',vv('e10','financiamento')],
     ['Horas semanais disponíveis',vv('e10','tempo')?vv('e10','tempo')+' horas':''],
@@ -335,7 +346,7 @@ function conteudo(){
     ['Dependências financeiras ou institucionais',vv('e10','dadosFaltam')]
   ],'[Recursos a definir com base na estação 10.]');
   b+=p('Orçamento em reais, quantidades e custos unitários: [não informados nas estações; os valores não foram presumidos].',{first:true});
-  b+=titulo('11 CRONOGRAMA DE EXECUÇÃO');
+  b+=titulo('12 CRONOGRAMA DE EXECUÇÃO');
   let etapas=[];
   String(vv('e8','metas')).split(/\r?\n/).map(x=>x.trim()).filter(Boolean).forEach(x=>{
     const a=x.split(/\s+\|\s+|\s+[—–]\s+/);
@@ -347,7 +358,7 @@ function conteudo(){
   if(vv('e1','defesa'))etapas.push(['Previsão de conclusão do mestrado',vv('e1','defesa')]);
   if(!etapas.length)etapas=extrairCronograma();
   b+=tabela(etapas);
-  b+=titulo('12 DIVULGAÇÃO E DEVOLUTIVA');
+  b+=titulo('13 DIVULGAÇÃO E DEVOLUTIVA');
   b+=bloco([
     ['Público participante ou beneficiário',vv('e7','publico')],
     ['Plano de divulgação',vv('e8','divulgacao')],
@@ -358,7 +369,7 @@ function conteudo(){
     ['Local e data da devolutiva',[(vv('e9','onde')||''),(vv('e9','quando')||'')].filter(Boolean).join(' — ')],
     ['Registro da devolutiva',vv('e9','comoRegistra')]
   ],'[Divulgação e devolutiva ainda não preenchidas nas estações 7 a 9.]');
-  b+=titulo('13 DEMANDA TERRITORIAL E RELEVÂNCIA DO PROJETO');
+  b+=titulo('14 DEMANDA TERRITORIAL E RELEVÂNCIA DO PROJETO');
   const ad=ext.aderencia||{};
   b+=bloco([
     ['Origem da demanda',ad.origem],
@@ -368,7 +379,7 @@ function conteudo(){
     ['Evidências e registros da demanda',ad.evidencia]
   ],'[Demanda e origem ainda não informadas na estação 7.]');
   if([ad.origem,ad.instituicao,ad.demanda,ad.territorio,ad.evidencia].some(x=>String(x||'').trim())){
-    b+=subtitulo('13.1 Régua de aderência — autoavaliação do discente');
+    b+=subtitulo('14.1 Régua de aderência — autoavaliação do discente');
     const soma=['gestao','urgencia','aplicacao','impacto'].reduce((acc,k)=>acc+Math.max(1,Math.min(5,Number(ad[k])||3)),0);
     const indice=Math.round((soma-4)*100/16);
     b+=rotulado('Índice declaratório de aderência',indice+'/100 — quatro critérios com peso igual e escala de 1 a 5');
@@ -385,7 +396,7 @@ function conteudo(){
     if(!ad.evidencia)b+=p('[Falta evidência documental da origem da demanda: informar fonte, data e registro.]');
   }
   b+=titulo('REFERÊNCIAS BIBLIOGRÁFICAS');
-  const refs=[...new Set([vv('e2','referencia'),...(ext.leituras||[]).map(x=>x.referencia),valor('referencias')].filter(Boolean).join('\n').split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
+  const refs=[...new Set([vv('e2','referencia'),...(ext.leituras||[]).map(x=>x.referencia),valor('referencias'),valor('referenciasIntroducao')].filter(Boolean).join('\n').split(/\r?\n/).map(x=>x.trim()).filter(Boolean))];
   b+=refs.length?refs.map(x=>p(x,{align:'left',space:100,line:310})).join(''):p('[Informar as referências completas realmente utilizadas. O Astrolábio não cria citações inexistentes.]');
   if(FIGURAS&&FIGURAS.nuvem){
     b+=titulo('APÊNDICE A — NUVEM DE PALAVRAS DO PROJETO');
