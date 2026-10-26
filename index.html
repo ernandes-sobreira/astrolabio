@@ -249,6 +249,7 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
       <button class="ouro" onclick="irPara('astro')">Astrolábio</button>
       <button onclick="irPara('painel')" id="btPan">Panorama</button>
       <button onclick="irPara('mapa')" id="btMapa">Mapa mental</button>
+      <button onclick="abrirRevisaoAcademica()" title="Complementação posterior pelo aluno: introdução científica e referências bibliográficas">Introdução e referências</button>
       <button class="primario" onclick="baixarProjetoProfagua()" title="Gera automaticamente um projeto de pesquisa Word a partir das respostas das dez estações, sem preencher novamente">Baixar projeto Word</button>
        <button onclick="exportar()">Backup JSON</button>
       <button onclick="document.getElementById('arq').click()">Carregar</button>
@@ -266,6 +267,7 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
   <nav id="nav"></nav>
   <main>
     <div class="tela ativa" id="tela-form"></div>
+    <div class="tela" id="tela-revisao"></div>
 
 
 
@@ -647,6 +649,7 @@ function abrirEstacao(i){
 function mostrarTela(qual){
   telaAtual = qual;
   document.getElementById('tela-form').classList.toggle('ativa', qual==='form');
+  document.getElementById('tela-revisao').classList.toggle('ativa', qual==='revisao');
   document.getElementById('tela-painel').classList.toggle('ativa', qual==='painel');
   document.getElementById('tela-mapa').classList.toggle('ativa', qual==='mapa');
   document.getElementById('tela-astro').classList.toggle('ativa', qual==='astro');
@@ -2065,6 +2068,6 @@ window.addEventListener('beforeunload', function(){
 <script src="profagua-marcas.js" defer></script>
 <script src="astrolabio-avancado.js?v=20261024a" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
-<script src="projeto-profagua.js?v=20261024-mental-horizontal" defer></script>
+<script src="projeto-profagua.js?v=20261026-executivo-introducao-ptt" defer></script>
 </body>
 </html>
