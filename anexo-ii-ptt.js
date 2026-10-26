@@ -169,6 +169,58 @@ function corrigirOpcao(t,ops){
  const ali=aliases[normalized]||(pair&&pair[1]);
  return ali&&ops.includes(ali)?ali:'';
 }
+/* Cada pergunta nova é feita na estação temática existente — jamais num segundo
+ * formulário de 17 seções. Perguntas respondidas anteriormente são reaproveitadas. */
+const LOCAL={
+ e1:['matricula','projetoEstruturante'],
+ e4:['politicaRelacionada'],
+ e5:['conhecimentoSolucao'],
+ e6:['objetivoPTT','objetivosPTT','funcionalidades','aderenciaMissao','aderenciaGestao','tipoInovacao','tipoInovacaoOutra','complexidade','complexidadeOutros','justComplexidade','participantesVal','instrumentosVal'],
+ e7:['instituicoesUsuarias','numeroUsuarios','competenciasUsuario','condicoesAplicacao','replicabilidade'],
+ e8:['prazoImpacto','condicoesImpacto'],
+ e9:['participacao','atores','formaParticipacao','etapaParticipacao','contribuicaoAtores','acordos'],
+ e10:['recursosHumanos','infraestrutura','dadosSistemas','recursosFinanceiros','eticaDocumento','medidasDados','sigiloJustificativa']
+};
+function derived(c){
+ const id=c.id,ext=estado.extensoes||{},ad=ext.aderencia||{};
+ const ev=(a,b)=>v(a,b);
+ const e=en();
+ const join=(...parts)=>parts.map(x=>ascii(x).trim()).filter(Boolean).join(' — ');
+ switch(id){
+  case 'data':return new Date().toLocaleDateString('pt-BR');
+  case 'versao':return '1.0 (rascunho)';
+  case 'descricao250':{
+   const base=[
+    e.nomeProduto||e.tipoProduto?'Produto previsto: '+join(e.nomeProduto,e.tipoProduto)+'.':'',
+    e.usuario?'Destina-se a '+ascii(e.usuario).trim()+'.':'',
+    ev('e5','territorio')?'Contexto de aplicação: '+ev('e5','territorio')+'.':'',
+    ev('e1','incomodo')?'Problema que procura enfrentar: '+ev('e1','incomodo')+'.':'',
+    e.diferencial?'Diferencial previsto: '+e.diferencial+'.':''
+   ].filter(Boolean).join(' ');
+   const words=base.trim().split(/\s+/).filter(Boolean);
+   return words.length>250?words.slice(0,250).join(' ')+' […]':base;
+  }
+  case 'quemDemandou':return ad.instituicao||ad.origem||'';
+  case 'evidenciaProblema':return ad.evidencia||'';
+  case 'partesDissertacao':{
+    const parts=[];
+    if(ev('e5','pergunta'))parts.push('problema e pergunta científica');
+    if(ev('e5','objetivoGeral'))parts.push('objetivos da pesquisa');
+    if(ev('e5','delineamento'))parts.push('material e métodos previstos');
+    return parts.join('; ');
+  }
+  case 'aderenciaArea':return e.tipoCapes&&ev('e1','area')?join('Produto '+e.tipoCapes,'área de concentração '+ev('e1','area')):'';
+  case 'aderenciaLinha':return e.tipoCapes&&ev('e1','linha')?join('Produto '+e.tipoCapes,'linha '+ev('e1','linha')):'';
+  case 'aderenciaProjeto':return e.vinculacao||'';
+  case 'modoUso':return e.usuario||'';
+  case 'solucoesAtuais':return e.diferencial||'';
+  case 'melhoriaPrevista':return e.mudanca||ev('e7','oQueMuda')||'';
+  case 'descricaoTransferencia':return join((e.transfPrev||[]).join('; '),(e.hospedagem||[]).join('; '));
+  case 'meiosVerificacao':return e.evidencias||'';
+  case 'parcerias':return ev('e8','parceiros');
+  default:return '';
+ }
+}
 function ler(c){
  const extraVal=extra()[c.id];
  if(extraVal!==undefined && extraVal!==null && (Array.isArray(extraVal)||extraVal!==''))return extraVal;
@@ -179,13 +231,14 @@ function ler(c){
      return [...new Set(val.map(x=>corrigirOpcao(x,c.options)).filter(Boolean))];
    }
    if(c.type==='select')return corrigirOpcao(val,c.options);
-   return val==null?'':val;
+   if(val!==undefined&&val!==null&&String(val).trim()!=='')return val;
+   return derived(c);
  }
  if(c.source.startsWith('v:')){
    const parts=c.source.slice(2).split('.');
    return v(parts[0],parts[1]);
  }
- return c.type==='checks'?[]:'';
+ return derived(c)||(c.type==='checks'?[]:'');
 }
 function gravar(id,value){
  const c=allById[id];if(!c||secoes[16].campos.includes(c))return;
@@ -217,6 +270,53 @@ function controles(c){
  if(c.type==='text')return '<input id="'+id+'" type="text" value="'+esc(val)+'" '+handler+'>';
  const hint=c.id==='descricao250'?'<div class="dica">Máximo de 250 palavras, conforme o Anexo II. Não confundir com o resumo do projeto acadêmico.</div>':'';
  return hint+'<textarea id="'+id+'" rows="'+(c.id==='descricao250'?5:3)+'" '+handler+'>'+esc(val)+'</textarea>';
+}
+/* O aluno vê somente complementos necessários, no contexto das dez estações.
+ * Opcional: só ativa no percurso ProfÁgua com PTT selecionado. */
+function htmlEstacao(est){
+ if(!LOCAL[est]||!window.modoIN||!window.modoIN())return '';
+ const nomes={e1:'Identificação institucional',e4:'Problema e sua relação com a gestão pública',
+   e5:'Conhecimento científico a transformar em solução',e6:'Concepção, inovação e validação do produto',
+   e7:'Usuários, aplicação e alcance',e8:'Impacto e condições de implantação',
+   e9:'Participação durante o desenvolvimento',e10:'Recursos e requisitos necessários'};
+ const ids=LOCAL[est];
+ const participantes=ler(allById.participacao);
+ const selected=ler(allById.tipoInovacao),complex=ler(allById.complexidade);
+ const items=ids.filter(id=>{
+   if(id==='tipoInovacaoOutra' && !(Array.isArray(selected)&&selected.includes('outra')))return false;
+   if(id==='complexidadeOutros' && !(Array.isArray(complex)&&complex.includes('outros')))return false;
+   if(['atores','formaParticipacao','etapaParticipacao','contribuicaoAtores','acordos'].includes(id)&&participantes!=='Sim')return false;
+   if(id==='eticaDocumento' && !['aprovação necessária','aprovação obtida','análise em andamento'].includes(ler(allById.etica)))return false;
+   if(id==='medidasDados' && !['envolve dados pessoais','envolve dados pessoais sensíveis'].includes(ler(allById.dadosPessoais)))return false;
+   if(id==='sigiloJustificativa' && !['acesso parcialmente restrito','sigilo temporário','sigilo integral justificado'].includes(ler(allById.sigilo)))return false;
+   return true;
+ });
+ if(!items.length)return '';
+ const done=items.filter(id=>{
+   const x=ler(allById[id]);return Array.isArray(x)?x.length:ascii(x).trim();
+ }).length;
+ let out='<details class="anexo-ii-complemento"'+(done<items.length?' open':'')+'><summary>'+
+  '<strong>ProfÁgua — complemento necessário nesta estação</strong>'+
+  '<span> '+done+'/'+items.length+' itens respondidos</span></summary>'+
+  '<p class="dica">'+esc(nomes[est])+'. Não repita o que já foi respondido: o Plano do PTT será gerado automaticamente a partir das dez estações.</p>';
+ items.forEach(id=>{
+   const c=allById[id];
+   out+='<div class="campo"><label for="anexo-ii-'+id+'">'+esc(c.label)+'</label>'+controles(c)+'</div>';
+ });
+ out+='</details>';
+ return out;
+}
+function resumo(){
+ if(!window.modoIN||!window.modoIN())return '';
+ const list=secoes.slice(0,-1).flatMap(x=>x.campos);
+ const required=list.filter(c=>!['tipoSecundaria','coorientador','tipoInovacaoOutra','complexidadeOutros','modalidadeOutra','transferenciaOutra','numeroUsuarios','projetoEstruturante'].includes(c.id));
+ const supplied=required.filter(c=>{const x=ler(c);return Array.isArray(x)?x.length:ascii(x).trim()}).length;
+ return '<div class="condicional bloco-in anexo-ii-resumo">'+
+   '<h3>Plano do Produto Técnico — Anexo II</h3>'+
+   '<div class="sub">O Anexo II NÃO é um questionário extra. O plano é montado com as respostas registradas ao longo das dez estações. As poucas questões adicionais aparecem nas abas correspondentes.</div>'+
+   '<p class="dica"><strong>'+supplied+' de '+required.length+' informações de planejamento disponíveis.</strong> Campos sem informação serão sinalizados no arquivo; alguns campos são condicionais ou serão completados pelo orientador.</p>'+
+   '<button class="ouro" onclick="baixarPlanoPTT()">Gerar Plano do PTT (Anexo II)</button>'+
+   '<p class="dica">A manifestação final e as assinaturas da seção 17 não são preenchidas pelo aluno.</p></div>';
 }
 function html(){
  const quantidade=secoes.slice(0,-1).flatMap(s=>s.campos).filter(c=>{
@@ -277,6 +377,7 @@ function baixar(){
 }
 window.ANEXO_II={
  secoes,
+ htmlEstacao,resumo,
  ler:function(id){return ler(allById[id]);},
  definir:gravar,
  marcar:function(id,op,checked){
@@ -296,6 +397,10 @@ const st=document.createElement('style');
 st.textContent='.anexo-ii-secao{margin:14px 0;border:2px solid #bfd3d9;background:#fff;border-radius:6px;padding:0 14px 10px}'+
  '.anexo-ii-secao>summary{cursor:pointer;padding:12px 4px;color:#07465e;font-size:17px}'+
  '.anexo-ii-secao[open]>summary{border-bottom:1px solid #cbd9dd;margin-bottom:12px}'+
- '.anexo-ii-secao .campo{margin-bottom:14px}';
+ '.anexo-ii-secao .campo{margin-bottom:14px}'+
+ '.anexo-ii-complemento{margin:22px 0;padding:12px 16px;border:2px solid #a5c6ca;border-left:5px solid #2e6e66;background:#f8fcfa;border-radius:7px}'+
+ '.anexo-ii-complemento summary{cursor:pointer;color:#084c63}'+
+ '.anexo-ii-complemento summary span{font-size:13px;color:#496a70;margin-left:10px}'+
+ '.anexo-ii-complemento .campo{margin-top:13px}';
 document.head.appendChild(st);
 })();
