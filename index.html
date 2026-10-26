@@ -544,21 +544,32 @@ let telaAtual = 'form';
 /* Compatibilidade com formulários anteriores: transfere respostas já registradas
  * no Anexo II para as estações existentes, sem apagar o backup nem sobrescrever
  * respostas atuais do discente. */
+/* Migração não destrutiva: conserva respostas dadas no formulário legado,
+ * reaproveitando-as nas perguntas normais das dez estações. */
 function migrarAnexoIIParaEstacoes(){
- const antigo=estado.entrega&&estado.entrega.anexoII;
- if(!antigo||typeof antigo!=='object')return;
- if(!estado.dados)estado.dados={};
- for(const [est,campo,id] of [
-  ['e1','matricula','matricula'],
-  ['e1','projetoEstruturante','projetoEstruturante'],
-  ['e4','politicaRelacionada','politicaRelacionada'],
-  ['e5','conhecimentoSolucao','conhecimentoSolucao']
- ]){
-  if(antigo[id]!==undefined&&antigo[id]!==null&&String(antigo[id]).trim()){
-   estado.dados[est]??={};
-   if(!estado.dados[est][campo])estado.dados[est][campo]=antigo[id];
-  }
+ const en=estado.entrega||{},old=en.anexoII;
+ if(!old||typeof old!=='object')return;
+ estado.dados=estado.dados||{};
+ const set=(est,key,text)=>{
+  if(!text||!(Array.isArray(text)||String(text).trim()))return;
+  estado.dados[est]=estado.dados[est]||{};
+  if(!estado.dados[est][key])estado.dados[est][key]=text;
+ };
+ const value=items=>items.map(([label,key])=>old[key]?label+': '+(Array.isArray(old[key])?old[key].join('; '):old[key]):'').filter(Boolean).join('\n');
+ for(const [est,key,id] of [['e1','matricula','matricula'],['e1','projetoEstruturante','projetoEstruturante'],
+  ['e4','politicaRelacionada','politicaRelacionada'],['e5','conhecimentoSolucao','conhecimentoSolucao']]){
+  set(est,key,old[id]);
  }
+ if(!en.objetivoPTT)en.objetivoPTT=old.objetivoPTT||'';
+ if(!en.funcionalidadesPTT)en.funcionalidadesPTT=[old.objetivosPTT,old.funcionalidades].filter(Boolean).join('\n');
+ if(!en.tipoInovacaoPTT)en.tipoInovacaoPTT=Array.isArray(old.tipoInovacao)?old.tipoInovacao[0]||'':old.tipoInovacao||'';
+ if(!en.validacao)en.validacao=value([['Critérios','criteriosVal'],['Participantes','participantesVal'],['Instrumentos','instrumentosVal']]);
+ set('e7','aplicabilidadePTT',value([['Instituições usuárias','instituicoesUsuarias'],['Alcance estimado','numeroUsuarios'],['Recursos','recursosAplicacao'],['Competências','competenciasUsuario'],['Condições','condicoesAplicacao'],['Replicabilidade','replicabilidade']]));
+ set('e8','impactoPTT',value([['Mudança esperada','mudanca'],['Prazo','prazoImpacto'],['Indicadores','indicadores'],['Meios de verificação','meiosVerificacao'],['Condições','condicoesImpacto']]));
+ set('e9','participacaoPTT',value([['Participação prevista','participacao'],['Atores','atores'],['Forma','formaParticipacao'],['Etapa','etapaParticipacao'],['Contribuição','contribuicaoAtores'],['Acordos','acordos']]));
+ set('e10','recursosPTT',value([['Recursos humanos','recursosHumanos'],['Infraestrutura','infraestrutura'],['Dados e sistemas','dadosSistemas'],['Recursos financeiros','recursosFinanceiros'],['Parcerias','parcerias']]));
+ set('e10','conformidadePTT',value([['Ética','etica'],['Documento ético','eticaDocumento'],['Dados pessoais','dadosPessoais'],['Medidas de proteção','medidasDados'],['Propriedade intelectual','propriedadeIntelectual'],['Sigilo','sigilo'],['Justificativa de sigilo','sigiloJustificativa'],['Acessibilidade','acessibilidade']])||
+  [en.etica,en.dadosPes,en.pi,en.sigilo,en.acessibilidade].filter(Boolean).join('; '));
 }
 function carregar(){
   const bruto = Cofre.ler(CHAVE);
@@ -852,237 +863,6 @@ function alternarAprox(i,op,ligado){
   salvar(); desenharEstacao();
 }
 
-/* ---------- conformidade com a Instrução Normativa de PTT ---------- */
-const TIPOLOGIAS_CAPES = ['Produto bibliográfico','Ativo de propriedade intelectual','Tecnologia social','Produto de editoração','Material didático ou educacional','Software ou aplicativo','Norma ou marco regulatório','Relatório técnico conclusivo','Manual ou protocolo','Acervo','Cultivar','Carta, mapa ou similar','Produto ou processo em sigilo','Taxonomia, ontologia ou tesauro','Empresa ou organização social inovadora','Processo, tecnologia, produto ou material não patenteável'];
-const MODALIDADES_VAL = ['Aplicação em ambiente real','Aplicação piloto','Teste em ambiente representativo','Avaliação por usuários ou beneficiários','Avaliação por instituição potencialmente usuária','Parecer técnico de especialista externo','Análise de desempenho, usabilidade, precisão ou conformidade','Oficina participativa, grupo focal, painel de especialistas ou Delphi','Comparação com solução anteriormente utilizada','Validação normativa, jurídica ou institucional','Apenas declaração de interesse ou intenção de uso'];
-const TRANSFERENCIA = ['Entrega formal à instituição','Disponibilização em repositório','Capacitação','Oficina de aplicação','Licenciamento','Cessão','Incorporação em sistema ou processo','Publicação técnica','Disponibilização de código ou documentação'];
-const NIVEIS_EV = ['NE1, demanda caracterizada','NE2, produto validado','NE3, produto transferido ou compartilhado','NE4, produto utilizado ou adotado','NE5, impacto evidenciado'];
-const OP_ETICA = ['Não se aplica','Aprovação necessária, ainda não solicitada','Análise em andamento','Aprovação obtida'];
-const OP_DADOS = ['Não envolve dados pessoais','Envolve dados pessoais','Envolve dados pessoais sensíveis'];
-const OP_PI = ['Não identificada','Potencial de proteção','Análise pelo NIT em andamento','Proteção requerida'];
-const OP_SIGILO = ['Acesso aberto','Acesso parcialmente restrito','Sigilo temporário','Sigilo integral justificado'];
-
-function alternarIN(campo, op, ligado){
-  let arr = estado.entrega[campo] || [];
-  if(ligado){ if(arr.indexOf(op) === -1) arr.push(op); } else arr = arr.filter(x=>x!==op);
-  estado.entrega[campo] = arr; salvar(); desenharEstacao();
-}
-function htmlConformidade(){
-  const en = estado.entrega;
-  const selIN = (k, ops) => `<select onchange="setEnt('${k}',this.value)"><option value="">Selecione</option>` +
-    ops.map(o=>`<option ${en[k]===o?'selected':''}>${escapar(o)}</option>`).join('') + `</select>`;
-  const checksIN = (k, ops) => `<div class="opcoes">` + ops.map(o=>{
-      const arr = en[k]||[];
-      return `<label class="opcao ${arr.indexOf(o)>-1?'marcada':''}"><input type="checkbox" ${arr.indexOf(o)>-1?'checked':''} onchange="alternarIN('${k}',${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)"> ${escapar(o)}</label>`;
-    }).join('') + `</div>`;
-  return `<div class="condicional bloco-in">
-    <h3>Conformidade com a Instrução Normativa de PTT</h3>
-    <div class="sub">Campos derivados da norma e do modelo de Plano de Desenvolvimento do produto. Cada item traz o dispositivo que o exige. Ao final desta estação você pode baixar o rascunho do plano com o que já preencheu.</div>
-    <div class="aviso-norma">A norma consultada está em versão de minuta, com número e data ainda não atribuídos e pontos em discussão. Confirme a redação vigente com a coordenação antes de tratar qualquer exigência aqui listada como definitiva.</div>
-
-    <div class="campo"><label>Tipologia principal reconhecida pela Área de Ciências Ambientais</label>
-      <div class="dica">Exigida pelo Art. 5º. O enquadramento considera a função principal e a forma de uso do produto, não o suporte. Ele não limita formato, linguagem nem tecnologia.</div>
-      ${selIN('tipoCapes', TIPOLOGIAS_CAPES)}</div>
-
-    <div class="campo"><label>Tipologia secundária, em caso de produto híbrido</label>
-      ${selIN('tipoCapes2', TIPOLOGIAS_CAPES)}</div>
-
-    <div class="campo"><label>Quem identificou ou manifestou a demanda?</label>
-      <div class="dica">Item 3.2 do plano. Nomeie a pessoa, o setor ou a instituição. Demanda que só existe na cabeça do pesquisador é o caminho mais curto para um produto sem uso.</div>
-      <textarea oninput="setEnt('quemDemandou',this.value)">${escapar(en.quemDemandou||'')}</textarea></div>
-
-    <div class="campo"><label>Que evidências demonstram a existência e a relevância do problema?</label>
-      <div class="dica">Item 3.3 do plano. Dados, processos, atas, relatórios, registros de ocorrência, manifestação formal.</div>
-      <textarea oninput="setEnt('evidProblema',this.value)">${escapar(en.evidProblema||'')}</textarea></div>
-
-    <div class="campo"><label>Como o produto deriva do problema, dos objetivos, dos métodos ou dos resultados da dissertação?</label>
-      <div class="dica">Vinculação exigida pelo Art. 2º, inciso I. Este é o item que a banca verifica primeiro, e o mais frequentemente frágil.</div>
-      <textarea oninput="setEnt('vinculacao',this.value)">${escapar(en.vinculacao||'')}</textarea></div>
-
-    <div class="campo"><label>Modalidades de validação previstas</label>
-      <div class="dica">Art. 10. Podem ser combinadas. Atenção ao último item da lista: declaração de interesse conta como evidência de demanda, não como validação.</div>
-      ${checksIN('modalidadesVal', MODALIDADES_VAL)}</div>
-
-    <div class="campo"><label>Estratégia de transferência ou compartilhamento</label>
-      <div class="dica">Exigida pelo Art. 2º, inciso V. Todo produto deve ter estratégia para alcançar o NE3, salvo justificativa de sigilo, proteção ou maturação.</div>
-      ${checksIN('transfPrev', TRANSFERENCIA)}</div>
-
-    <div class="dupla">
-      <div class="campo"><label>Nível de evidência pretendido na defesa</label>
-        <div class="dica">Art. 11, §2º: mínimo NE2 para aprovação.</div>
-        ${selIN('neAlvo', NIVEIS_EV)}</div>
-      <div class="campo"><label>Nível de evidência pretendido em 24 meses</label>
-        <div class="dica">Horizonte de acompanhamento pós-defesa.</div>
-        ${selIN('neFuturo', NIVEIS_EV)}</div>
-    </div>
-
-    <div class="campo"><label>Indicadores e meios de verificação do impacto</label>
-      <div class="dica">Plano de avaliação de impacto. Um por linha, no formato indicador, linha de base, fonte e periodicidade. Exemplos aplicáveis: redução do tempo de análise de processos, número de instituições usuárias, incorporação em norma ou procedimento, profissionais capacitados que aplicaram o conhecimento.</div>
-      <textarea oninput="setEnt('indicadores',this.value)">${escapar(en.indicadores||'')}</textarea></div>
-
-    <div class="campo"><label>Mudança que se espera produzir, e em que prazo</label>
-      <textarea oninput="setEnt('mudanca',this.value)">${escapar(en.mudanca||'')}</textarea></div>
-
-    <div class="tripla">
-      <div class="campo"><label>Ética em pesquisa</label>${selIN('etica', OP_ETICA)}</div>
-      <div class="campo"><label>Proteção de dados</label>${selIN('dadosPes', OP_DADOS)}</div>
-      <div class="campo"><label>Propriedade intelectual</label>${selIN('pi', OP_PI)}</div>
-    </div>
-    <div class="dupla">
-      <div class="campo"><label>Condições de acesso</label>${selIN('sigilo', OP_SIGILO)}</div>
-      <div class="campo"><label>Recursos de acessibilidade previstos</label>
-        <input type="text" value="${escapar(en.acessibilidade||'')}" oninput="setEnt('acessibilidade',this.value)"></div>
-    </div>
-
-    <button class="ouro" style="margin-top:6px" onclick="baixarPlanoPTT()">Baixar rascunho do Plano de Desenvolvimento</button>
-  </div>`;
-}
-
-
-/* ---------- rascunho do Plano de Desenvolvimento do PTT ---------- */
-function pend(x){ return cheio(x) ? String(x).trim() : '[PENDENTE]'; }
-function pendL(arr){ return (Array.isArray(arr) && arr.length) ? arr.join('; ') : '[PENDENTE]'; }
-function baixarPlanoPTT(){
-  const en = estado.entrega;
-  const L = [];
-  L.push('PLANO DE DESENVOLVIMENTO DO PRODUTO TÉCNICO-TECNOLÓGICO');
-  L.push('Rascunho gerado pelo ASTROLÁBIO em ' + new Date().toLocaleDateString('pt-BR'));
-  L.push('');
-  L.push('AVISO: este é um rascunho de trabalho, montado a partir das respostas registradas na plataforma.');
-  L.push('Não substitui o formulário oficial. A norma consultada estava em versão de minuta, com número e data');
-  L.push('ainda não atribuídos. Confira a redação vigente e o modelo oficial com a coordenação antes de protocolar.');
-  L.push('Os campos marcados como [PENDENTE] ainda não foram respondidos.');
-  L.push('');
-  L.push('====================================================================');
-  L.push('1. IDENTIFICAÇÃO');
-  L.push('Instituição associada: ' + pend(v('e1','instituicao')));
-  L.push('Discente: ' + pend(v('e1','nome')));
-  L.push('Matrícula: [PENDENTE]');
-  L.push('Orientador: ' + pend(v('e1','orientador')));
-  L.push('Coorientador: ' + pend(v('e1','coorientador')));
-  L.push('Título provisório da dissertação: ' + pend(v('e5','titulo')));
-  L.push('Área de concentração: ' + pend(v('e1','area')));
-  L.push('Linha de atuação: ' + pend(v('e1','linha')));
-  L.push('Projeto de pesquisa ou estruturante: ' + pend(v('e1','grupo')));
-  L.push('Data de preenchimento: ' + new Date().toLocaleDateString('pt-BR'));
-  L.push('Versão do plano: rascunho 1');
-  L.push('');
-  L.push('2. IDENTIFICAÇÃO PRELIMINAR DO PRODUTO');
-  L.push('Título provisório: ' + pend(en.nomeProduto));
-  L.push('Tipologia principal prevista: ' + pend(en.tipoCapes));
-  L.push('Tipologia secundária: ' + pend(en.tipoCapes2));
-  L.push('Formato previsto: ' + pend(en.tipoProduto));
-  L.push('Descrição resumida (até 250 palavras):');
-  L.push('  ' + pend(en.usuario));
-  L.push('');
-  L.push('3. PROBLEMA OU DEMANDA');
-  L.push('3.1. Problema concreto enfrentado:');
-  L.push('  ' + pend(v('e1','incomodo')));
-  L.push('3.2. Quem identificou ou manifestou a demanda:');
-  L.push('  ' + pend(en.quemDemandou));
-  L.push('3.3. Evidências da existência e da relevância do problema:');
-  L.push('  ' + pend(en.evidProblema));
-  L.push('3.4. Contexto territorial, institucional, regulatório, ambiental ou social:');
-  L.push('  ' + pend([v('e5','territorio'), v('e5','temporal')].filter(Boolean).join(' | ')));
-  L.push('3.5. Política pública, instrumento de gestão ou demanda social relacionada:');
-  L.push('  ' + pend(v('e4','porQueImporta')));
-  L.push('');
-  L.push('4. VINCULAÇÃO COM A DISSERTAÇÃO');
-  L.push('4.1. Como o produto deriva do problema, dos objetivos, dos métodos ou dos resultados:');
-  L.push('  ' + pend(en.vinculacao));
-  L.push('4.2. Conhecimento da pesquisa que será convertido em solução aplicada:');
-  L.push('  ' + pend(v('e4','naoSeSabe')));
-  L.push('4.3. Partes da dissertação que fundamentam o produto: [PENDENTE]');
-  L.push('');
-  L.push('5. PÚBLICO DESTINATÁRIO E BENEFICIÁRIOS');
-  L.push('Público destinatário direto:');
-  L.push('  ' + pend(v('e7','publico')));
-  L.push('Beneficiários indiretos: ' + pend(v('e7','publicoSec')));
-  L.push('Instituições potencialmente usuárias:');
-  L.push('  ' + pend(v('e8','parceiros')));
-  L.push('Território de aplicação: ' + pend(v('e5','territorio')));
-  L.push('Número estimado de usuários: [PENDENTE]');
-  L.push('');
-  L.push('6. PARTICIPAÇÃO DE ATORES EXTERNOS');
-  L.push('  ' + pend(v('e8','parceiros')));
-  L.push('');
-  L.push('7. OBJETIVO E FUNCIONALIDADES');
-  L.push('Objetivo geral do produto:');
-  L.push('  ' + pend(v('e5','objetivoGeral')));
-  L.push('Situação ou atividade na qual será utilizado:');
-  L.push('  ' + pend(en.usuario));
-  L.push('Resultados imediatos esperados:');
-  L.push('  ' + pend(v('e7','oQueMuda')));
-  L.push('');
-  L.push('8. ADERÊNCIA');
-  L.push('  Linha de atuação: ' + pend(v('e1','linha')));
-  L.push('  Aderência ao programa e ao campo: ' + pend(v('e4','porQueImporta')));
-  L.push('');
-  L.push('9. APLICABILIDADE');
-  L.push('9.1. Como o produto será utilizado:');
-  L.push('  ' + pend(en.usuario));
-  L.push('9.2 a 9.4. Recursos, competências e condições de aplicação:');
-  L.push('  ' + pend(v('e7','barreiras')));
-  L.push('9.5. Possibilidade de replicação ou adaptação: [PENDENTE]');
-  L.push('');
-  L.push('10. INOVAÇÃO');
-  L.push('10.1. O que existe atualmente para enfrentar o problema, e o que o produto acrescenta:');
-  L.push('  ' + pend(en.diferencial));
-  L.push('10.4. Melhoria esperada:');
-  L.push('  ' + pend(v('e7','oQueMuda')));
-  L.push('');
-  L.push('11. COMPLEXIDADE');
-  L.push('  [PENDENTE] Assinalar no formulário oficial os elementos aplicáveis e justificar.');
-  L.push('');
-  L.push('12. ESTRATÉGIA DE VALIDAÇÃO');
-  L.push('Modalidades previstas: ' + pendL(en.modalidadesVal));
-  L.push('Critérios, participantes e instrumentos:');
-  L.push('  ' + pend(en.validacao));
-  L.push('Evidências que serão produzidas:');
-  L.push('  ' + pend(en.evidencias));
-  L.push('');
-  L.push('13. ESTRATÉGIA DE TRANSFERÊNCIA OU COMPARTILHAMENTO');
-  L.push('Formas previstas: ' + pendL(en.transfPrev));
-  L.push('Depósito e registro previstos: ' + pendL(en.hospedagem));
-  L.push('');
-  L.push('14. AVALIAÇÃO PRÉVIA DO POTENCIAL DE IMPACTO');
-  L.push('Mudança esperada e prazo:');
-  L.push('  ' + pend(en.mudanca));
-  L.push('Beneficiários esperados:');
-  L.push('  ' + pend(v('e7','publico')));
-  L.push('Indicadores preliminares e meios de verificação:');
-  L.push('  ' + pend(en.indicadores));
-  L.push('Nível de evidência pretendido na defesa: ' + pend(en.neAlvo));
-  L.push('Nível de evidência pretendido em 24 meses: ' + pend(en.neFuturo));
-  L.push('');
-  L.push('15. RISCOS E REQUISITOS');
-  L.push('15.1. Ética em pesquisa: ' + pend(en.etica));
-  L.push('15.2. Proteção de dados: ' + pend(en.dadosPes));
-  L.push('15.3. Propriedade intelectual: ' + pend(en.pi));
-  L.push('15.4. Sigilo ou restrição: ' + pend(en.sigilo));
-  L.push('15.5. Acessibilidade: ' + pend(en.acessibilidade));
-  L.push('Riscos do projeto e planos de contingência:');
-  L.push('  ' + pend(v('e10','riscos')));
-  L.push('');
-  L.push('16. RECURSOS NECESSÁRIOS');
-  L.push('Competências disponíveis: ' + pend(v('e10','seiFazer')));
-  L.push('A desenvolver: ' + pend(v('e10','precisoAprender')));
-  L.push('Financiamento: ' + pend(v('e10','financiamento')));
-  L.push('Parcerias: ' + pend(v('e8','parceiros')));
-  L.push('Prazo da primeira versão utilizável: ' + pend(en.prazoProduto));
-  L.push('');
-  L.push('17. APROVAÇÃO');
-  L.push('Manifestação do orientador: [PENDENTE]');
-  L.push('Assinatura do discente: ______________________  Data: ____/____/______');
-  L.push('Assinatura do orientador: _____________________  Data: ____/____/______');
-  L.push('');
-  L.push('====================================================================');
-  L.push('Rascunho produzido no ASTROLÁBIO, plataforma de orientação metodológica do percurso acadêmico.');
-  L.push('Concepção de Ernandes Sobreira e Carla Galbiati, UNEMAT.');
-  const n = texto(v('e1','nome')).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'discente';
-  baixarBlob(new Blob([L.join('\n')], {type:'text/plain;charset=utf-8'}), 'plano-desenvolvimento-ptt-' + n + '.txt');
-}
-
 /* ---------- diagnóstico de estado, apenas na fase final ---------- */
 const SIT_COLETA = ['Não iniciada','Em andamento, dentro do prazo','Em andamento, com atraso','Concluída'];
 const SIT_ESCRITA = ['Não iniciada','Estrutura definida, sem redação','Em redação','Versão completa em revisão','Submetida ou entregue'];
@@ -1363,38 +1143,12 @@ function diagnosticar(){
     add('critico','Estação 10','Há dependência de autorização ou comitê de ética sem plano de contingência.','Esses trâmites levam meses. Inclua os prazos no cronograma imediatamente.');
 
   if(modoIN()){
-    const mv = en.modalidadesVal || [], tr = en.transfPrev || [];
-    if(!cheio(en.tipoCapes))
-      add('critico','Instrução Normativa','Tipologia principal da Área de Ciências Ambientais não indicada.','O Art. 5º exige enquadramento em uma tipologia reconhecida, vigente no ano do registro. Sem ela o produto não pode ser registrado nem avaliado.');
-    if(!cheio(en.vinculacao))
-      add('critico','Instrução Normativa','A vinculação entre o produto e a dissertação não foi descrita.','O Art. 2º, inciso I, exige que o produto derive do problema, dos objetivos, dos métodos ou dos resultados do trabalho. É o primeiro item que a banca verifica.');
-    if(!cheio(en.quemDemandou))
-      add('atencao','Instrução Normativa','Não foi identificado quem manifestou a demanda.','O plano de desenvolvimento pede isso no item 3.2, e o Art. 6º, inciso VIII, exclui produto sem público destinatário ou finalidade identificável.');
-    if(!cheio(en.evidProblema))
-      add('atencao','Instrução Normativa','Não há evidência da existência do problema.','Sem isso, a caracterização da demanda, que é o NE1, fica apoiada apenas na percepção do pesquisador.');
-    if(mv.length === 0)
-      add('critico','Instrução Normativa','Nenhuma modalidade de validação selecionada.','O Art. 10 exige validação compatível com a natureza e o público do produto, e o Art. 11, §2º, condiciona a aprovação na defesa ao alcance do NE2.');
-    if(mv.length === 1 && mv[0] === 'Apenas declaração de interesse ou intenção de uso')
-      add('critico','Instrução Normativa','A única modalidade marcada é declaração de interesse.','O Art. 10, §2º, é explícito: declaração de interesse ou de intenção de uso é evidência de demanda ou de potencial de transferência, e não substitui a validação técnica ou científica. Escolha ao menos uma modalidade efetiva.');
-    if(tr.length === 0)
-      add('critico','Instrução Normativa','Nenhuma estratégia de transferência prevista.','O Art. 2º, inciso V, torna a estratégia obrigatória, e o Art. 11, §3º, determina que todo produto tenha caminho até o NE3, salvo justificativa de sigilo, proteção intelectual ou maturação tecnológica.');
-    if(cheio(en.neAlvo) && (en.neAlvo.indexOf('NE1') === 0))
-      add('critico','Instrução Normativa','O nível de evidência pretendido na defesa é NE1.','O Art. 11, §2º, exige no mínimo NE2, ou seja, produto validado. Com NE1 a defesa não é aprovada.');
-    if(!cheio(en.neAlvo))
-      add('atencao','Instrução Normativa','Nível de evidência pretendido não declarado.','Definir o alvo agora orienta o esforço de validação e evita descobrir a insuficiência às vésperas da defesa.');
-    if(!cheio(en.indicadores))
-      add('atencao','Instrução Normativa','Nenhum indicador de impacto definido.','O plano de avaliação de impacto exige indicadores, linha de base e meios de verificação. Pode ser apresentado como impacto potencial na defesa, mas o plano precisa existir.');
-    if(!cheio(en.etica) || !cheio(en.dadosPes) || !cheio(en.pi) || !cheio(en.sigilo))
-      add('atencao','Instrução Normativa','Riscos éticos, de dados, de propriedade intelectual ou de sigilo não analisados.','O Art. 19 exige comunicação prévia à instância competente da instituição. Tratamento tardio desses itens costuma travar o depósito.');
-    if(en.sigilo && en.sigilo.indexOf('Sigilo') === 0 && !cheio(en.diferencial))
-      add('atencao','Instrução Normativa','Produto sob sigilo sem justificativa registrada.','Sigilo exige justificativa formal, prazo, fundamento e guarda institucional da versão integral, e não dispensa validação nem registro.');
-    if((en.hospedagem||[]).indexOf('Repositório institucional') === -1)
-      add('atencao','Instrução Normativa','Depósito em repositório institucional não previsto.','O Art. 17 exige depósito em repositório ou ambiente institucional reconhecido, com endereço estável, além de registro no Lattes e na base nacional do programa.');
-    const perfisIN = v('e8','perfis');
-    if(Array.isArray(perfisIN) && perfisIN.indexOf('Currículo Lattes atualizado') === -1)
-      add('atencao','Instrução Normativa','Registro no Currículo Lattes não previsto.','O Art. 17, inciso III, exige registro do produto no Lattes dos autores, na categoria compatível, com correspondência de título, ano e tipologia entre os sistemas.');
-    if(ehFinal() && cheio(en.neAlvo) && en.neAlvo.indexOf('NE1') === 0)
-      add('critico','Instrução Normativa','Fase final com produto ainda em NE1.','Sem validação documentada não há solicitação de defesa. O Art. 2º, §3º, condiciona o pedido à apresentação de versão avaliável e do relatório de validação.');
+    if(!cheio(en.nomeProduto)||!cheio(en.tipoProduto))
+      add('atencao','Estação 6','A entrega técnica ainda não está identificada.','Informe o tipo e o nome provisório do produto no próprio percurso.');
+    if(!cheio(en.validacao))
+      add('atencao','Estação 6','Falta indicar como o produto será testado.','Descreva critérios, participantes e instrumentos na pergunta sobre validação do produto.');
+    if(!cheio(en.usuario)&&!cheio(v('e7','publico')))
+      add('atencao','Estação 7','Não está claro quem utilizará a solução.','Identifique o público e a situação de uso.');
   }
 
   if(ehFinal()){
@@ -2102,7 +1856,7 @@ window.addEventListener('beforeunload', function(){
 <script src="profagua-marcas.js" defer></script>
 <script src="astrolabio-avancado.js?v=20261024a" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
-<script src="projeto-profagua.js?v=20261026-ptt-sem-repeticao-v2" defer></script>
-<script src="anexo-ii-ptt.js?v=20261026-ptt-sem-repeticao-v2" defer></script>
+<script src="projeto-profagua.js?v=20261026-projeto-unico-v3" defer></script>
+
 </body>
 </html>
