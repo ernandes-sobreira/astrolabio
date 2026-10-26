@@ -409,11 +409,7 @@ function conteudo(){
   // O detalhamento normativo integral vai no apêndice, derivado das estações.
   // Não reproduzir aqui o questionário do Anexo II como outro formulário.
   b+=p('O planejamento do produto reúne, nesta seção do próprio projeto, as informações do Anexo II da minuta do ProfÁgua. A manifestação e as assinaturas dependem da apreciação do orientador.',{align:'left',space:110});
-  b+=subtitulo('8.4 Manifestação do orientador — etapa posterior');
-  b+=p('Situação do planejamento: ( ) aprovado   ( ) aprovado com ajustes   ( ) reformulação necessária',{align:'left',space:75});
-  b+=p('Comentários: ______________________________________________________________',{align:'left',space:75});
-  b+=p('Assinatura do discente: ______________________   Assinatura do orientador: ______________________',{align:'left',space:75});
-  b+=p('Data: ____/____/________',{align:'left',space:140});
+  // A manifestação e as assinaturas ficam exclusivamente na última página.
   b+=titulo('9 RESULTADOS ESPERADOS');
   b+=bloco([
     ['Resultados esperados anteriormente redigidos',valor('esperados')],
@@ -563,6 +559,19 @@ function footerDefault(){
  '<w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>1</w:t></w:r>'+
  '<w:r><w:fldChar w:fldCharType="end"/></w:r></w:p></w:ftr>';
 }
+/* Página final reservada à manifestação posterior do orientador.
+ * Não exige novo preenchimento pelo discente no Astrolábio. */
+function paginaAssinatura(){
+ return titulo('8.4 Manifestação do orientador — etapa posterior')+
+  vazio(2)+
+  p('Situação do planejamento: ( ) aprovado   ( ) aprovado com ajustes   ( ) reformulação necessária',{align:'left',space:200})+
+  vazio(1)+
+  p('Comentários: ______________________________________________________________',{align:'left',space:240})+
+  vazio(2)+
+  p('Assinatura do discente: ______________________   Assinatura do orientador: ______________________',{align:'left',space:240})+
+  vazio(1)+
+  p('Data: ____/____/________',{align:'left',space:140});
+}
 function doc(){
  const sect='<w:sectPr><w:headerReference w:type="default" r:id="rId2"/>'+
  '<w:headerReference w:type="first" r:id="rId2"/>'+
@@ -575,7 +584,7 @@ function doc(){
  // final do apêndice fica paisagem. O restante do projeto permanece A4 retrato.
  const corpo=conteudo();
  if(!FIGURAS || !FIGURAS.mental){
-  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+NS_DOC+'><w:body>'+corpo+sect+'</w:body></w:document>';
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+NS_DOC+'><w:body>'+corpo+pg()+paginaAssinatura()+sect+'</w:body></w:document>';
  }
  const quebra='<w:p><w:pPr>'+sect.replace('<w:sectPr>','<w:sectPr><w:type w:val="nextPage"/>')+'</w:pPr></w:p>';
  const paisagem='<w:sectPr><w:headerReference w:type="default" r:id="rId2"/>'+
@@ -594,8 +603,15 @@ function doc(){
   'Figura '+(figurasAnteriores+1)+' – Mapa mental do percurso acadêmico: origem, lacuna, projeto, entrega e alcance.',
   'Fonte: Astrolábio — representação automática das respostas do discente nas dez estações.',largura,altura);
  const apendice=titulo(tituloAnexo)+fig;
+ // Encerrar a seção paisagem após o mapa e iniciar A4 retrato para assinaturas.
+ const quebraPaisagem='<w:p><w:pPr>'+paisagem.replace('<w:sectPr>','<w:sectPr><w:type w:val="nextPage"/>')+'</w:pPr></w:p>';
+ const retratoFinal='<w:sectPr><w:headerReference w:type="default" r:id="rId2"/>'+
+  '<w:footerReference w:type="default" r:id="rId4"/>'+
+  '<w:pgSz w:w="11906" w:h="16838"/>'+
+  '<w:pgMar w:top="2350" w:right="1134" w:bottom="1750" w:left="1700" w:header="380" w:footer="450" w:gutter="0"/>'+
+  '</w:sectPr>';
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document '+NS_DOC+'><w:body>'+
-  corpo+quebra+apendice+paisagem+'</w:body></w:document>';
+  corpo+quebra+apendice+quebraPaisagem+paginaAssinatura()+retratoFinal+'</w:body></w:document>';
 }
 function styles(){
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
