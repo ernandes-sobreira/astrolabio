@@ -406,6 +406,21 @@ function conteudo(){
     ['Indicadores propostos de alcance ou utilização',en.indicadores||vv('e8','impactoPTT')],
     ['Critérios, participantes e instrumentos de validação',en.validacao||[legadoPTT.criteriosVal,legadoPTT.participantesVal,legadoPTT.instrumentosVal].filter(Boolean).join('; ')]
   ],'[Descreva na estação 6 como o produto será disponibilizado, validado e comprovado.]');
+  // O documento de projeto reúne as informações preparatórias do Anexo III,
+  // sem antecipar a avaliação, o parecer ou as assinaturas da banca.
+  if(vv('e1','qualificacao')||en.versaoQualificacao||en.materiaisQualificacao){
+    b+=subtitulo('8.3.1 Preparação documental para o exame de qualificação');
+    b+=bloco([
+      ['Data ou período previsto da qualificação',vv('e1','qualificacao')],
+      ['Estágio da versão do PTT apresentado pelo discente',en.versaoQualificacao],
+      ['Materiais efetivamente disponíveis e outros previstos',en.materiaisQualificacao],
+      ['Estratégia e critérios previstos de validação',en.validacao],
+      ['Estratégia de transferência ou compartilhamento',list(en.hospedagem)],
+      ['Avaliação prévia do potencial de impacto',vv('e8','impactoPTT')||en.indicadores],
+      ['Análise preliminar de propriedade intelectual, ética, acesso e sigilo',vv('e10','conformidadePTT')]
+    ],'[Atualizar a documentação antes da qualificação.]');
+    b+=p('Observação: a apresentação do plano e dos materiais de acompanhamento não substitui sua efetiva preparação. Recomendações, avaliação dos critérios, parecer e assinaturas do Anexo III são produzidos pela banca durante o exame.',{first:true});
+  }
   // O detalhamento normativo integral vai no apêndice, derivado das estações.
   // Não reproduzir aqui o questionário do Anexo II como outro formulário.
   b+=p('O planejamento do produto reúne, nesta seção do próprio projeto, as informações do Anexo II da minuta do ProfÁgua. A manifestação e as assinaturas dependem da apreciação do orientador.',{align:'left',space:110});
