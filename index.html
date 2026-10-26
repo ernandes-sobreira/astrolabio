@@ -392,28 +392,16 @@ const ESTACOES = [
     ]
   },
   {
-    id:'e2', bloco:'Onde estou', titulo:'O Texto Inspirador',
-    guia:'Toda pesquisa tem um texto de origem, a leitura que reorganizou o modo de ver o problema. Identificá-lo não é nostalgia: é o primeiro nó da rede intelectual à qual você está se filiando.',
+    id:'e2', bloco:'Onde estou', titulo:'Referências e leituras',
+    guia:'Registre, se quiser, as obras que já consultou. Não é preciso escolher um texto inspirador nem classificar leituras como teoria ou método. As citações e a fundamentação serão desenvolvidas por você posteriormente na Introdução.',
     campos:[
-      {k:'referencia', t:'textarea', r:'Referência completa do texto', d:'Formato ABNT ou o padrão da sua área.'},
-      {k:'tipo', t:'select', r:'Natureza do texto', op:['Artigo científico','Livro ou capítulo','Dissertação ou tese','Relatório técnico','Norma, lei ou resolução','Material de divulgação científica','Documento de política pública','Outro'], meia:true},
-      {k:'anoLeitura', t:'text', r:'Quando você leu', meia:true},
-      {k:'link', t:'text', r:'DOI ou endereço de acesso'},
-      {k:'comoChegou', t:'textarea', r:'Como você chegou a esse texto?',
-        d:'Indicação de professor, busca em base de dados, exigência do trabalho, acaso. Isso revela como sua rede de leitura se forma.'},
-      {k:'oQueMexeu', t:'textarea', r:'O que exatamente nesse texto mudou sua forma de ver o problema?',
-        d:'Um argumento, um resultado, um método, uma figura, uma contradição com o que você via em campo.'},
-      {k:'trecho', t:'textarea', r:'Transcreva a frase, o dado ou a figura que mais marcou',
-        d:'Com a página. Você vai citar isso depois.'},
-      {k:'semResposta', t:'textarea', r:'O que esse texto deixou sem resposta?',
-        d:'Esta pergunta é a ponte entre a sua origem e a sua lacuna. Se ficar vazia, o projeto perde ancoragem.'},
-      {k:'noSeuContexto', t:'textarea', r:'O que muda quando você tenta aplicar esse texto ao seu contexto?',
-        d:'Território, escala, instituição, público, condições de campo. Quase sempre é aqui que nasce a contribuição original.'}
+      {k:'referencia', t:'textarea', r:'Referências bibliográficas já consultadas (opcional)',
+        d:'Uma referência completa por linha, preferencialmente no padrão ABNT. Você também poderá incluí-las mais tarde na etapa Introdução e referências. Nenhuma citação será criada automaticamente.'}
     ]
   },
   {
-    id:'e3', bloco:'Onde estou', titulo:'Constelação de Autores', tipo:'autores',
-    guia:'Você não entra sozinho em um campo: entra em uma conversa que já estava acontecendo. Mapear quem sustenta essa conversa, onde essas pessoas estão e o que produzem além do que você leu é o que transforma referência bibliográfica em rede de trabalho, com bancas, coautorias e parcerias possíveis.'
+    id:'e3', bloco:'Onde estou', titulo:'Pesquisadores e contatos', tipo:'autores',
+    guia:'Espaço opcional para identificar pesquisadores, instituições e possíveis contatos úteis à sua pesquisa. Não é necessário classificar autores em teóricos ou metodológicos, nem contatá-los para concluir o projeto.'
   },
   {
     id:'e4', bloco:'Onde estou', titulo:'A Lacuna',
@@ -803,7 +791,6 @@ function desenharEstacao(){
 }
 
 /* ---------- autores ---------- */
-const PAPEIS = ['Autor do texto inspirador','Referência teórica central','Referência metodológica','Referência do contexto ou território','Autor emergente ou contemporâneo'];
 const APROX = ['Ler a obra completa','Contato por e-mail','Convite para banca','Coautoria de artigo','Estágio, missão ou visita técnica','Parceria institucional','Encontro em evento','Participação em projeto ou edital'];
 const STATUS = ['Não iniciado','E-mail enviado','Resposta recebida','Conversa em andamento','Colaboração em curso'];
 
@@ -816,13 +803,8 @@ function htmlAutores(){
       </div>
       <div class="campo"><label>Nome</label>
         <input type="text" value="${escapar(a.nome||'')}" oninput="setAutor(${i},'nome',this.value)"></div>
-      <div class="dupla">
-        <div class="campo"><label>Papel na sua pesquisa</label>
-          <select onchange="setAutor(${i},'papel',this.value)"><option value="">Selecione</option>
-          ${PAPEIS.map(p=>`<option ${a.papel===p?'selected':''}>${escapar(p)}</option>`).join('')}</select></div>
-        <div class="campo"><label>Instituição de vínculo</label>
-          <input type="text" value="${escapar(a.instituicao||'')}" oninput="setAutor(${i},'instituicao',this.value)"></div>
-      </div>
+      <div class="campo"><label>Instituição de vínculo, se conhecida</label>
+        <input type="text" value="${escapar(a.instituicao||'')}" oninput="setAutor(${i},'instituicao',this.value)"></div>
       <div class="dupla">
         <div class="campo"><label>País ou estado</label>
           <input type="text" value="${escapar(a.pais||'')}" oninput="setAutor(${i},'pais',this.value)"></div>
@@ -853,9 +835,9 @@ function htmlAutores(){
           ${STATUS.map(s=>`<option ${a.status===s?'selected':''}>${escapar(s)}</option>`).join('')}</select></div>
       </div>
     </div>`).join('');
-  return (estado.autores.length ? lista : `<div class="vazio">Nenhum autor registrado. Comece pelo autor do texto inspirador da estação anterior e avance para quem ele cita com mais frequência.</div>`)
+  return (estado.autores.length ? lista : `<div class="vazio">Nenhum pesquisador cadastrado. Esta etapa é opcional: utilize-a apenas se quiser organizar contatos, redes ou futuras parcerias.</div>`)
     + `<button class="primario" style="margin-top:14px" onclick="adicionarAutor()">Adicionar autor</button>
-       <p class="dica" style="margin-top:10px">Recomendação: entre quatro e oito autores. Menos que isso indica leitura ainda incipiente; muito mais indica dispersão.</p>`;
+       <p class="dica" style="margin-top:10px">Cadastro opcional. O número de pesquisadores registrados não interfere na conclusão do projeto.</p>`;
 }
 function adicionarAutor(){ estado.autores.push({aproximacao:[]}); salvar(); desenharEstacao(); }
 function removerAutor(i){ if(confirm('Remover este autor?')){ estado.autores.splice(i,1); salvar(); desenharEstacao(); } }
@@ -1051,27 +1033,8 @@ function diagnosticar(){
   if(!cheio(v('e1','incomodo')))
     add('critico','Estação 1','O incômodo de origem não foi declarado.','Sem ele, o percurso não tem por que existir. Volte e escreva o que não funciona no mundo real e o levou até aqui.');
 
-  if(!cheio(v('e2','referencia')))
-    add('atencao','Estação 2','Nenhum texto inspirador foi registrado.','Identifique a leitura que reorganizou sua forma de ver o problema. Ela será a primeira citação da sua introdução.');
-
-  if(cheio(v('e2','referencia')) && !cheio(v('e2','semResposta')))
-    add('critico','Estação 2','Você registrou o texto inspirador mas não disse o que ele deixou sem resposta.','Esta é a ponte entre origem e lacuna. Sem ela, o projeto parece surgir do nada.');
-
-  if(estado.autores.length === 0)
-    add('critico','Estação 3','Nenhum autor foi mapeado.','Você não sabe ainda quem já trabalha no seu tema. Comece pelas referências mais citadas do texto inspirador.');
-  else if(estado.autores.length < 4)
-    add('atencao','Estação 3','Apenas '+estado.autores.length+' autor(es) mapeado(s).','Entre quatro e oito autores dão base para situar o seu trabalho no campo.');
-
-  const semInst = estado.autores.filter(a=>cheio(a.nome) && !cheio(a.instituicao)).length;
-  if(estado.autores.length && semInst >= Math.ceil(estado.autores.length/2))
-    add('atencao','Estação 3','Metade ou mais dos autores está sem instituição de vínculo.','A instituição indica onde estão os grupos, os laboratórios e os editais aos quais você pode se vincular.');
-
-  const semPerfil = estado.autores.filter(a=>cheio(a.nome) && !cheio(a.perfil)).length;
-  if(estado.autores.length && semPerfil === estado.autores.length)
-    add('atencao','Estação 3','Nenhum perfil acadêmico foi consultado.','Sem abrir o Lattes, o ORCID ou o Google Acadêmico desses autores, você só conhece uma obra de cada um.');
-
-  if(estado.autores.length && !estado.autores.some(a=>cheio(a.acao)))
-    add('critico','Estação 3','Nenhuma ação de aproximação com prazo foi definida.','Rede de contatos não se forma por intenção. Defina ao menos um contato com data.');
+  // Leituras e rede de pesquisadores são opcionais: não geram
+  // alertas de preenchimento nem classificação teórica/metodológica.
 
   if(!cheio(v('e4','naoSeSabe')))
     add('critico','Estação 4','A lacuna não foi declarada.','Um objetivo sem lacuna é uma tarefa, não uma pesquisa. Este é o item mais cobrado em qualificação.');
@@ -1285,9 +1248,7 @@ function desenharPainel(){
   if(cheio(v('e1','orientador'))) n1 += `, sob orientação de ${escapar(v('e1','orientador'))}`;
   n1 += '. ';
   if(cheio(v('e1','incomodo'))) n1 += `O percurso nasce do seguinte incômodo: ${escapar(v('e1','incomodo'))} `;
-  if(cheio(v('e2','referencia'))) n1 += `A leitura que reorganizou essa percepção foi ${escapar(v('e2','referencia'))}`;
-  if(cheio(v('e2','semResposta'))) n1 += `, que deixou em aberto o seguinte: ${escapar(v('e2','semResposta'))}`;
-  if(cheio(v('e2','referencia'))) n1 += '.';
+  // Bibliografia é listada ao final do Word, sem narrativa de inspiração.
 
   let n2 = '';
   if(cheio(v('e4','naoSeSabe'))) n2 += `A lacuna identificada é: ${escapar(v('e4','naoSeSabe'))} `;
@@ -1310,7 +1271,7 @@ function desenharPainel(){
   const autoresHTML = estado.autores.length ? estado.autores.map((a,i)=>`
     <div class="secao-pan" style="margin-bottom:16px">
       <dl class="ficha">
-        <dt>Autor ${i+1}</dt><dd>${ou(a.nome)} ${a.papel?'&middot; '+escapar(a.papel):''}</dd>
+        <dt>Autor ${i+1}</dt><dd>${ou(a.nome)} </dd>
         <dt>Vínculo</dt><dd>${ou(a.instituicao)}${a.pais?', '+escapar(a.pais):''}${a.grupo?' &middot; '+escapar(a.grupo):''}</dd>
         <dt>Perfil</dt><dd>${ou(a.perfil,'perfil não consultado')}</dd>
         <dt>Produção além da obra lida</dt><dd>${ou(a.produzAlem)}</dd>
@@ -1368,14 +1329,11 @@ function desenharPainel(){
       ['Expectativa ao final', v('e1','expectativa')]
     ])}
 
-    ${bloco('Estação 2. Texto inspirador', [
-      ['Referência', v('e2','referencia')], ['Natureza', v('e2','tipo')],
-      ['Acesso', v('e2','link')], ['Como chegou ao texto', v('e2','comoChegou')],
-      ['O que mudou na sua percepção', v('e2','oQueMexeu')], ['Trecho marcante', v('e2','trecho')],
-      ['O que ficou sem resposta', v('e2','semResposta')], ['Ao aplicar ao seu contexto', v('e2','noSeuContexto')]
+    ${bloco('Estação 2. Referências consultadas (opcional)', [
+      ['Referências bibliográficas registradas', v('e2','referencia')]
     ])}
 
-    <div class="secao-pan"><h3 class="serif">Estação 3. Constelação de autores</h3>${autoresHTML}</div>
+    <div class="secao-pan"><h3 class="serif">Estação 3. Pesquisadores e contatos (opcional)</h3>${autoresHTML}</div>
 
     ${bloco('Estação 4. A lacuna', [
       ['O que já se sabe', v('e4','jaSeSabe')], ['O que não se sabe', v('e4','naoSeSabe')],
@@ -1482,11 +1440,10 @@ function montarSVG(){
 
   // coluna 1 origem
   colunas[0].push(['Incômodo de origem', v('e1','incomodo'), AZ, 4]);
-  colunas[0].push(['Texto inspirador', v('e2','referencia'), AZ, 4]);
-  colunas[0].push(['Ficou sem resposta', v('e2','semResposta'), AZ, 4]);
+  // Referências ficam na bibliografia final; o mapa mental mostra a trajetória.
   const listaAut = estado.autores.filter(a=>cheio(a.nome)).slice(0,5)
     .map(a=>a.nome + (a.instituicao? ' ('+a.instituicao+')' : '')).join('; ');
-  colunas[0].push(['Constelação de autores', listaAut, CZ, 6]);
+  if(listaAut)colunas[0].push(['Pesquisadores e contatos', listaAut, CZ, 4]);
 
   // coluna 2 lacuna
   colunas[1].push(['O que já se sabe', v('e4','jaSeSabe'), CZ, 4]);
@@ -1927,7 +1884,7 @@ window.addEventListener('beforeunload', function(){
 <script src="profagua-marcas.js" defer></script>
 <script src="astrolabio-avancado.js?v=20261026-regua-in-conferencia-v5" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
-<script src="projeto-profagua.js?v=20261026-anexoIII-prontidao" defer></script>
+<script src="projeto-profagua.js?v=20261026-bibliografia-enxuta" defer></script>
 
 </body>
 </html>
