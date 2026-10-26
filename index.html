@@ -381,6 +381,7 @@ const ESTACOES = [
       {k:'orientador', t:'text', r:'Orientador', meia:true},
       {k:'coorientador', t:'text', r:'Coorientador, se houver', meia:true},
       {k:'ingresso', t:'text', r:'Mês e ano de ingresso', meia:true},
+      {k:'qualificacao', t:'text', r:'Data ou período previsto da qualificação', d:'Previsão; a data oficial deve ser confirmada com o Programa.', meia:true},
       {k:'defesa', t:'text', r:'Mês e ano previsto para a defesa', meia:true},
       {k:'trajetoria', t:'textarea', r:'Que caminho o trouxe até este programa?',
         d:'Formação, trabalho, território, experiências. Escreva como se explicasse a alguém que não o conhece.'},
@@ -989,6 +990,15 @@ function htmlEntrega(){
         <div class="opcoes">${['Repositório institucional','Registro de software no INPI','ISBN ou ISSN','Repositório público de código','Servidor ou site institucional','Loja de aplicativos','Impressão e distribuição física','Plataforma de ensino a distância','Entrega formal à instituição','Capacitação ou oficina','Incorporação em sistema ou processo','Licenciamento ou cessão','Ainda não definido'].map(o=>`
           <label class="opcao ${hosp.includes(o)?'marcada':''}">
             <input type="checkbox" ${hosp.includes(o)?'checked':''} onchange="alternarHosp(${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)"> ${escapar(o)}</label>`).join('')}</div></div>
+      <div class="campo"><label>Que versão do produto ou especificação estará disponível para a qualificação?</label>
+        <div class="dica">Indique a situação real: especificação técnica, protótipo, versão preliminar ou funcional. Diferencie o que já existe do que ainda será produzido; não informe teste ou validação como concluídos se foram apenas planejados.</div>
+        <select onchange="setEnt('versaoQualificacao',this.value)">
+          <option value="">Ainda não informado</option>
+          ${['Apenas planejamento — sem versão demonstrável','Estrutura ou especificação técnica documentada','Protótipo demonstrável','Versão preliminar utilizável','Versão funcional disponível'].map(x=>`<option value="${escapar(x)}" ${en.versaoQualificacao===x?'selected':''}>${escapar(x)}</option>`).join('')}
+        </select></div>
+      <div class="campo"><label>Quais materiais ou evidências concretas estarão disponíveis na qualificação?</label>
+        <div class="dica">Informe somente materiais existentes ou previstos, identificando o estágio: especificação, protótipo, instrumentos de validação, dados preliminares, estratégia de transferência, plano de avaliação de impacto, manifestação de usuário e análise de propriedade intelectual. O Anexo III registra o que foi efetivamente apresentado; não exige que todos os tipos sejam apresentados em todo projeto.</div>
+        <textarea oninput="setEnt('materiaisQualificacao',this.value)">${escapar(en.materiaisQualificacao||'')}</textarea></div>
       <div class="campo"><label>Como o produto será validado?</label>
         <div class="dica">Indique modalidades, critérios, participantes ou avaliadores e instrumentos de teste (piloto, usabilidade, parecer de especialistas, avaliação institucional). A declaração de interesse não substitui validação.</div>
         <textarea oninput="setEnt('validacao',this.value)">${escapar(en.validacao||'')}</textarea></div>
@@ -1215,6 +1225,47 @@ function bloco(titulo, pares){
   const linhas = pares.filter(p=>p).map(([r,val])=>`<dt>${escapar(r)}</dt><dd>${cheio(val)?escapar(val):'<span class="nulo">não informado</span>'}</dd>`).join('');
   return `<div class="secao-pan"><h3 class="serif">${escapar(titulo)}</h3><dl class="ficha">${linhas}</dl></div>`;
 }
+/* Pré-conferência documental do Anexo III (qualificação ProfÁgua).
+ * Não é a avaliação oficial: AP/A/PA/NA/N/A, recomendações, parecer e
+ * assinaturas pertencem à banca. O Astrolábio só aponta informações
+ * registradas e materiais cuja existência ainda deve ser comprovada. */
+function htmlConferenciaQualificacao(){
+ if(!modoIN())return '';
+ const en=estado.entrega||{},dados=e=>v(e[0],e[1]),s=texto;
+ const have=(...x)=>x.some(t=>s(t).length>0);
+ const d=estado.dados||{},ext=estado.extensoes||{},ad=ext.aderencia||{};
+ const criteria=[
+  ['Problema ou demanda caracterizado',have(v('e1','incomodo'),v('e4','naoSeSabe'),ad.demanda),'Estações 1, 4 e 7'],
+  ['Público destinatário definido',have(v('e7','publico'),en.usuario),'Estações 6 e 7'],
+  ['Vinculação com a dissertação',have(en.aderenciaPTT,v('e5','conhecimentoSolucao')),'Estações 5 e 6'],
+  ['Tipologia principal identificada',have(en.tipoCapes),'Estação 6'],
+  ['Finalidade aplicada do produto',have(en.objetivoPTT)&&have(en.funcionalidadesPTT),'Estação 6'],
+  ['Estratégia de desenvolvimento viável',have(en.prazoProduto)&&have(v('e10','recursosPTT'),v('e10','seiFazer')),'Estações 6 e 10'],
+  ['Estratégia de validação descrita',have(en.validacao),'Estação 6'],
+  ['Critérios de validação especificados',have(en.validacao),'Estação 6 — conferir se o texto contém critérios mensuráveis'],
+  ['Estratégia de transferência ou compartilhamento',Array.isArray(en.hospedagem)&&en.hospedagem.length>0&&!en.hospedagem.every(x=>x==='Ainda não definido'),'Estações 6 e 9'],
+  ['Potencial de impacto descrito',have(v('e8','impactoPTT'),en.mudanca),'Estações 7 e 8'],
+  ['Indicadores preliminares registrados',have(v('e8','impactoPTT'),en.indicadores),'Estação 8 — conferir indicadores e meios de verificação'],
+  ['Aspectos éticos considerados',have(v('e10','conformidadePTT'),en.etica),'Estação 10'],
+  ['Propriedade intelectual analisada',have(v('e10','conformidadePTT'),en.pi),'Estação 10 — conferir análise específica'],
+  ['Acesso e sigilo considerados',have(v('e10','conformidadePTT'),en.sigilo),'Estações 6 e 10'],
+  ['Cronograma compatível com o curso',have(v('e1','qualificacao'))&&have(v('e1','defesa'))&&have(en.prazoProduto,v('e8','metas')),'Estações 1, 6 e 8 — conferir datas e exequibilidade']
+ ];
+ const registrados=criteria.filter(c=>c[1]).length,esc=escapar;
+ const versao=s(en.versaoQualificacao);
+ const material=s(en.materiaisQualificacao);
+ const rows=criteria.map((c,i)=>'<tr><td style="padding:7px 8px;border-bottom:1px solid #dce7e8">'+(i+1)+'. '+esc(c[0])+'</td>'+
+  '<td style="padding:7px 8px;border-bottom:1px solid #dce7e8;white-space:nowrap">'+(c[1]?'Informação registrada':'A complementar')+'</td></tr>').join('');
+ return '<section class="secao-pan" id="conferencia-qualificacao">'+
+  '<h3 class="serif">Pré-conferência para a qualificação — Anexo III</h3>'+
+  '<p class="dica">Revisão das 15 questões do item 3 do Anexo III. '+
+  '<strong>'+registrados+'/15 têm informação correspondente registrada no percurso.</strong> Isso NÃO significa atendimento aprovado: a banca julgará suficiência, validade e qualidade das evidências.</p>'+
+  '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;text-align:left;font-size:14px"><thead><tr><th style="padding:8px;border-bottom:2px solid #a5c5c9">Critério de avaliação</th><th style="padding:8px;border-bottom:2px solid #a5c5c9">Situação documental</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+  '<p><strong>Materiais para a qualificação:</strong> '+(material?esc(material):'Ainda não informados. Conferir os materiais efetivamente disponíveis conforme o item 2 do Anexo III.')+'</p>'+
+  '<p><strong>Estágio informado do PTT:</strong> '+(versao?esc(versao):'Não informado')+'. <strong>Qualificação prevista:</strong> '+(v('e1','qualificacao')?esc(v('e1','qualificacao')):'data ainda não informada')+'.</p>'+
+  '<p class="dica">O item 2 lista tipos de material a registrar como apresentados, não uma obrigação de possuir todos eles simultaneamente. As cinco dimensões do item 4 — aderência, aplicabilidade, inovação, complexidade e potencial de impacto — exigem apreciação qualitativa pela banca. Recomendações, parecer e assinaturas também são atribuições da banca, não campos que o aluno deva preencher antecipadamente.</p>'+
+  '</section>';
+}
 function desenharPainel(){
   const d = diagnosticar();
   const nC = d.filter(x=>x.nivel==='critico').length;
@@ -1278,6 +1329,7 @@ function desenharPainel(){
   if(fs.includes('Produto Técnico e Tecnológico')){
     entregaPares.push(['Tipo de produto', en.tipoProduto], ['Nome provisório', en.nomeProduto],
       ['Usuário e cena de uso', en.usuario], ['Hospedagem e registro', (en.hospedagem||[]).join(', ')],
+      ['Situação da versão para qualificação', en.versaoQualificacao], ['Materiais ou evidências para a qualificação',en.materiaisQualificacao],
       ['Plano de validação', en.validacao], ['Evidências previstas', en.evidencias],
       ['Diferencial', en.diferencial], ['Prazo da primeira versão', en.prazoProduto]);
   }
@@ -1298,6 +1350,8 @@ function desenharPainel(){
       <p class="narrativa"><b>Como chego. </b>${n3}</p>
     </div>
 
+    ${htmlConferenciaQualificacao()}
+
     <div class="secao-pan"><h3 class="serif">Diagnóstico de coerência</h3>
       ${d.map(x=>`<div class="alerta ${x.nivel}"><b>${escapar(x.est)}: ${escapar(x.texto)}</b><em>${escapar(x.saida)}</em></div>`).join('')}
     </div>
@@ -1309,7 +1363,7 @@ function desenharPainel(){
       ['Área', v('e1','area')], ['Linha de pesquisa', v('e1','linha')],
       ['Grupo ou laboratório', v('e1','grupo')],
       ['Orientação', [v('e1','orientador'),v('e1','coorientador')].filter(Boolean).join(' | ')],
-      ['Ingresso e defesa prevista', [v('e1','ingresso'),v('e1','defesa')].filter(Boolean).join(' | ')],
+      ['Ingresso, qualificação e defesa prevista', [v('e1','ingresso'),v('e1','qualificacao'),v('e1','defesa')].filter(Boolean).join(' | ')],
       ['Trajetória', v('e1','trajetoria')], ['Incômodo de origem', v('e1','incomodo')],
       ['Expectativa ao final', v('e1','expectativa')]
     ])}
@@ -1873,7 +1927,7 @@ window.addEventListener('beforeunload', function(){
 <script src="profagua-marcas.js" defer></script>
 <script src="astrolabio-avancado.js?v=20261026-regua-in-conferencia-v5" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
-<script src="projeto-profagua.js?v=20261026-assinatura-ultima-pagina" defer></script>
+<script src="projeto-profagua.js?v=20261026-anexoIII-prontidao" defer></script>
 
 </body>
 </html>
