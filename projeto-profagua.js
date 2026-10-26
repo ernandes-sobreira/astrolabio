@@ -206,6 +206,8 @@ function quadroEntregas(en){
 
 function conteudo(){
   const en=estado.entrega||{};
+  const legadoPTT=en.anexoII||{};
+  const composto=(atual,antigo)=>atual||antigo||'';
   const vv=(e,k)=>v(e,k)||'';
   const list=a=>Array.isArray(a)?a.join('; '):String(a||'');
   const bloco=(pairs,pendencia)=>{
@@ -232,6 +234,7 @@ function conteudo(){
     ['Problema',vv('e5','pergunta')],['Objetivo',vv('e5','objetivoGeral')],
     ['Abordagem prevista',vv('e5','abordagem')],['Delineamento',vv('e5','delineamento')],
     ['Área de estudo',vv('e5','territorio')],
+    ['Conhecimento convertido em aplicação',vv('e5','conhecimentoSolucao')],
     ['Produto previsto',en.nomeProduto||en.tipoProduto],
     ['Contribuição esperada',vv('e7','oQueMuda')]
   ],'[Resumo em construção: as respostas das estações 5 a 7 serão incorporadas automaticamente.]');
@@ -314,7 +317,8 @@ function conteudo(){
   b+=bloco([
     ['Caracterização da área anteriormente redigida',valor('areaEstudo')],
     ['Território',vv('e5','territorio')],['Período',vv('e5','temporal')],
-    ['Contexto de aplicação',vv('e2','noSeuContexto')]
+    ['Contexto de aplicação',vv('e2','noSeuContexto')],
+    ['Conhecimento científico com potencial de aplicação',vv('e5','conhecimentoSolucao')]
   ],'[Área e período a especificar na estação 5.]');
   if(FIGURAS&&FIGURAS.mapa){
     numeroFigura++;
@@ -350,13 +354,19 @@ function conteudo(){
   b+=subtitulo('8.1 Produto principal: identificação e forma de entrega');
   b+=bloco([
     ['Nome do produto que será entregue',en.nomeProduto],
+    ['Objetivo aplicado do produto',composto(en.objetivoPTT,legadoPTT.objetivoPTT)],
+    ['Componentes e funcionalidades previstos',composto(en.funcionalidadesPTT,legadoPTT.funcionalidades)],
     ['Tipo de produto técnico ou tecnológico',en.tipoProduto||en.tipoCapes],
     ['O que será produzido',valor('produto')||en.diferencial],
+    ['Natureza da inovação',composto(en.tipoInovacaoPTT,Array.isArray(legadoPTT.tipoInovacao)?legadoPTT.tipoInovacao.join('; '):legadoPTT.tipoInovacao)],
+    ['Soluções existentes e aperfeiçoamentos propostos',en.diferencial||legadoPTT.solucoesAtuais],
     ['Problema ou demanda que o produto pretende atender',en.evidProblema||vv('e1','incomodo')],
     ['Quem receberá ou utilizará',en.usuario||vv('e7','publico')],
     ['Formato de distribuição, hospedagem ou registro',list(en.hospedagem)],
     ['Forma de transferência ao público',list(en.transfPrev)],
-    ['Relação com os objetivos e a pesquisa',en.vinculacao],
+    ['Relação com os objetivos e a pesquisa',en.vinculacao||vv('e5','conhecimentoSolucao')],
+    ['Instrumento de gestão ou política pública relacionada',vv('e4','politicaRelacionada')||legadoPTT.politicaRelacionada],
+    ['Condições para aplicação e adaptação',vv('e7','aplicabilidadePTT')||legadoPTT.condicoesAplicacao],
     ['Como será testado ou validado',en.validacao||list(en.modalidadesVal)],
     ['Evidências previstas da entrega e do uso',en.evidencias],
     ['Prazo previsto para a primeira versão utilizável',en.prazoProduto],
@@ -374,8 +384,9 @@ function conteudo(){
     ['Modalidades alternativas de validação',list(en.modalidadesVal)],
     ['Evidências a reunir',en.evidencias],
     ['Hospedagem e acesso ao produto',list(en.hospedagem)],
-    ['Estratégia de transferência',list(en.transfPrev)],
-    ['Indicadores propostos de alcance ou utilização',en.indicadores]
+    ['Estratégia de transferência',list(en.transfPrev)||list(en.hospedagem)],
+    ['Indicadores propostos de alcance ou utilização',en.indicadores||vv('e8','impactoPTT')],
+    ['Critérios, participantes e instrumentos de validação',en.validacao||[legadoPTT.criteriosVal,legadoPTT.participantesVal,legadoPTT.instrumentosVal].filter(Boolean).join('; ')]
   ],'[Descreva na estação 6 como o produto será disponibilizado, validado e comprovado.]');
   // O detalhamento normativo integral vai no apêndice, derivado das estações.
   // Não reproduzir aqui o questionário do Anexo II como outro formulário.
@@ -393,7 +404,8 @@ function conteudo(){
     ['Principais riscos e alternativas',vv('e10','riscos')],
     ['Dependências para acesso aos dados',vv('e10','dadosFaltam')],
     ['Limitações técnicas identificadas',vv('e10','precisoAprender')],
-    ['Barreiras previstas para alcançar os usuários',vv('e7','barreiras')]
+    ['Barreiras previstas para alcançar os usuários',vv('e7','barreiras')],
+    ['Ética, dados pessoais, propriedade intelectual, sigilo e acessibilidade',vv('e10','conformidadePTT')||[en.etica,en.dadosPes,en.pi,en.sigilo,en.acessibilidade].filter(Boolean).join('; ')]
   ],'[Limitações e contingências ainda não descritas na estação 10.]');
   b+=titulo('11 RECURSOS E PLANEJAMENTO FINANCEIRO');
   b+=bloco([
@@ -401,9 +413,10 @@ function conteudo(){
     ['Horas semanais disponíveis',vv('e10','tempo')?vv('e10','tempo')+' horas':''],
     ['Recursos técnicos e operacionais disponíveis',vv('e10','seiFazer')],
     ['Demandas e capacitações necessárias',vv('e10','precisoAprender')],
-    ['Dependências financeiras ou institucionais',vv('e10','dadosFaltam')]
+    ['Dependências financeiras ou institucionais',vv('e10','dadosFaltam')],
+    ['Equipe, infraestrutura, dados, custos previstos e parcerias',vv('e10','recursosPTT')||[legadoPTT.recursosHumanos,legadoPTT.infraestrutura,legadoPTT.dadosSistemas,legadoPTT.recursosFinanceiros].filter(Boolean).join(' — ')]
   ],'[Recursos a definir com base na estação 10.]');
-  b+=p('Orçamento em reais, quantidades e custos unitários: [não informados nas estações; os valores não foram presumidos].',{first:true});
+  if(!vv('e10','recursosPTT')&&!legadoPTT.recursosFinanceiros)b+=p('Estimativas de custos e recursos ainda não informadas. Acrescentar quantitativos e valores quando disponíveis.',{first:true});
   b+=titulo('12 CRONOGRAMA DE EXECUÇÃO');
   let etapas=[];
   String(vv('e8','metas')).split(/\r?\n/).map(x=>x.trim()).filter(Boolean).forEach(x=>{
@@ -425,7 +438,9 @@ function conteudo(){
     ['Destinatários da devolutiva',vv('e9','paraQuem')],
     ['Formato da devolutiva',list(vv('e9','formato'))],
     ['Local e data da devolutiva',[(vv('e9','onde')||''),(vv('e9','quando')||'')].filter(Boolean).join(' — ')],
-    ['Registro da devolutiva',vv('e9','comoRegistra')]
+    ['Registro da devolutiva',vv('e9','comoRegistra')],
+    ['Participação de atores externos no desenvolvimento e testes',vv('e9','participacaoPTT')||legadoPTT.formaParticipacao],
+    ['Benefícios esperados, prazos e meios de verificação',vv('e8','impactoPTT')||legadoPTT.prazoImpacto]
   ],'[Divulgação e devolutiva ainda não preenchidas nas estações 7 a 9.]');
   b+=titulo('14 DEMANDA TERRITORIAL E RELEVÂNCIA DO PROJETO');
   const ad=ext.aderencia||{};
@@ -434,7 +449,8 @@ function conteudo(){
     ['Instituição ou coletivo demandante',ad.instituicao],
     ['Necessidade concreta a suprir',ad.demanda],
     ['Território ao qual responde',ad.territorio],
-    ['Evidências e registros da demanda',ad.evidencia]
+    ['Evidências e registros da demanda',ad.evidencia],
+    ['Relação com política pública ou instrumento de gestão',vv('e4','politicaRelacionada')||legadoPTT.politicaRelacionada]
   ],'[Demanda e origem ainda não informadas na estação 7.]');
   if([ad.origem,ad.instituicao,ad.demanda,ad.territorio,ad.evidencia].some(x=>String(x||'').trim())){
     b+=subtitulo('14.1 Régua de aderência — autoavaliação do discente');
@@ -462,32 +478,6 @@ function conteudo(){
     b+=figuraWord('rId6',61,'Figura '+numeroFigura+' – Síntese lexical dos termos mais frequentes no projeto.',
       'Fonte: elaboração automática do Astrolábio a partir das respostas registradas, após remoção de termos comuns e institucionais.',5400000,3150000);
     b+=p('A frequência lexical constitui descrição textual, não avaliação de qualidade científica.',{align:'left',space:100});
-  }
-  // O Anexo II é GERADO: nenhum campo exige uma segunda digitação.
-  // As respostas já existentes são reutilizadas pela função ANEXO_II.ler.
-  const temAnexo=window.ANEXO_II && typeof window.modoIN==='function' && window.modoIN();
-  if(temAnexo){
-    const letra=FIGURAS&&FIGURAS.nuvem?'B':'A';
-    b+=pg()+titulo('APÊNDICE '+letra+' — PLANO DE DESENVOLVIMENTO DO PRODUTO TÉCNICO-TECNOLÓGICO (ANEXO II)');
-    b+=p('Plano elaborado automaticamente com base nas respostas do percurso acadêmico e nos complementos das estações. Base: Anexo II da minuta de Instrução Normativa ProfÁgua nº XXXX/2026. Não equivale a aprovação institucional.',{first:true});
-    b+=p('Orientação para leitura: [PENDENTE] indica informação ainda não registrada. Campos condicionais poderão ser declarados não aplicáveis, com justificativa. Manifestação e assinaturas são exclusivas do orientador.',{first:true});
-    const api=window.ANEXO_II;
-    api.secoes.forEach((sec,i)=>{
-      b+=subtitulo(sec.titulo);
-      if(sec.orientador){
-        b+=p('Manifestação do orientador: ( ) aprovado  ( ) aprovado com ajustes  ( ) reformulação necessária');
-        b+=p('Comentários: _______________________________________________',{align:'left'});
-        b+=p('Assinatura do discente: ______________________________________', {align:'left'});
-        b+=p('Assinatura do orientador: ___________________________________',{align:'left'});
-        b+=p('Data: ____/____/________', {align:'left'});
-      }else{
-        sec.campos.forEach(c=>{
-          const dado=api.ler(c.id);
-          const val=Array.isArray(dado)?dado.join('; '):String(dado==null?'':dado).trim();
-          b+=rotulado(c.label, val||'[PENDENTE — verificar necessidade e registrar informação.]');
-        });
-      }
-    });
   }
   return b;
 }
@@ -564,8 +554,7 @@ function doc(){
   '<w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>'+
   '<w:pgMar w:top="1650" w:right="1200" w:bottom="950" w:left="1200" w:header="340" w:footer="400" w:gutter="0"/>'+
   '</w:sectPr>';
- const temAnexo=window.ANEXO_II&&typeof window.modoIN==='function'&&window.modoIN();
- const anterior=temAnexo?(FIGURAS.nuvem?'C':'B'):(FIGURAS.nuvem?'B':'A');
+ const anterior=FIGURAS.nuvem?'B':'A';
  const figurasAnteriores=(FIGURAS.mapa?1:0)+(FIGURAS.nuvem?1:0);
  const tituloAnexo='APÊNDICE '+anterior+' — MAPA MENTAL DO PERCURSO DE PESQUISA';
  const razao=FIGURAS.mentalAspect||2;
