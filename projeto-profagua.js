@@ -79,6 +79,33 @@ window.abrirProjeto=function(){
  window.scrollTo({top:0,behavior:'smooth'});
 };
 
+/* Complementação posterior ao percurso: não duplica nem exige reescrever as dez estações.
+   Textos são guardados no mesmo JSON do aluno (estado.projeto). */
+window.abrirRevisaoAcademica=function(){
+  const tela=document.getElementById('tela-revisao');
+  if(!tela){alert('Atualize o Astrolábio para acessar a revisão acadêmica.');return;}
+  mostrarTela('revisao');
+  tela.innerHTML='<div class="cabeca-estacao">'+
+    '<div class="etiqueta">Etapa complementar, após as dez estações</div>'+
+    '<h2 class="serif">Introdução científica e referências</h2>'+
+    '<div class="guia">O Resumo Executivo é produzido automaticamente a partir do percurso. A INTRODUÇÃO científica não é gerada como pesquisa pronta: o(a) discente deverá redigi-la posteriormente, com fundamentação teórica, citações verificadas e referências bibliográficas completas. Nenhuma fonte é inventada.</div></div>'+
+    '<div class="campo"><label for="rev-intro">Introdução redigida pelo(a) discente</label>'+
+    '<div class="dica">Escreva aqui após o percurso do Astrolábio. Contextualize o problema, dialogue com os autores e cite as obras no corpo do texto, indicando autor, ano e página nas citações diretas. Se preferir, também é possível completar esta seção diretamente no Word baixado.</div>'+
+    '<textarea id="rev-intro" rows="13" oninput="atualizarComplementacaoAcademica(\'introducao\',this.value)" spellcheck="true">'+esc(valor('introducao'))+'</textarea></div>'+
+    '<div class="campo"><label for="rev-refs">Referências bibliográficas utilizadas na introdução</label>'+
+    '<div class="dica">Uma referência completa por linha, conforme as normas ABNT e do ProfÁgua. Todas as obras citadas na introdução devem ser relacionadas aqui. Essas referências serão acrescentadas ao final do Word junto das leituras do Astrolábio, sem repetir registros idênticos.</div>'+
+    '<textarea id="rev-refs" rows="9" oninput="atualizarComplementacaoAcademica(\'referenciasIntroducao\',this.value)" spellcheck="true">'+esc(valor('referenciasIntroducao'))+'</textarea></div>'+
+    '<p style="color:var(--cinza);font-size:15px">Se editar a introdução posteriormente no Word, inclua também ali as referências correspondentes. O Astrolábio não deduz uma referência completa apenas de uma citação autor-ano.</p>'+
+    '<div class="rodape-nav"><button onclick="abrirEstacao(4)">Voltar à estação O Projeto</button>'+
+    '<button class="primario" onclick="baixarProjetoProfagua()">Baixar projeto Word atualizado</button></div>';
+  desenharNav();
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+window.atualizarComplementacaoAcademica=function(chave,texto){
+ if(chave!=='introducao'&&chave!=='referenciasIntroducao')return;
+ met(chave,texto);
+};
+
 function xml(t){ return String(t===null||t===undefined?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 function wtxt(s){return '<w:r><w:t xml:space="preserve">'+xml(s)+'</w:t></w:r>';}
 function p(text,o){
