@@ -172,6 +172,38 @@ function figuraWord(rid,id,nome,fonte,largura,altura){
     p(nome,{style:'FigureCaption',align:'center',space:55,line:260,keep:true})+
     p(fonte,{style:'FigureSource',align:'center',space:140,line:250});
 }
+/* Quadro de escolhas já assinaladas na estação 6. Não cria modalidades novas
+ * nem confunde uma intenção de entrega com produto finalizado. */
+function quadroEntregas(en){
+  const fs=Array.isArray(en.formatos)?en.formatos:[];
+  const normal=x=>String(x||'').trim();
+  const modalidades=fs.length?fs:(en.nomeProduto||en.tipoProduto?['Produto Técnico e Tecnológico']:[]);
+  const rows=modalidades.length?modalidades.map(formato=>{
+    let conteudo='';
+    if(formato==='Produto Técnico e Tecnológico'){
+      conteudo=[normal(en.nomeProduto)||'[Nome a definir]',normal(en.tipoProduto)||normal(en.tipoCapes)||'[Tipologia a definir]'].join(' — ');
+    }else if(formato==='Artigo científico'){
+      conteudo='Artigo científico'+(en.revista?' para '+normal(en.revista):' — periódico a definir')+
+        (en.prazoArtigo?' | previsão: '+normal(en.prazoArtigo):'');
+    }else{
+      conteudo=formato+(en.outros?' — '+normal(en.outros):'');
+    }
+    return [formato,conteudo];
+  }):[['Modalidades não indicadas','[Selecionar as entregas previstas na estação 6 do Astrolábio.]']];
+  const cols=[2650,6422];
+  const cell=(t,w)=>'<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/></w:tcPr>'+
+    p(t,{align:'left',space:70,line:270})+'</w:tc>';
+  const table='<w:tbl><w:tblPr><w:tblW w:w="9072" w:type="dxa"/>'+
+    '<w:tblBorders><w:top w:val="single" w:sz="5"/><w:left w:val="single" w:sz="5"/>'+
+    '<w:bottom w:val="single" w:sz="5"/><w:right w:val="single" w:sz="5"/>'+
+    '<w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/></w:tblBorders>'+
+    '</w:tblPr><w:tblGrid><w:gridCol w:w="'+cols[0]+'"/><w:gridCol w:w="'+cols[1]+'"/></w:tblGrid>'+
+    '<w:tr>'+cell('MODALIDADE PREVISTA',cols[0])+cell('ENTREGA PLANEJADA',cols[1])+'</w:tr>'+
+    rows.map(r=>'<w:tr>'+cell(r[0],cols[0])+cell(r[1],cols[1])+'</w:tr>').join('')+
+    '</w:tbl>';
+  return table;
+}
+
 function conteudo(){
   const en=estado.entrega||{};
   const vv=(e,k)=>v(e,k)||'';
@@ -214,7 +246,9 @@ function conteudo(){
     ['Lacuna e necessidade identificada',vv('e4','naoSeSabe')],
     ['Evidências levantadas no percurso',vv('e4','evidencia')],
     ['Abrangência territorial',vv('e5','territorio')],
-    ['Recorte temporal',vv('e5','temporal')]
+    ['Recorte temporal',vv('e5','temporal')],
+    ['Produto técnico que se pretende entregar',en.nomeProduto||en.tipoProduto],
+    ['Opções de entrega previstas',list(en.formatos)]
   ],'[Resumo Executivo em construção: preencha as estações 1, 4 e 5.]');
   b+=titulo('2 INTRODUÇÃO');
   // A introdução científica não é inventada: redação posterior é responsabilidade do(a) discente.
@@ -312,15 +346,37 @@ function conteudo(){
   ],'[A análise estatística, qualitativa ou espacial exige detalhamento metodológico adicional.]');
 
   b+=titulo('8 PRODUTO TÉCNICO E TECNOLÓGICO PREVISTO');
+  b+=p('ESTA É A ENTREGA PLANEJADA DO PROJETO, AINDA SUJEITA À EXECUÇÃO E VALIDAÇÃO.',{align:'left',space:140});
+  b+=subtitulo('8.1 Produto principal: identificação e forma de entrega');
   b+=bloco([
-    ['Produto anteriormente redigido',valor('produto')],
-    ['Tipo de entrega',list(en.formatos)],['Tipologia técnica',en.tipoProduto||en.tipoCapes],
-    ['Produto provisoriamente nomeado',en.nomeProduto],
-    ['Destinatário do produto',en.usuario||vv('e7','publico')],
-    ['Vinculação com a pesquisa',en.vinculacao],
-    ['Estratégia de validação',en.validacao||list(en.modalidadesVal)],
-    ['Diferencial',en.diferencial],['Prazo estimado',en.prazoProduto]
-  ],'[Produto técnico a detalhar na estação 6.]');
+    ['Nome do produto que será entregue',en.nomeProduto],
+    ['Tipo de produto técnico ou tecnológico',en.tipoProduto||en.tipoCapes],
+    ['O que será produzido',valor('produto')||en.diferencial],
+    ['Problema ou demanda que o produto pretende atender',en.evidProblema||vv('e1','incomodo')],
+    ['Quem receberá ou utilizará',en.usuario||vv('e7','publico')],
+    ['Formato de distribuição, hospedagem ou registro',list(en.hospedagem)],
+    ['Forma de transferência ao público',list(en.transfPrev)],
+    ['Relação com os objetivos e a pesquisa',en.vinculacao],
+    ['Como será testado ou validado',en.validacao||list(en.modalidadesVal)],
+    ['Evidências previstas da entrega e do uso',en.evidencias],
+    ['Prazo previsto para a primeira versão utilizável',en.prazoProduto],
+    ['Mudança ou benefício esperado',en.mudanca]
+  ],'[PRODUTO A DEFINIR PELO(A) DISCENTE — escolha o tipo, nome, público, forma de entrega e validação na estação 6.]');
+  b+=subtitulo('8.2 Modalidades e opções de entrega selecionadas no Astrolábio');
+  b+=quadroEntregas(en);
+  b+=p('O quadro reúne apenas as opções indicadas pelo(a) discente na estação Formato da Entrega. Artigo científico, dissertação e produto técnico são modalidades distintas; marcar uma opção não significa que ela já tenha sido produzida, registrada, validada ou publicada.',{first:true});
+  if(en.outros)b+=rotulado('Outras entregas detalhadas pelo discente',en.outros);
+  if(en.tipoCapes2)b+=rotulado('Tipologia técnica secundária prevista',en.tipoCapes2);
+  b+=subtitulo('8.3 Disponibilização, validação e comprovação');
+  b+=bloco([
+    ['Usuários e cenário de aplicação',en.usuario],
+    ['Procedimento previsto de validação',en.validacao],
+    ['Modalidades alternativas de validação',list(en.modalidadesVal)],
+    ['Evidências a reunir',en.evidencias],
+    ['Hospedagem e acesso ao produto',list(en.hospedagem)],
+    ['Estratégia de transferência',list(en.transfPrev)],
+    ['Indicadores propostos de alcance ou utilização',en.indicadores]
+  ],'[Descreva na estação 6 como o produto será disponibilizado, validado e comprovado.]');
   b+=titulo('9 RESULTADOS ESPERADOS');
   b+=bloco([
     ['Resultados esperados anteriormente redigidos',valor('esperados')],
