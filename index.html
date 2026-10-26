@@ -371,7 +371,7 @@ const ESTACOES = [
       {k:'programa', t:'text', r:'Programa de pós-graduação', meia:true},
       {k:'nivel', t:'select', r:'Nível', op:['Mestrado acadêmico','Mestrado profissional','Doutorado','Doutorado profissional','Pós-doutorado'], meia:true},
       {k:'momento', t:'select', r:'Momento do percurso', d:'Define o que a plataforma vai cobrar de você agora. Pode ser alterado a qualquer tempo.', op:['Ingressante, nos primeiros meses','Em desenvolvimento','Fase final, rumo à defesa'], meia:true},
-      {k:'marco', t:'select', r:'Marco normativo do produto técnico', d:'Se o seu programa adota norma própria de PTT, selecione. A plataforma passa a verificar os requisitos dessa norma e a gerar o rascunho do plano exigido por ela.', op:['Não se aplica','Instrução Normativa de PTT do ProfÁgua'], meia:true},
+      {k:'marco', t:'select', r:'Marco normativo do produto técnico', d:'Se o seu programa adota norma própria de PTT, selecione. As respostas do percurso serão aproveitadas no próprio projeto Word, sem questionário nem arquivo separado.', op:['Não se aplica','Instrução Normativa de PTT do ProfÁgua'], meia:true},
       {k:'area', t:'text', r:'Área de avaliação ou grande área', meia:true},
       {k:'linha', t:'text', r:'Linha de pesquisa', meia:true},
       {k:'grupo', t:'text', r:'Grupo de pesquisa ou laboratório', d:'Nome do grupo no diretório institucional ou no CNPq, se houver.', meia:true},
@@ -427,7 +427,7 @@ const ESTACOES = [
       {k:'porQueImporta', t:'textarea', r:'Por que essa lacuna importa para alguém que não é pesquisador?',
         d:'Se você não conseguir responder, o projeto terá dificuldade de justificar relevância social, e no mestrado profissional isso é decisivo.'},
       {k:'politicaRelacionada', t:'textarea', r:'A qual política pública, instrumento de gestão ou demanda social o problema se relaciona?',
-        d:'Descreva a relação concreta, quando existir. Esse vínculo será reaproveitado no plano do produto técnico do ProfÁgua.'}
+        d:'Descreva a relação concreta, quando existir. Esse vínculo será aproveitado na justificativa e na descrição do produto do projeto Word.'}
     ]
   },
   {
@@ -468,7 +468,9 @@ const ESTACOES = [
       {k:'barreiras', t:'textarea', r:'O que impede esse público de chegar ao seu trabalho?',
         d:'Idioma, paywall, formato, linguagem técnica, tempo, acesso à internet, ausência de canal institucional.'},
       {k:'adaptacao', t:'textarea', r:'Como você vai adaptar linguagem e formato para vencer essas barreiras?'},
-      {k:'publicoSec', t:'text', r:'Público secundário, se houver'}
+      {k:'publicoSec', t:'text', r:'Público secundário, se houver'},
+      {k:'aplicabilidadePTT', t:'textarea', r:'Em quais condições a solução poderá ser aplicada, por quem e com quais recursos?',
+        d:'Instituições usuárias, número estimado de beneficiários, competências, condições de uso e possibilidades de replicação ou adaptação.'}
     ]
   },
   {
@@ -485,6 +487,8 @@ const ESTACOES = [
         d:'Órgãos gestores, secretarias, sindicatos, escolas, associações, empresas, organizações da sociedade civil.'},
       {k:'metas', t:'textarea', r:'Metas de visibilidade com data',
         d:'Uma por linha, no formato ação e prazo. Exemplo: submeter resumo ao congresso estadual até março de 2027.'},
+      {k:'impactoPTT', t:'textarea', r:'Que mudança se espera do uso da solução, em que prazo e com quais indicadores?',
+        d:'Inclua a forma de verificar os resultados e as condições necessárias para o impacto.'},
       {k:'registroProd', t:'checks', r:'Registro e proteção previstos',
         op:['Depósito em repositório institucional','Registro de software no INPI','ISBN ou ISSN','Licença Creative Commons','Código aberto em repositório público','Patente ou modelo de utilidade','Ainda não definido']}
     ]
@@ -501,6 +505,8 @@ const ESTACOES = [
       {k:'onde', t:'text', r:'Onde acontecerá', meia:true},
       {k:'comoRegistra', t:'textarea', r:'Como a devolutiva será documentada?',
         d:'Lista de presença, ata, ofício de recebimento, registro fotográfico, formulário de avaliação, declaração institucional. Sem registro, não há evidência.'},
+      {k:'participacaoPTT', t:'textarea', r:'Quem participará da construção ou teste do produto e como?',
+        d:'Atores, etapa, contribuição e autorizações ou acordos necessários. Se não houver participação externa, informe e justifique.'},
       {k:'compromisso', t:'textarea', r:'Que compromisso você assume publicamente com esse público?',
         d:'Escreva na primeira pessoa. Este parágrafo pode entrar na sua dissertação ou tese.'}
     ]
@@ -518,6 +524,10 @@ const ESTACOES = [
         d:'Identifique dependências externas: autorização, licença ambiental, comitê de ética, cessão de base, acesso a campo.'},
       {k:'tempo', t:'number', r:'Horas por semana efetivamente disponíveis para a pesquisa', meia:true},
       {k:'financiamento', t:'select', r:'Situação de financiamento', op:['Bolsa de agência de fomento','Projeto financiado do grupo','Apoio institucional ou do empregador','Recursos próprios','Sem definição'], meia:true},
+      {k:'recursosPTT', t:'textarea', r:'Quais recursos ainda são necessários para desenvolver e aplicar a solução?',
+        d:'Equipe, infraestrutura, sistemas, orçamento aproximado e parcerias. Aproveite os dados e competências já informados acima.'},
+      {k:'conformidadePTT', t:'textarea', r:'Que cuidados éticos, legais e de acessibilidade a solução exige?',
+        d:'Aprovação ética, dados pessoais, propriedade intelectual, eventual sigilo e acessibilidade; quando não se aplicar, justifique.'},
       {k:'riscos', t:'textarea', r:'Os três maiores riscos do projeto e o plano B para cada um',
         d:'Um por linha. Risco sem plano B é apenas uma preocupação.'}
     ]
@@ -756,8 +766,7 @@ function desenharEstacao(){
       Você pode preencher assim mesmo, e nada será perdido, mas esta estação não entra no diagnóstico nem no cálculo de progresso enquanto o momento for este.
     </div>` : '';
   const blocoEstado = (e.id === 'e10' && ehFinal()) ? htmlEstado() : '';
-  const extras = ((window.ASTRO_EXT && window.ASTRO_EXT.html) ? window.ASTRO_EXT.html(e.id) : '')+
-    ((window.ANEXO_II && window.ANEXO_II.htmlEstacao) ? window.ANEXO_II.htmlEstacao(e.id) : '');
+  const extras = ((window.ASTRO_EXT && window.ASTRO_EXT.html) ? window.ASTRO_EXT.html(e.id) : '');
   document.getElementById('tela-form').innerHTML = `
     <div class="cabeca-estacao">
       <div class="etiqueta">Estação ${estacaoAtual+1} de ${ESTACOES.length} &middot; ${escapar(e.bloco)}</div>
@@ -1191,7 +1200,6 @@ function htmlEntrega(){
       </div>
     </div>`;
   }
-  if(modoIN()) h += (window.ANEXO_II ? window.ANEXO_II.resumo() : '<div class="aviso-norma">Plano do PTT não carregado. Atualize a página.</div>');
   if(fs.includes('Dissertação ou tese em formato tradicional') || fs.includes('Capítulo de livro') || fs.includes('Outro formato')){
     h += `<div class="condicional">
       <h3>Outras entregas previstas</h3>
@@ -1550,17 +1558,6 @@ function desenharPainel(){
     ])}
 
     ${bloco('Estação 6. Formato da entrega', entregaPares)}
-
-    ${modoIN() && window.ANEXO_II ? bloco('Plano de Desenvolvimento do PTT — Anexo II', 
-      window.ANEXO_II.secoes.map(sec=>{
-        if(sec.orientador)return [sec.titulo, 'Reservado à manifestação e assinatura do orientador'];
-        const feitos=sec.campos.filter(c=>{
-          const value=window.ANEXO_II.ler(c.id);
-          return Array.isArray(value) ? value.length>0 : String(value==null?'':value).trim().length>0;
-        }).length;
-        return [sec.titulo, feitos+' de '+sec.campos.length+' campos informados'];
-      })
-    ) : ''}
 
     ${bloco('Estação 7. Público e alcance', [
       ['Público primário', v('e7','publico')], ['Onde está', v('e7','onde')],
