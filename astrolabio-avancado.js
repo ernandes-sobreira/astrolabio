@@ -310,8 +310,53 @@ const figuras={
     ctx.textAlign='left';ctx.font='14px Arial';ctx.fillStyle='#53686c';ctx.fillText('Frequência de palavras após remoção de termos comuns e institucionais • Fonte: Astrolábio.',40,cv.height-18);
     return terms;
   },
+  /* Réguas da autoavaliação: imagem vetorial rasterizada em alta resolução
+   * para uso no Word (não usa os glifos ■□ que variam entre fontes). */
+  reguaAderencia(){
+    const a=st().aderencia;
+    const rows=[
+      ['gestao','ADERÊNCIA À GESTÃO PÚBLICA','Relação com políticas ou serviços públicos'],
+      ['urgencia','URGÊNCIA TERRITORIAL','Gravidade ou prazo da demanda'],
+      ['aplicacao','VIABILIDADE DE APLICAÇÃO','Uso concreto por quem demandou'],
+      ['impacto','BENEFÍCIO SOCIOAMBIENTAL','Público e indicadores plausíveis']
+    ];
+    const scores=rows.map(r=>Math.max(1,Math.min(5,Number(a[r[0]])||3)));
+    const index=Math.round((scores.reduce((sum,v)=>sum+v,0)-4)*100/16);
+    const cv=document.createElement('canvas');cv.width=1400;cv.height=1040;
+    const c=cv.getContext('2d');if(!c)return null;
+    c.fillStyle='#ffffff';c.fillRect(0,0,1400,1040);
+    c.fillStyle='#0A4054';c.font='bold 43px Georgia, serif';c.textAlign='left';
+    c.fillText('RÉGUA DE ADERÊNCIA',78,82);
+    c.fillStyle='#627781';c.font='24px Arial, sans-serif';
+    c.fillText('Autoavaliação declaratória do projeto',79,125);
+    rows.forEach((item,i)=>{
+      const y=159+i*183,v=scores[i],x0=89,x1=1308,baseline=y+128;
+      c.fillStyle='#F0F6F6';c.fillRect(64,y,1272,166);
+      c.fillStyle='#114A5C';c.textAlign='left';c.font='bold 27px Arial, sans-serif';
+      c.fillText(item[1],88,y+47);
+      c.textAlign='right';c.font='bold 34px Arial,sans-serif';c.fillText(v+'/5',1300,y+50);
+      c.textAlign='left';c.fillStyle='#536C76';c.font='22px Arial,sans-serif';c.fillText(item[2],89,y+78);
+      c.fillStyle='#D3DEDF';c.fillRect(x0,baseline-7,x1-x0,14);
+      const dot=x0+((v-1)/4)*(x1-x0);
+      c.fillStyle='#0E6672';c.fillRect(x0,baseline-7,dot-x0,14);
+      for(let t=1;t<=5;t++){
+        const px=x0+(t-1)/4*(x1-x0);
+        c.beginPath();c.arc(px,baseline,t===v?16:7,0,2*Math.PI);
+        c.fillStyle=t===v?'#0B5365':'#D1DDDE';c.fill();
+        if(t===v){c.lineWidth=5;c.strokeStyle='#ffffff';c.stroke();}
+      }
+    });
+    c.fillStyle='#0B4355';c.font='bold 36px Georgia,serif';c.textAlign='left';
+    c.fillText('Índice declaratório',81,961);
+    c.textAlign='right';c.fillStyle='#0C5E6C';c.font='bold 48px Arial,sans-serif';c.fillText(index+'/100',1312,967);
+    c.textAlign='left';c.fillStyle='#5C747C';c.font='21px Arial,sans-serif';
+    c.fillText('Quatro critérios, mesmo peso. Pontuações atribuídas pelo discente; não constituem avaliação oficial.',80,1013);
+    return {base64:cv.toDataURL('image/png').split(',')[1],indice:index,notas:scores};
+  },
   async renderizar(){
     const geo=st().geo, result={};
+    const regua=figuras.reguaAderencia();
+    if(regua&&[st().aderencia.origem,st().aderencia.instituicao,st().aderencia.demanda,st().aderencia.evidencia].some(Boolean)) result.aderencia=regua.base64;
     if(geo.municipios.length||geo.pontos.length){
       if(!geo.municipios.length&&geo.pontos.length)throw Error('Para inserir pontos no mapa Word, selecione também o município de referência; assim as delimitações oficiais serão exibidas corretamente.');
       const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=760;
