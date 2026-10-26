@@ -360,6 +360,8 @@ const CHAVE = 'astrolabio_v1';
    ======================================================================= */
 const TIPOS_PTT = ['Cartilha ou guia técnico','Protocolo técnico','Aplicativo ou software','Dashboard ou sistema de monitoramento','Curso, oficina ou material didático','Metodologia ou conjunto de indicadores','Tecnologia social','Relatório técnico ou plano de gestão','Instrumento normativo','Produto audiovisual ou podcast','Banco de dados ou modelo preditivo','Outro'];
 
+const TIPOLOGIAS_PTT_AREA = ['Produto bibliográfico','Ativo de propriedade intelectual','Tecnologia social','Produto de editoração','Material didático ou educacional','Software ou aplicativo','Norma ou marco regulatório','Relatório técnico conclusivo','Manual ou protocolo','Acervo','Cultivar','Carta, mapa ou similar','Produto ou processo em sigilo','Taxonomia, ontologia ou tesauro','Empresa ou organização social inovadora','Processo, tecnologia, produto ou material não patenteável'];
+
 const ESTACOES = [
   {
     id:'e1', bloco:'Onde estou', titulo:'Ponto de Partida',
@@ -372,7 +374,7 @@ const ESTACOES = [
       {k:'nivel', t:'select', r:'Nível', op:['Mestrado acadêmico','Mestrado profissional','Doutorado','Doutorado profissional','Pós-doutorado'], meia:true},
       {k:'momento', t:'select', r:'Momento do percurso', d:'Define o que a plataforma vai cobrar de você agora. Pode ser alterado a qualquer tempo.', op:['Ingressante, nos primeiros meses','Em desenvolvimento','Fase final, rumo à defesa'], meia:true},
       {k:'marco', t:'select', r:'Marco normativo do produto técnico', d:'Se o seu programa adota norma própria de PTT, selecione. As respostas do percurso serão aproveitadas no próprio projeto Word, sem questionário nem arquivo separado.', op:['Não se aplica','Instrução Normativa de PTT do ProfÁgua'], meia:true},
-      {k:'area', t:'text', r:'Área de avaliação ou grande área', meia:true},
+      {k:'area', t:'text', r:'Área de concentração ou grande área', meia:true},
       {k:'linha', t:'text', r:'Linha de pesquisa', meia:true},
       {k:'grupo', t:'text', r:'Grupo de pesquisa ou laboratório', d:'Nome do grupo no diretório institucional ou no CNPq, se houver.', meia:true},
       {k:'projetoEstruturante', t:'text', r:'Projeto de pesquisa ou estruturante vinculado, se houver', meia:true},
@@ -524,6 +526,8 @@ const ESTACOES = [
         d:'Identifique dependências externas: autorização, licença ambiental, comitê de ética, cessão de base, acesso a campo.'},
       {k:'tempo', t:'number', r:'Horas por semana efetivamente disponíveis para a pesquisa', meia:true},
       {k:'financiamento', t:'select', r:'Situação de financiamento', op:['Bolsa de agência de fomento','Projeto financiado do grupo','Apoio institucional ou do empregador','Recursos próprios','Sem definição'], meia:true},
+      {k:'complexidadePTT', t:'textarea', r:'Quais elementos tornam o desenvolvimento do produto mais complexo e por quê?',
+        d:'Integração entre áreas, atores, tecnologia, grandes bases, exigências regulatórias, múltiplas etapas, testes, abrangência territorial ou integração de sistemas. Cite somente o que realmente se aplica e justifique.'},
       {k:'recursosPTT', t:'textarea', r:'Quais recursos ainda são necessários para desenvolver e aplicar a solução?',
         d:'Equipe, infraestrutura, sistemas, orçamento aproximado e parcerias. Aproveite os dados e competências já informados acima.'},
       {k:'conformidadePTT', t:'textarea', r:'Que cuidados éticos, legais e de acessibilidade a solução exige?',
@@ -959,12 +963,20 @@ function htmlEntrega(){
         <div class="campo"><label>Nome provisório do produto</label>
           <input type="text" value="${escapar(en.nomeProduto||'')}" oninput="setEnt('nomeProduto',this.value)"></div>
       </div>
+      <div class="campo"><label>Tipologia principal prevista para o PTT</label>
+        <div class="dica">Enquadramento do produto pela sua finalidade. Pode ser diferente do formato específico abaixo.</div>
+        <select onchange="setEnt('tipoCapes',this.value)"><option value="">Selecione a tipologia</option>
+          ${TIPOLOGIAS_PTT_AREA.map(t=>`<option value="${escapar(t)}" ${en.tipoCapes===t?'selected':''}>${escapar(t)}</option>`).join('')}
+        </select></div>
       <div class="campo"><label>Qual solução aplicada será entregue e o que ela permitirá realizar?</label>
         <div class="dica">Esse é o objetivo do produto. Diferencie a entrega utilizável do objetivo científico da dissertação.</div>
         <textarea oninput="setEnt('objetivoPTT',this.value)">${escapar(en.objetivoPTT||'')}</textarea></div>
-      <div class="campo"><label>Quais são os componentes e funcionalidades dessa solução?</label>
+      <div class="campo"><label>Quais objetivos aplicados específicos, componentes e funcionalidades serão entregues?</label>
         <div class="dica">Descreva etapas, funcionalidades ou entregas específicas. Não é necessário reescrever os objetivos científicos.</div>
         <textarea oninput="setEnt('funcionalidadesPTT',this.value)">${escapar(en.funcionalidadesPTT||'')}</textarea></div>
+      <div class="campo"><label>Como o produto se vincula ao ProfÁgua e à gestão dos recursos hídricos?</label>
+        <div class="dica">Relacione-o à missão do Programa, à área de concentração, à linha de atuação, ao projeto de pesquisa e à gestão/regulação da água. A identificação acadêmica já foi informada na Estação 1.</div>
+        <textarea oninput="setEnt('aderenciaPTT',this.value)">${escapar(en.aderenciaPTT||en.vinculacao||'')}</textarea></div>
       <div class="campo"><label>Quem vai usar o produto, em que situação de trabalho?</label>
         <div class="dica">Descreva a cena de uso: em que momento da rotina dessa pessoa o produto entra e que decisão ele apoia.</div>
         <textarea oninput="setEnt('usuario',this.value)">${escapar(en.usuario||'')}</textarea></div>
@@ -1854,9 +1866,9 @@ window.addEventListener('beforeunload', function(){
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
 <script src="profagua-marcas.js" defer></script>
-<script src="astrolabio-avancado.js?v=20261024a" defer></script>
+<script src="astrolabio-avancado.js?v=20261026-regua-in-conferencia-v4" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
-<script src="projeto-profagua.js?v=20261026-projeto-unico-v3" defer></script>
+<script src="projeto-profagua.js?v=20261026-regua-in-conferencia-v4" defer></script>
 
 </body>
 </html>
