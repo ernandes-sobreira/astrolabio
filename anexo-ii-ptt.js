@@ -337,14 +337,13 @@ function htmlEstacao(est){
 function resumo(){
  if(!window.modoIN||!window.modoIN())return '';
  const list=secoes.slice(0,-1).flatMap(x=>x.campos);
- const required=list.filter(c=>!['tipoSecundaria','coorientador','tipoInovacaoOutra','complexidadeOutros','modalidadeOutra','transferenciaOutra','numeroUsuarios','projetoEstruturante'].includes(c.id));
- const supplied=required.filter(c=>{const x=ler(c);return Array.isArray(x)?x.length:ascii(x).trim()}).length;
+ const answered=list.filter(c=>{const x=ler(c);return Array.isArray(x)?x.length:ascii(x).trim()}).length;
  return '<div class="condicional bloco-in anexo-ii-resumo">'+
    '<h3>Plano do Produto Técnico — Anexo II</h3>'+
-   '<div class="sub">O Anexo II NÃO é um questionário extra. O plano é montado com as respostas registradas ao longo das dez estações. As poucas questões adicionais aparecem nas abas correspondentes.</div>'+
-   '<p class="dica"><strong>'+supplied+' de '+required.length+' informações de planejamento disponíveis.</strong> Campos sem informação serão sinalizados no arquivo; alguns campos são condicionais ou serão completados pelo orientador.</p>'+
+   '<div class="sub">Você não precisa responder a outro formulário. O plano com os 17 tópicos normativos é montado automaticamente com o que escreveu nesta e nas demais estações.</div>'+
+   '<p class="dica">'+answered+' informações recuperadas ou complementadas. Os poucos campos realmente novos estão distribuídos pelas estações correspondentes, sem repetir respostas. Campos ainda ausentes são indicados no documento gerado.</p>'+
    '<button class="ouro" onclick="baixarPlanoPTT()">Gerar Plano do PTT (Anexo II)</button>'+
-   '<p class="dica">A manifestação final e as assinaturas da seção 17 não são preenchidas pelo aluno.</p></div>';
+   '<p class="dica">A seção de aprovação e as assinaturas são reservadas ao orientador.</p></div>';
 }
 function html(){
  const quantidade=secoes.slice(0,-1).flatMap(s=>s.campos).filter(c=>{
