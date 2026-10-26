@@ -158,7 +158,8 @@ const aliases={
  'parecer técnico de especialista externo':'parecer de especialista externo',
  'análise de desempenho, usabilidade, precisão ou conformidade':'teste de desempenho',
  'oficina participativa, grupo focal, painel de especialistas ou Delphi':'oficina ou grupo focal',
- 'validação normativa, jurídica ou institucional':'análise de conformidade'
+ 'validação normativa, jurídica ou institucional':'análise de conformidade',
+ 'aprovação necessária, ainda não solicitada':'aprovação necessária'
 };
 function corrigirOpcao(t,ops){
  if(ops.includes(t))return t;
@@ -177,7 +178,7 @@ const LOCAL={
  e5:['conhecimentoSolucao'],
  e6:['objetivoPTT','objetivosPTT','funcionalidades','aderenciaMissao','aderenciaGestao','tipoInovacao','tipoInovacaoOutra','complexidade','complexidadeOutros','justComplexidade','participantesVal','instrumentosVal'],
  e7:['instituicoesUsuarias','numeroUsuarios','competenciasUsuario','condicoesAplicacao','replicabilidade'],
- e8:['prazoImpacto','condicoesImpacto'],
+ e8:['prazoImpacto','condicoesImpacto','transferenciaOutra'],
  e9:['participacao','atores','formaParticipacao','etapaParticipacao','contribuicaoAtores','acordos'],
  e10:['recursosHumanos','infraestrutura','dadosSistemas','recursosFinanceiros','eticaDocumento','medidasDados','sigiloJustificativa']
 };
@@ -209,11 +210,18 @@ function derived(c){
     if(ev('e5','delineamento'))parts.push('material e métodos previstos');
     return parts.join('; ');
   }
+  case 'recursosAplicacao':return join(extra().recursosHumanos,extra().infraestrutura,extra().dadosSistemas);
+  case 'dadosSistemas':return join(ev('e10','dadosTenho')?'Dados já disponíveis: '+ev('e10','dadosTenho'):'',
+    ev('e10','dadosFaltam')?'Dados necessários: '+ev('e10','dadosFaltam'):'');
+  case 'criteriosVal':return e.validacao||'';
+  case 'solucoesAtuais':return e.diferencial||'';
+  case 'modalidadeOutra':return '';
+  case 'transferenciaOutra':return '';
   case 'aderenciaArea':return e.tipoCapes&&ev('e1','area')?join('Produto '+e.tipoCapes,'área de concentração '+ev('e1','area')):'';
   case 'aderenciaLinha':return e.tipoCapes&&ev('e1','linha')?join('Produto '+e.tipoCapes,'linha '+ev('e1','linha')):'';
   case 'aderenciaProjeto':return e.vinculacao||'';
   case 'modoUso':return e.usuario||'';
-  case 'solucoesAtuais':return e.diferencial||'';
+
   case 'melhoriaPrevista':return e.mudanca||ev('e7','oQueMuda')||'';
   case 'descricaoTransferencia':return join((e.transfPrev||[]).join('; '),(e.hospedagem||[]).join('; '));
   case 'meiosVerificacao':return e.evidencias||'';
@@ -251,6 +259,7 @@ function gravar(id,value){
    extra()[id]=value;
  }
  salvar();
+ if(['participacao','tipoInovacao','complexidade','etica','dadosPessoais','sigilo'].includes(id)&&typeof desenharEstacao==='function')desenharEstacao();
 }
 function controles(c){
  const val=ler(c),id='anexo-ii-'+c.id;
@@ -285,6 +294,7 @@ function htmlEstacao(est){
  const items=ids.filter(id=>{
    if(id==='tipoInovacaoOutra' && !(Array.isArray(selected)&&selected.includes('outra')))return false;
    if(id==='complexidadeOutros' && !(Array.isArray(complex)&&complex.includes('outros')))return false;
+   if(id==='transferenciaOutra' && !(Array.isArray(en().transfPrev)&&en().transfPrev.some(x=>norm(x)==='outra')))return false;
    if(['atores','formaParticipacao','etapaParticipacao','contribuicaoAtores','acordos'].includes(id)&&participantes!=='Sim')return false;
    if(id==='eticaDocumento' && !['aprovação necessária','aprovação obtida','análise em andamento'].includes(ler(allById.etica)))return false;
    if(id==='medidasDados' && !['envolve dados pessoais','envolve dados pessoais sensíveis'].includes(ler(allById.dadosPessoais)))return false;
