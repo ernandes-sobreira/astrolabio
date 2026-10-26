@@ -355,6 +355,7 @@ function conteudo(){
   b+=subtitulo('8.1 Produto principal: identificação e forma de entrega');
   b+=bloco([
     ['Nome do produto que será entregue',en.nomeProduto],
+    ['Identificação da versão preliminar do plano', 'Data de elaboração: '+new Date().toLocaleDateString('pt-BR')+'; versão: 1.0, sujeita à revisão do orientador'],
     ['Tipologia principal prevista para o PTT',en.tipoCapes||legadoPTT.tipoPrincipal],
     ['Tipologia secundária, quando houver',en.tipoCapes2||legadoPTT.tipoSecundaria],
     ['Objetivo aplicado do produto',composto(en.objetivoPTT,legadoPTT.objetivoPTT)],
@@ -378,6 +379,7 @@ function conteudo(){
     ['Relação com os objetivos e a pesquisa',en.aderenciaPTT||en.vinculacao||vv('e5','conhecimentoSolucao')],
     ['Área de concentração e linha de atuação', [vv('e1','area'),vv('e1','linha')].filter(Boolean).join(' — ')],
     ['Conhecimento da pesquisa convertido em solução',vv('e5','conhecimentoSolucao')],
+    ['Partes do projeto que fundamentarão o produto', [vv('e5','pergunta')?'problema de pesquisa':'',vv('e5','objetivoGeral')?'objetivos':'',vv('e5','delineamento')?'material e métodos':'',vv('e4','jaSeSabe')?'fundamentação inicial':''].filter(Boolean).join(', ')],
     ['Aderência à missão do ProfÁgua, à área, à linha, à pesquisa e à gestão hídrica',en.aderenciaPTT||legadoPTT.aderenciaMissao],
     ['Instrumento de gestão ou política pública relacionada',vv('e4','politicaRelacionada')||legadoPTT.politicaRelacionada],
     ['Condições para aplicação e adaptação',vv('e7','aplicabilidadePTT')||legadoPTT.condicoesAplicacao],
@@ -419,6 +421,7 @@ function conteudo(){
   b+=titulo('10 LIMITAÇÕES, RISCOS E PLANO DE CONTINGÊNCIA');
   b+=bloco([
     ['Principais riscos e alternativas',vv('e10','riscos')],
+    ['Exigências e documentos de aprovação ética, quando aplicáveis',vv('e10','conformidadePTT')],
     ['Complexidade e requisitos específicos do desenvolvimento',vv('e10','complexidadePTT')],
     ['Dependências para acesso aos dados',vv('e10','dadosFaltam')],
     ['Limitações técnicas identificadas',vv('e10','precisoAprender')],
