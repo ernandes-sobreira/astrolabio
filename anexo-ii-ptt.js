@@ -165,7 +165,8 @@ function corrigirOpcao(t,ops){
  const normalized=norm(t);
  const found=ops.find(x=>norm(x)===normalized);
  if(found)return found;
- const ali=aliases[normalized];
+ const pair=Object.entries(aliases).find(item=>norm(item[0])===normalized);
+ const ali=aliases[normalized]||(pair&&pair[1]);
  return ali&&ops.includes(ali)?ali:'';
 }
 function ler(c){
