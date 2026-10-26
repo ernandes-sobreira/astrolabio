@@ -283,37 +283,16 @@ function conteudo(){
   b+=subtitulo('5.2 Objetivos específicos');
   const obj=String(vv('e5','objetivosEsp')).split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
   b+=obj.length?obj.map(x=>p('• '+x,{align:'left',space:80})).join(''):p('[Objetivos específicos ainda não informados na estação 5.]');
-  b+=titulo('6 LEITURAS E FUNDAMENTAÇÃO INICIAL DO PROJETO');
+  b+=titulo('6 ESTADO DO CONHECIMENTO E LACUNA');
   b+=bloco([
-    ['Fundamentação anteriormente redigida',valor('fundamentacao')],
-    ['Referência inspiradora',vv('e2','referencia')],
-    ['Contribuição da leitura',vv('e2','oQueMexeu')],
-    ['Questão que permaneceu em aberto',vv('e2','semResposta')],
-    ['Conhecimento consolidado',vv('e4','jaSeSabe')],
-    ['Busca bibliográfica realizada',vv('e4','evidencia')],
-    ['Bases consultadas',vv('e4','bases')]
-  ],'[Fundamentação teórica a desenvolver com as referências das estações 2 a 4.]');
-  const leituras=[];
-  if(vv('e2','referencia'))leituras.push({
-    referencia:vv('e2','referencia'),frase:vv('e2','trecho'),
-    pagina:'(conferir página na obra original)',relacao:vv('e2','noSeuContexto'),
-    contribuicao:vv('e2','oQueMexeu'),funcao:'Texto inspirador'
-  });
-  (ext.leituras||[]).forEach(l=>{if(l&&l.referencia)leituras.push(l);});
-  b+=subtitulo('6.1 Leituras estruturantes e relações com o projeto');
-  if(!leituras.length)b+=p('[Registre leituras e trechos direcionais na estação 2; nenhuma citação será inventada.]');
-  else leituras.forEach((l,i)=>{
-    b+=p('LEITURA '+(i+1)+(l.funcao?' — '+l.funcao.toUpperCase():''),{align:'left',space:90,keep:true});
-    b+=rotulado('Referência',l.referencia);
-    b+=rotulado('Frase ou trecho direcional',l.frase||'[Selecionar trecho fiel à fonte.]');
-    if(l.pagina)b+=rotulado('Página ou localização',l.pagina);
-    if(l.relacao)b+=rotulado('Relação com o projeto',l.relacao);
-    if(l.contribuicao)b+=rotulado('Decisão apoiada pela leitura',l.contribuicao);
-  });
-  if((estado.autores||[]).some(a=>a.nome)){
-    b+=subtitulo('6.2 Autores identificados no percurso');
-    b+=estado.autores.filter(a=>a.nome).map(a=>p(a.nome+(a.intersecao?' — '+a.intersecao:''),{align:'left'})).join('');
-  }
+    ['Conhecimento já estabelecido sobre o problema',vv('e4','jaSeSabe')],
+    ['Lacuna científica ou técnica identificada',vv('e4','naoSeSabe')],
+    ['Evidências utilizadas para identificar a lacuna',vv('e4','evidencia')],
+    ['Bases e fontes consultadas',vv('e4','bases')],
+    ['Número aproximado de trabalhos consultados',vv('e4','nRefs')],
+    ['Notas de fundamentação redigidas pelo discente',valor('fundamentacao')]
+  ],'[Registrar o conhecimento disponível e a lacuna de pesquisa nas respostas da Estação 4.]');
+  b+=p('A discussão aprofundada da literatura, as citações no corpo do texto e a conferência das referências bibliográficas são responsabilidade do(a) discente na redação da Introdução científica.',{first:true});
   b+=titulo('7 MATERIAL E MÉTODOS')+subtitulo('7.1 Área e período de estudo');
   b+=bloco([
     ['Caracterização da área anteriormente redigida',valor('areaEstudo')],
