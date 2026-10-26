@@ -454,19 +454,21 @@ function conteudo(){
   ],'[Demanda e origem ainda não informadas na estação 7.]');
   if([ad.origem,ad.instituicao,ad.demanda,ad.territorio,ad.evidencia].some(x=>String(x||'').trim())){
     b+=subtitulo('14.1 Régua de aderência — autoavaliação do discente');
-    const soma=['gestao','urgencia','aplicacao','impacto'].reduce((acc,k)=>acc+Math.max(1,Math.min(5,Number(ad[k])||3)),0);
-    const indice=Math.round((soma-4)*100/16);
-    b+=rotulado('Índice declaratório de aderência',indice+'/100 — quatro critérios com peso igual e escala de 1 a 5');
-    for(const [k,label] of [
-      ['gestao','Aderência à gestão pública'],
-      ['urgencia','Urgência territorial'],
-      ['aplicacao','Aplicabilidade do produto'],
-      ['impacto','Benefício socioambiental esperado']
-    ]){
-      const n=Math.max(1,Math.min(5,Number(ad[k])||3));
-      b+=rotulado(label, '■'.repeat(n)+'□'.repeat(5-n)+'  '+n+'/5');
+    const notas=['gestao','urgencia','aplicacao','impacto'].map(k=>Math.max(1,Math.min(5,Number(ad[k])||3)));
+    const indice=Math.round((notas.reduce((total,n)=>total+n,0)-4)*100/16);
+    if(FIGURAS&&FIGURAS.aderencia){
+      numeroFigura++;
+      b+=figuraWord('rId9',91,
+        'Figura '+numeroFigura+' – Autoavaliação declaratória da aderência, urgência, aplicação e benefício esperado.',
+        'Fonte: respostas do discente no Astrolábio; quatro critérios com pesos iguais. Índice não oficial.',5150000,3825000);
+    }else{
+      b+=rotulado('Índice declaratório de aderência',indice+'/100');
+      for(const [k,label] of [
+        ['gestao','Aderência à gestão pública'],['urgencia','Urgência territorial'],
+        ['aplicacao','Aplicabilidade do produto'],['impacto','Benefício socioambiental esperado']
+      ])b+=rotulado(label,Math.max(1,Math.min(5,Number(ad[k])||3))+'/5');
     }
-    b+=p('Escala declaratória: 1 = baixa aderência; 5 = alta aderência. Pontuações atribuídas pelo discente, não constituindo avaliação oficial do Estado ou endosso da instituição demandante.',{align:'left',space:110});
+    b+=p('Esta régua representa percepção do pesquisador apoiada nas evidências de demanda informadas. Não constitui pontuação oficial ou decisão institucional.',{align:'left',space:110});
     if(!ad.evidencia)b+=p('[Falta evidência documental da origem da demanda: informar fonte, data e registro.]');
   }
   b+=titulo('REFERÊNCIAS BIBLIOGRÁFICAS');
@@ -699,10 +701,11 @@ async function gerar(){
  z.file('word/styles.xml',styles());
  z.file('word/settings.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:updateFields w:val="true"/></w:settings>');
  z.file('word/header1.xml',header());z.file('word/footer1.xml',footerCover());z.file('word/footer2.xml',footerDefault());
- z.file('word/_rels/document.xml.rels',relations([['rId1','styles','styles.xml'],['rId2','header','header1.xml'],['rId3','footer','footer1.xml'],['rId4','footer','footer2.xml'],['rId5','settings','settings.xml'],...(FIGURAS&&FIGURAS.nuvem?[['rId6','image','media/nuvem.png']]:[]),...(FIGURAS&&FIGURAS.mapa?[['rId7','image','media/mapa.png']]:[]),...(FIGURAS&&FIGURAS.mental?[['rId8','image','media/mapa-mental.png']]:[])]));
+ z.file('word/_rels/document.xml.rels',relations([['rId1','styles','styles.xml'],['rId2','header','header1.xml'],['rId3','footer','footer1.xml'],['rId4','footer','footer2.xml'],['rId5','settings','settings.xml'],...(FIGURAS&&FIGURAS.nuvem?[['rId6','image','media/nuvem.png']]:[]),...(FIGURAS&&FIGURAS.mapa?[['rId7','image','media/mapa.png']]:[]),...(FIGURAS&&FIGURAS.mental?[['rId8','image','media/mapa-mental.png']]:[]),...(FIGURAS&&FIGURAS.aderencia?[['rId9','image','media/regua-aderencia.png']]:[])]));
   if(FIGURAS&&FIGURAS.nuvem)z.file('word/media/nuvem.png',FIGURAS.nuvem,{base64:true});
   if(FIGURAS&&FIGURAS.mapa)z.file('word/media/mapa.png',FIGURAS.mapa,{base64:true});
   if(FIGURAS&&FIGURAS.mental)z.file('word/media/mapa-mental.png',FIGURAS.mental,{base64:true});
+  if(FIGURAS&&FIGURAS.aderencia)z.file('word/media/regua-aderencia.png',FIGURAS.aderencia,{base64:true});
  z.file('word/_rels/header1.xml.rels',relations([['rId1','image','media/estado.jpg'],['rId2','image','media/unemat.jpg']]));
  z.file('word/_rels/footer1.xml.rels',relations([['rId1','image','media/profagua.jpg'],['rId2','image','media/unematLogo.jpg'],['rId3','image','media/capesAna.jpg']]));
  for(const [campo,nome] of [['estado','estado'],['unemat','unemat'],['profagua','profagua'],['unematLogo','unematLogo'],['capesAna','capesAna']]){
