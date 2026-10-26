@@ -730,7 +730,8 @@ function desenharEstacao(){
       Você pode preencher assim mesmo, e nada será perdido, mas esta estação não entra no diagnóstico nem no cálculo de progresso enquanto o momento for este.
     </div>` : '';
   const blocoEstado = (e.id === 'e10' && ehFinal()) ? htmlEstado() : '';
-  const extras = (window.ASTRO_EXT && window.ASTRO_EXT.html) ? window.ASTRO_EXT.html(e.id) : '';
+  const extras = ((window.ASTRO_EXT && window.ASTRO_EXT.html) ? window.ASTRO_EXT.html(e.id) : '')+
+    ((window.ANEXO_II && window.ANEXO_II.htmlEstacao) ? window.ANEXO_II.htmlEstacao(e.id) : '');
   document.getElementById('tela-form').innerHTML = `
     <div class="cabeca-estacao">
       <div class="etiqueta">Estação ${estacaoAtual+1} de ${ESTACOES.length} &middot; ${escapar(e.bloco)}</div>
@@ -1164,7 +1165,7 @@ function htmlEntrega(){
       </div>
     </div>`;
   }
-  if(modoIN()) h += (window.ANEXO_II ? window.ANEXO_II.html() : htmlConformidade());
+  if(modoIN()) h += (window.ANEXO_II ? window.ANEXO_II.resumo() : '<div class="aviso-norma">Plano do PTT não carregado. Atualize a página.</div>');
   if(fs.includes('Dissertação ou tese em formato tradicional') || fs.includes('Capítulo de livro') || fs.includes('Outro formato')){
     h += `<div class="condicional">
       <h3>Outras entregas previstas</h3>
@@ -2068,6 +2069,6 @@ window.addEventListener('beforeunload', function(){
 <script src="astrolabio-avancado.js?v=20261024a" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
 <script src="projeto-profagua.js?v=20261026-anexo-ii-conforme" defer></script>
-<script src="anexo-ii-ptt.js?v=20261026-anexo-ii-conforme" defer></script>
+<script src="anexo-ii-ptt.js?v=20261026-integrado-estacoes" defer></script>
 </body>
 </html>
