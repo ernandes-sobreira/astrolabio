@@ -377,6 +377,36 @@ function conteudo(){
     ['Estratégia de transferência',list(en.transfPrev)],
     ['Indicadores propostos de alcance ou utilização',en.indicadores]
   ],'[Descreva na estação 6 como o produto será disponibilizado, validado e comprovado.]');
+  // Os campos seguintes são específicos do Anexo II (Plano de Desenvolvimento
+  // do PTT). Complementam a redação do produto sem substituir seu formulário.
+  const pttII=en.anexoII||{};
+  const itensPTT=[
+    ['Descrição sucinta do produto (até 250 palavras)',pttII.descricao250],
+    ['Objetivo próprio do PTT',pttII.objetivoPTT],
+    ['Objetivos específicos do PTT',pttII.objetivosPTT],
+    ['Funcionalidades e componentes da entrega',pttII.funcionalidades],
+    ['Participação de atores externos',pttII.participacao],
+    ['Forma e etapa de participação externa',pttII.formaParticipacao&&pttII.etapaParticipacao?
+      pttII.formaParticipacao+' | '+pttII.etapaParticipacao:pttII.formaParticipacao||pttII.etapaParticipacao],
+    ['Política pública ou instrumento de gestão associado',pttII.politicaRelacionada],
+    ['Conhecimento da dissertação convertido em solução',pttII.conhecimentoSolucao],
+    ['Condições e recursos para utilização',pttII.condicoesAplicacao||pttII.recursosAplicacao],
+    ['Competências exigidas do público usuário',pttII.competenciasUsuario],
+    ['Replicabilidade ou adaptação',pttII.replicabilidade],
+    ['Tipo de inovação prevista',Array.isArray(pttII.tipoInovacao)?pttII.tipoInovacao.join('; '):pttII.tipoInovacao],
+    ['Complexidade do desenvolvimento e justificativa',pttII.justComplexidade],
+    ['Critérios e participantes da validação',pttII.criteriosVal&&pttII.participantesVal?
+      pttII.criteriosVal+' | '+pttII.participantesVal:pttII.criteriosVal||pttII.participantesVal],
+    ['Instrumentos previstos de validação',pttII.instrumentosVal],
+    ['Descrição da transferência ou compartilhamento',pttII.descricaoTransferencia],
+    ['Prazo provável para resultados ou benefícios',pttII.prazoImpacto],
+    ['Meios de verificação do impacto previsto',pttII.meiosVerificacao]
+  ];
+  if(itensPTT.some(x=>String(x[1]||'').trim())){
+    b+=subtitulo('8.4 Informações complementares do Plano de Desenvolvimento do PTT — Anexo II');
+    b+=bloco(itensPTT,'');
+    b+=p('O Plano de Desenvolvimento do PTT, com seus 17 itens, é gerado separadamente na Estação 6. A manifestação de aprovação e as assinaturas são reservadas ao orientador.',{align:'left',space:140});
+  }
   b+=titulo('9 RESULTADOS ESPERADOS');
   b+=bloco([
     ['Resultados esperados anteriormente redigidos',valor('esperados')],
