@@ -1520,21 +1520,16 @@ function desenharPainel(){
 
     ${bloco('Estação 6. Formato da entrega', entregaPares)}
 
-    ${modoIN() ? bloco('Conformidade com a Instrução Normativa de PTT', [
-      ['Tipologia principal da Área', en.tipoCapes],
-      ['Tipologia secundária', en.tipoCapes2],
-      ['Quem manifestou a demanda', en.quemDemandou],
-      ['Evidências do problema', en.evidProblema],
-      ['Vinculação com a dissertação', en.vinculacao],
-      ['Modalidades de validação', (en.modalidadesVal||[]).join('; ')],
-      ['Estratégia de transferência', (en.transfPrev||[]).join('; ')],
-      ['Nível de evidência na defesa', en.neAlvo],
-      ['Nível de evidência em 24 meses', en.neFuturo],
-      ['Indicadores de impacto', en.indicadores],
-      ['Mudança esperada', en.mudanca],
-      ['Ética, dados, propriedade intelectual e acesso', [en.etica,en.dadosPes,en.pi,en.sigilo].filter(Boolean).join(' | ')],
-      ['Acessibilidade', en.acessibilidade]
-    ]) : ''}
+    ${modoIN() && window.ANEXO_II ? bloco('Plano de Desenvolvimento do PTT — Anexo II', 
+      window.ANEXO_II.secoes.map(sec=>{
+        if(sec.orientador)return [sec.titulo, 'Reservado à manifestação e assinatura do orientador'];
+        const feitos=sec.campos.filter(c=>{
+          const value=window.ANEXO_II.ler(c.id);
+          return Array.isArray(value) ? value.length>0 : String(value==null?'':value).trim().length>0;
+        }).length;
+        return [sec.titulo, feitos+' de '+sec.campos.length+' campos informados'];
+      })
+    ) : ''}
 
     ${bloco('Estação 7. Público e alcance', [
       ['Público primário', v('e7','publico')], ['Onde está', v('e7','onde')],
