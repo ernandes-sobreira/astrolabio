@@ -188,6 +188,19 @@ function derived(c){
  const e=en();
  const join=(...parts)=>parts.map(x=>ascii(x).trim()).filter(Boolean).join(' — ');
  switch(id){
+  case 'atores': case 'formaParticipacao': case 'etapaParticipacao': case 'contribuicaoAtores': case 'acordos':
+    return extra().participacao==='Não'?'Não se aplica — participação externa não prevista, conforme resposta do discente.':'';
+  case 'eticaDocumento':return norm(e.etica)==='nao se aplica'?'Não se aplica — o discente declarou que não há exigência de aprovação ética.':'';
+  case 'medidasDados':return norm(e.dadosPes)==='nao envolve dados pessoais'?'Não se aplica — produto declarado sem tratamento de dados pessoais.':'';
+  case 'sigiloJustificativa':return norm(e.sigilo)==='acesso aberto'?'Não se aplica — produto previsto para acesso aberto.':'';
+  case 'tipoInovacaoOutra':return !(Array.isArray(extra().tipoInovacao)&&extra().tipoInovacao.includes('outra'))?
+    'Não se aplica — a categoria outra não foi selecionada.':'';
+  case 'complexidadeOutros':return !(Array.isArray(extra().complexidade)&&extra().complexidade.includes('outros'))?
+    'Não se aplica — outros elementos não foram selecionados.':'';
+  case 'modalidadeOutra':return !(Array.isArray(e.modalidadesVal)&&e.modalidadesVal.some(x=>norm(x)==='outra'))?
+    'Não se aplica — outra modalidade não selecionada.':'';
+  case 'transferenciaOutra':return !(Array.isArray(e.transfPrev)&&e.transfPrev.some(x=>norm(x)==='outra'))?
+    'Não se aplica — outra forma de transferência não selecionada.':'';
   case 'data':return new Date().toLocaleDateString('pt-BR');
   case 'versao':return '1.0 (rascunho)';
   case 'descricao250':{
@@ -305,7 +318,7 @@ function htmlEstacao(est){
  const done=items.filter(id=>{
    const x=ler(allById[id]);return Array.isArray(x)?x.length:ascii(x).trim();
  }).length;
- let out='<details class="anexo-ii-complemento"'+(done<items.length?' open':'')+'><summary>'+
+ let out='<details class="anexo-ii-complemento"><summary>'+
   '<strong>ProfÁgua — complemento necessário nesta estação</strong>'+
   '<span> '+done+'/'+items.length+' itens respondidos</span></summary>'+
   '<p class="dica">'+esc(nomes[est])+'. Não repita o que já foi respondido: o Plano do PTT será gerado automaticamente a partir das dez estações.</p>';
