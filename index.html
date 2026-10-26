@@ -1160,7 +1160,7 @@ function htmlEntrega(){
       </div>
     </div>`;
   }
-  if(modoIN()) h += htmlConformidade();
+  if(modoIN()) h += (window.ANEXO_II ? window.ANEXO_II.html() : htmlConformidade());
   if(fs.includes('Dissertação ou tese em formato tradicional') || fs.includes('Capítulo de livro') || fs.includes('Outro formato')){
     h += `<div class="condicional">
       <h3>Outras entregas previstas</h3>
