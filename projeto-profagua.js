@@ -408,7 +408,12 @@ function conteudo(){
   ],'[Descreva na estação 6 como o produto será disponibilizado, validado e comprovado.]');
   // O detalhamento normativo integral vai no apêndice, derivado das estações.
   // Não reproduzir aqui o questionário do Anexo II como outro formulário.
-  b+=p('O planejamento do produto observa os elementos do Anexo II da minuta normativa do ProfÁgua, integrados às seções do próprio projeto. A manifestação de aprovação, os comentários e as assinaturas são de responsabilidade do orientador, em momento posterior.',{align:'left',space:160});
+  b+=p('O planejamento do produto reúne, nesta seção do próprio projeto, as informações do Anexo II da minuta do ProfÁgua. A manifestação e as assinaturas dependem da apreciação do orientador.',{align:'left',space:110});
+  b+=subtitulo('8.4 Manifestação do orientador — etapa posterior');
+  b+=p('Situação do planejamento: ( ) aprovado   ( ) aprovado com ajustes   ( ) reformulação necessária',{align:'left',space:75});
+  b+=p('Comentários: ______________________________________________________________',{align:'left',space:75});
+  b+=p('Assinatura do discente: ______________________   Assinatura do orientador: ______________________',{align:'left',space:75});
+  b+=p('Data: ____/____/________',{align:'left',space:140});
   b+=titulo('9 RESULTADOS ESPERADOS');
   b+=bloco([
     ['Resultados esperados anteriormente redigidos',valor('esperados')],
