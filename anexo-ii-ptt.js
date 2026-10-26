@@ -26,13 +26,13 @@ const secoes=[
 {titulo:'1. Identificação',campos:[
  q('instituicao','Instituição Associada','text','v:e1.instituicao'),
  q('discente','Discente','text','v:e1.nome'),
- q('matricula','Matrícula','text'),
+ q('matricula','Matrícula','text','v:e1.matricula'),
  q('orientador','Orientador','text','v:e1.orientador'),
  q('coorientador','Coorientador, quando houver','text','v:e1.coorientador'),
  q('tituloDissertacao','Título provisório da dissertação','area','v:e5.titulo'),
  q('area','Área de concentração','text','v:e1.area'),
  q('linha','Linha de atuação','text','v:e1.linha'),
- q('projetoEstruturante','Projeto de pesquisa ou projeto estruturante, se for o caso'),
+ q('projetoEstruturante','Projeto de pesquisa ou projeto estruturante, se for o caso','area','v:e1.projetoEstruturante'),
  q('data','Data de preenchimento (dd/mm/aaaa)','text'),
  q('versao','Versão do plano','text')
 ]},
@@ -48,11 +48,11 @@ const secoes=[
  q('quemDemandou','3.2. Quem identificou ou manifestou a demanda?','area','en:quemDemandou'),
  q('evidenciaProblema','3.3. Quais evidências demonstram a existência e relevância do problema?','area','en:evidProblema'),
  q('contexto','3.4. Qual é o contexto territorial, institucional, regulatório, ambiental ou social?','area','v:e5.territorio'),
- q('politicaRelacionada','3.5. A qual política pública, instrumento de gestão, processo institucional ou demanda social se relaciona?')
+ q('politicaRelacionada','3.5. A qual política pública, instrumento de gestão, processo institucional ou demanda social se relaciona?','area','v:e4.politicaRelacionada')
 ]},
 {titulo:'4. Vinculação com a dissertação',campos:[
  q('derivacao','4.1. De que forma o PTT deriva do problema, dos objetivos, dos métodos ou dos resultados da dissertação?','area','en:vinculacao'),
- q('conhecimentoSolucao','4.2. Qual conhecimento produzido pela pesquisa será convertido em solução aplicada?'),
+ q('conhecimentoSolucao','4.2. Qual conhecimento produzido pela pesquisa será convertido em solução aplicada?','area','v:e5.conhecimentoSolucao'),
  q('partesDissertacao','4.3. Quais partes da dissertação fundamentarão o produto?')
 ]},
 {titulo:'5. Público destinatário e beneficiários',campos:[
@@ -173,9 +173,9 @@ function corrigirOpcao(t,ops){
 /* Cada pergunta nova é feita na estação temática existente — jamais num segundo
  * formulário de 17 seções. Perguntas respondidas anteriormente são reaproveitadas. */
 const LOCAL={
- e1:['matricula','projetoEstruturante'],
- e4:['politicaRelacionada'],
- e5:['conhecimentoSolucao'],
+ e1:[],
+ e4:[],
+ e5:[],
  e6:['objetivoPTT','objetivosPTT','funcionalidades','aderenciaMissao','aderenciaGestao','tipoInovacao','tipoInovacaoOutra','complexidade','complexidadeOutros','justComplexidade','participantesVal','instrumentosVal'],
  e7:['instituicoesUsuarias','numeroUsuarios','competenciasUsuario','condicoesAplicacao','replicabilidade'],
  e8:['prazoImpacto','condicoesImpacto','transferenciaOutra'],
@@ -243,6 +243,11 @@ function derived(c){
  }
 }
 function ler(c){
+ if(['matricula','projetoEstruturante','politicaRelacionada','conhecimentoSolucao'].includes(c.id)&&c.source.startsWith('v:')){
+   const [eid,key]=c.source.slice(2).split('.');
+   const live=v(eid,key);
+   if(live!==undefined&&live!==null&&String(live).trim())return live;
+ }
  const extraVal=extra()[c.id];
  if(extraVal!==undefined && extraVal!==null && (Array.isArray(extraVal)||extraVal!==''))return extraVal;
  if(c.source.startsWith('en:')){
