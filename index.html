@@ -968,6 +968,11 @@ function htmlEntrega(){
         <select onchange="setEnt('tipoCapes',this.value)"><option value="">Selecione a tipologia</option>
           ${TIPOLOGIAS_PTT_AREA.map(t=>`<option value="${escapar(t)}" ${en.tipoCapes===t?'selected':''}>${escapar(t)}</option>`).join('')}
         </select></div>
+      <div class="campo"><label>Tipologia secundária, se o produto combinar modalidades</label>
+        <div class="dica">Opcional: deixe vazio quando houver somente uma tipologia de produto.</div>
+        <select onchange="setEnt('tipoCapes2',this.value)"><option value="">Não há tipologia secundária</option>
+          ${TIPOLOGIAS_PTT_AREA.map(t=>`<option value="${escapar(t)}" ${en.tipoCapes2===t?'selected':''}>${escapar(t)}</option>`).join('')}
+        </select></div>
       <div class="campo"><label>Qual solução aplicada será entregue e o que ela permitirá realizar?</label>
         <div class="dica">Esse é o objetivo do produto. Diferencie a entrega utilizável do objetivo científico da dissertação.</div>
         <textarea oninput="setEnt('objetivoPTT',this.value)">${escapar(en.objetivoPTT||'')}</textarea></div>
