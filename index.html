@@ -1179,15 +1179,21 @@ function htmlEntrega(){
         <div class="campo"><label>Nome provisório do produto</label>
           <input type="text" value="${escapar(en.nomeProduto||'')}" oninput="setEnt('nomeProduto',this.value)"></div>
       </div>
+      <div class="campo"><label>Qual solução aplicada será entregue e o que ela permitirá realizar?</label>
+        <div class="dica">Esse é o objetivo do produto. Diferencie a entrega utilizável do objetivo científico da dissertação.</div>
+        <textarea oninput="setEnt('objetivoPTT',this.value)">${escapar(en.objetivoPTT||'')}</textarea></div>
+      <div class="campo"><label>Quais são os componentes e funcionalidades dessa solução?</label>
+        <div class="dica">Descreva etapas, funcionalidades ou entregas específicas. Não é necessário reescrever os objetivos científicos.</div>
+        <textarea oninput="setEnt('funcionalidadesPTT',this.value)">${escapar(en.funcionalidadesPTT||'')}</textarea></div>
       <div class="campo"><label>Quem vai usar o produto, em que situação de trabalho?</label>
         <div class="dica">Descreva a cena de uso: em que momento da rotina dessa pessoa o produto entra e que decisão ele apoia.</div>
         <textarea oninput="setEnt('usuario',this.value)">${escapar(en.usuario||'')}</textarea></div>
-      <div class="campo"><label>Hospedagem, distribuição e registro</label>
-        <div class="opcoes">${['Repositório institucional','Registro de software no INPI','ISBN ou ISSN','Repositório público de código','Servidor ou site institucional','Loja de aplicativos','Impressão e distribuição física','Plataforma de ensino a distância','Ainda não definido'].map(o=>`
+      <div class="campo"><label>Como será feita a disponibilização, transferência e registro do produto?</label>
+        <div class="opcoes">${['Repositório institucional','Registro de software no INPI','ISBN ou ISSN','Repositório público de código','Servidor ou site institucional','Loja de aplicativos','Impressão e distribuição física','Plataforma de ensino a distância','Entrega formal à instituição','Capacitação ou oficina','Incorporação em sistema ou processo','Licenciamento ou cessão','Ainda não definido'].map(o=>`
           <label class="opcao ${hosp.includes(o)?'marcada':''}">
             <input type="checkbox" ${hosp.includes(o)?'checked':''} onchange="alternarHosp(${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)"> ${escapar(o)}</label>`).join('')}</div></div>
       <div class="campo"><label>Como o produto será validado?</label>
-        <div class="dica">Com quantos usuários reais, por qual método, com qual instrumento. Escala de usabilidade para sistemas, escala de concordância para materiais didáticos, parecer de especialistas, aplicação piloto documentada.</div>
+        <div class="dica">Indique modalidades, critérios, participantes ou avaliadores e instrumentos de teste (piloto, usabilidade, parecer de especialistas, avaliação institucional). A declaração de interesse não substitui validação.</div>
         <textarea oninput="setEnt('validacao',this.value)">${escapar(en.validacao||'')}</textarea></div>
       <div class="campo"><label>Que evidências de uso você vai reunir?</label>
         <div class="dica">Lista de participantes, ofício de recebimento, declaração institucional, registro fotográfico, número de downloads, ata de reunião.</div>
@@ -1195,9 +1201,13 @@ function htmlEntrega(){
       <div class="dupla">
         <div class="campo"><label>Prazo para a primeira versão utilizável</label>
           <input type="text" value="${escapar(en.prazoProduto||'')}" oninput="setEnt('prazoProduto',this.value)"></div>
-        <div class="campo"><label>O que já existe de semelhante, e o que o seu produto acrescenta?</label>
+        <div class="campo"><label>Que soluções já existem e que aperfeiçoamento ou inovação a sua entrega trará?</label>
           <input type="text" value="${escapar(en.diferencial||'')}" oninput="setEnt('diferencial',this.value)"></div>
       </div>
+      <div class="campo"><label>Qual é a natureza predominante da inovação?</label>
+        <select onchange="setEnt('tipoInovacaoPTT',this.value)"><option value="">Selecione</option>
+          ${['Incremental','Organizacional','Tecnológica','Social','Metodológica','Regulatória','Educacional','Outra'].map(op=>`<option value="${op}" ${en.tipoInovacaoPTT===op?'selected':''}>${op}</option>`).join('')}
+        </select></div>
     </div>`;
   }
   if(fs.includes('Dissertação ou tese em formato tradicional') || fs.includes('Capítulo de livro') || fs.includes('Outro formato')){
