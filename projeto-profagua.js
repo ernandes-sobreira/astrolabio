@@ -535,15 +535,15 @@ function header(){
  ];
  const medio=ins.map(x=>'<w:r><w:rPr><w:b/><w:sz w:val="14"/><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/></w:rPr><w:t>'+xml(x)+'</w:t></w:r><w:r><w:br/></w:r>').join('');
  const xmlH='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr '+NS_DOC+'>'+
- table3(img('rId1',1,860000,860000),medio,img('rId2',2,860000,860000))+'</w:hdr>';
+ table3(img('rId1',1,820000,761429),medio,img('rId2',2,820000,869913))+'</w:hdr>';
  return xmlH;
 }
 function footerCover(){
- const a=img('rId1',3,1120000,440000), b=img('rId2',4,1320000,370000), c=img('rId3',5,2640000,510000);
- const cols=[2050,2320,4702];
+ const a=img('rId1',3,1120000,440000), b=img('rId2',4,1800000,516456), c=img('rId3',5,620000,620000), d=img('rId4',6,1320000,839306);
+ const cols=[1800,3000,1400,2872];
  const celMarcas=(pic,w)=>'<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr>'+pic+'</w:p></w:tc>';
  const grid=cols.map(w=>'<w:gridCol w:w="'+w+'"/>').join('');
- const table='<w:tbl><w:tblPr><w:tblW w:w="9072" w:type="dxa"/></w:tblPr><w:tblGrid>'+grid+'</w:tblGrid><w:tr>'+celMarcas(a,cols[0])+celMarcas(b,cols[1])+celMarcas(c,cols[2])+'</w:tr></w:tbl>';
+ const table='<w:tbl><w:tblPr><w:tblW w:w="9072" w:type="dxa"/></w:tblPr><w:tblGrid>'+grid+'</w:tblGrid><w:tr>'+celMarcas(a,cols[0])+celMarcas(b,cols[1])+celMarcas(c,cols[2])+celMarcas(d,cols[3])+'</w:tr></w:tbl>';
  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr '+NS_DOC+'>'+table+'</w:ftr>';
 }
 function footerDefault(){
@@ -716,8 +716,8 @@ async function gerar(){
   const mapaMental=await imagemMapaMental();
   FIGURAS.mental=mapaMental.base64;
   FIGURAS.mentalAspect=mapaMental.aspect;
-  m.estado=await emblemaComFundoBranco(m.estado);
-  m.unemat=await emblemaComFundoBranco(m.unemat);
+  // As marcas enviadas são PNG originais: preservar pixels e cores.
+
  z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
  '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
  '<Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/>'+
@@ -743,10 +743,10 @@ async function gerar(){
   if(FIGURAS&&FIGURAS.mapa)z.file('word/media/mapa.png',FIGURAS.mapa,{base64:true});
   if(FIGURAS&&FIGURAS.mental)z.file('word/media/mapa-mental.png',FIGURAS.mental,{base64:true});
   if(FIGURAS&&FIGURAS.aderencia)z.file('word/media/regua-aderencia.png',FIGURAS.aderencia,{base64:true});
- z.file('word/_rels/header1.xml.rels',relations([['rId1','image','media/estado.jpg'],['rId2','image','media/unemat.jpg']]));
- z.file('word/_rels/footer1.xml.rels',relations([['rId1','image','media/profagua.jpg'],['rId2','image','media/unematLogo.jpg'],['rId3','image','media/capesAna.jpg']]));
- for(const [campo,nome] of [['estado','estado'],['unemat','unemat'],['profagua','profagua'],['unematLogo','unematLogo'],['capesAna','capesAna']]){
-  z.file('word/media/'+nome+'.jpg',m[campo],{base64:true});
+ z.file('word/_rels/header1.xml.rels',relations([['rId1','image','media/estado.png'],['rId2','image','media/unemat.png']]));
+ z.file('word/_rels/footer1.xml.rels',relations([['rId1','image','media/profagua.jpg'],['rId2','image','media/unematLogo.png'],['rId3','image','media/capes.png'],['rId4','image','media/ana.png']]));
+ for(const [campo,nome] of [['estado','estado'],['unemat','unemat'],['profagua','profagua'],['unematLogo','unematLogo'],['capes','capes'],['ana','ana']]){
+  z.file('word/media/'+nome+(campo==='profagua'?'.jpg':'.png'),m[campo],{base64:true});
  }
  return await z.generateAsync({type:'blob',compression:'DEFLATE',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 }
