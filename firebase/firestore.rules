@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function signed(){ return request.auth != null; }
+  function owner(id){ return signed() && get(/databases/$(database)/documents/rooms/$(id)).data.owner == request.auth.uid; }
+  match /rooms/{id} {
+   allow read: if signed() && request.auth.uid in resource.data.memberIds;
+   allow create: if signed() && request.resource.data.owner == request.auth.uid
+    && request.resource.data.memberIds == [request.auth.uid]
+    && request.resource.data.roles.keys().hasOnly([request.auth.uid])
+    && request.resource.data.roles[request.auth.uid] == 'owner';
+   allow update: if signed() && (
+    (resource.data.owner == request.auth.uid && request.resource.data.owner == resource.data.owner)
+    || (request.auth.uid in resource.data.memberIds && resource.data.roles[request.auth.uid] == 'editor'
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['data','revision','updatedAt','updatedBy']))
+    || ( !(request.auth.uid in resource.data.memberIds)
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds','roles','joinProof'])
+     && request.resource.data.memberIds == resource.data.memberIds.concat([request.auth.uid])
+     && request.resource.data.roles.diff(resource.data.roles).affectedKeys().hasOnly([request.auth.uid])
+     && get(/databases/$(database)/documents/invites/$(request.resource.data.joinProof)).data.roomId == id
+     && get(/databases/$(database)/documents/invites/$(request.resource.data.joinProof)).data.expiresAt > request.time
+     && request.resource.data.roles[request.auth.uid] == get(/databases/$(database)/documents/invites/$(request.resource.data.joinProof)).data.role
+    ));
+   allow delete: if false;
+  }
+  match /invites/{code} {
+   allow get: if signed();
+   allow list: if false;
+   allow create: if owner(request.resource.data.roomId) && request.resource.data.role in ['viewer','editor']
+    && request.resource.data.expiresAt > request.time && code.size() >= 24;
+   allow update: if false;
+   allow delete: if owner(resource.data.roomId);
+  }
+ }
+}
