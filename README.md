@@ -6,7 +6,7 @@ Acesse https://ernandes-sobreira.github.io/astrolabio/
 
 ## Contas e salas
 
-Entre com Google ou email e senha. Crie uma sala para o projeto ou abra uma sala já vinculada à sua conta. As respostas locais anteriores só são copiadas para uma nova sala quando a opção correspondente é marcada.
+Entre com Google ou email e senha. Na primeira entrada, o Astrolábio cria automaticamente um percurso privado na conta e importa respostas locais disponíveis. Para acessar em outro celular ou computador, entre com a mesma conta. Cada percurso fica salvo na nuvem e sincroniza as alterações. Os convites são usados para compartilhar uma sala com o orientador ou outro participante; o dono do percurso gera o link ou código na área “Compartilhar projeto”.
 
 O dono gera convites por código de 128 bits, válidos por sete dias, com permissão de leitura ou de edição. O convidado entra na própria conta e cola o código. O dono pode revogar convites e remover participantes. Revogar um convite impede novas entradas; para retirar quem já entrou, remova também o participante. Remover um participante não invalida um convite que ele já recebeu: revogue o convite também.
 
