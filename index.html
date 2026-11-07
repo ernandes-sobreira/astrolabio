@@ -143,6 +143,9 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--bronze);
 .ptt-tipologia strong{margin-bottom:3px;color:var(--azul)}
 .ptt-tipologia small{margin-top:4px;color:var(--cinza2)}
 .ptt-tipologia-vazia{border-left-color:var(--linha-forte);font-style:italic}
+.ptt-inspiracao{margin-top:9px;padding-top:8px;border-top:1px solid #cbdbe0;font-size:13px;color:var(--cinza2);line-height:1.45}
+.ptt-inspiracao b{display:block;margin-bottom:3px;color:var(--bronze);font-size:11px;letter-spacing:.6px}
+.ptt-inspiracao a{color:var(--azul);font-weight:800;text-decoration:underline}
 
 .autor{border:2px solid var(--linha);border-radius:8px;padding:20px;margin-bottom:18px;background:var(--suave2)}
 .autor-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:2px solid var(--linha);padding-bottom:10px}
@@ -394,10 +397,30 @@ const GUIA_TIPOLOGIA_PTT = {
  'Empresa ou organização social inovadora': {texto:'Empreendimento efetivamente estruturado a partir de solução inovadora da pesquisa.', exemplo:'Cooperativa ou negócio de impacto ligado à gestão da água.'},
  'Processo, tecnologia, produto ou material não patenteável': {texto:'Solução técnica aplicável cujo enquadramento não depende de patente.', exemplo:'Método de baixo custo para monitoramento ou apoio à decisão.'}
 };
+const INSPIRACOES_PTT = {
+ 'Produto bibliográfico': {titulo:'Boletim técnico sobre demanda residencial de água — UFCG/PROFÁGUA',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'},
+ 'Ativo de propriedade intelectual': {titulo:'Não localizei exemplo público confirmado desta tipologia. Consulte a coleção de produtos da rede.',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'},
+ 'Tecnologia social': {titulo:'Impactos das barraginhas no Assentamento Rancho da Saudade — UNEMAT/PROFÁGUA',url:'https://arquivos-sigaa.unemat.br/arquivos/2021135141e5b4302211d31b4409f0bd/.Dissertao_-_Marcos_Cesar_2020.pdf'},
+ 'Produto de editoração': {titulo:'Amazônia: diálogos integrados de gestão fluvial e recursos hídricos — ProfÁgua/UNIR',url:'https://educapes.capes.gov.br/handle/capes/704018'},
+ 'Material didático ou educacional': {titulo:'Bacia Escola — e-book e sequência didática do ProfÁgua, Campus Ji-Paraná',url:'https://educapes.capes.gov.br/handle/capes/739859'},
+ 'Software ou aplicativo': {titulo:'Aplicativo web de apoio à decisão para reduzir perdas de água — UNESP/PROFÁGUA',url:'https://repositorio.unesp.br/entities/publication/8f0acce3-b474-44ba-82dc-4a5f441d4061'},
+ 'Norma ou marco regulatório': {titulo:'Minuta de Nota Técnica para gestão integrada de recursos hídricos em propriedades rurais — UFCG/PROFÁGUA (proposta, não norma aprovada)',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33930'},
+ 'Relatório técnico conclusivo': {titulo:'Relatório técnico de monitoramento da qualidade da água do Rio Tibiri — UFCG/PROFÁGUA',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'},
+ 'Manual ou protocolo': {titulo:'Manual técnico para reciclagem não potável de água de retrolavagem de filtros — UNESP/PROFÁGUA',url:'https://repositorio.unesp.br/entities/publication/39edd5b3-faab-443d-a002-a5f6a3701afb'},
+ 'Acervo': {titulo:'Curadoria digital dos documentos da Rede Hidrometeorológica Nacional — UnB/PROFÁGUA',url:'https://repositorio.unb.br/handle/10482/49272'},
+ 'Cultivar': {titulo:'Não localizei exemplo público confirmado desta tipologia na rede. Consulte a coleção de produtos.',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'},
+ 'Carta, mapa ou similar': {titulo:'Mapeamento da vulnerabilidade socioambiental na bacia do Rio Piracicaba — UNIFEI/PROFÁGUA',url:'https://repositorio.unifei.edu.br/jspui/handle/123456789/2396'},
+ 'Produto ou processo em sigilo': {titulo:'Por definição, não há exemplo público confirmado. Consulte a coleção e converse com a orientação sobre sigilo.',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'},
+ 'Taxonomia, ontologia ou tesauro': {titulo:'Não localizei exemplo público confirmado desta tipologia na rede. Consulte a coleção de produtos.',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'},
+ 'Empresa ou organização social inovadora': {titulo:'Não localizei exemplo público confirmado desta tipologia na rede. Consulte a coleção de produtos.',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'},
+ 'Processo, tecnologia, produto ou material não patenteável': {titulo:'Manual de valoração econômica do reuso agrícola e mapa de aplicação — UFCG/PROFÁGUA',url:'https://dspace.sti.ufcg.edu.br/handle/riufcg/33869'}
+};
 function htmlAjudaPTT(tipo){
  const item=GUIA_TIPOLOGIA_PTT[tipo];
- if(!item)return '<div class="ptt-tipologia ptt-tipologia-vazia">Escolha uma tipologia para ver seu significado e um exemplo.</div>';
- return '<div class="ptt-tipologia"><strong>'+escapar(tipo)+'</strong><span>'+escapar(item.texto)+'</span><small><b>Exemplo ilustrativo:</b> '+escapar(item.exemplo)+'</small></div>';
+ if(!item)return '<div class="ptt-tipologia ptt-tipologia-vazia">Escolha uma tipologia para ver seu significado, um exemplo e uma referência da rede PROFÁGUA.</div>';
+ const fonte=INSPIRACOES_PTT[tipo];
+ const inspiracao=fonte?'<div class="ptt-inspiracao"><b>Para se inspirar · PROFÁGUA</b><a href="'+escapar(fonte.url)+'" target="_blank" rel="noopener">'+escapar(fonte.titulo)+'</a></div>':'';
+ return '<div class="ptt-tipologia"><strong>'+escapar(tipo)+'</strong><span>'+escapar(item.texto)+'</span><small><b>Exemplo possível:</b> '+escapar(item.exemplo)+'</small>'+inspiracao+'</div>';
 }
 function atualizarAjudaPTT(tipo,id){
  const el=document.getElementById(id);
