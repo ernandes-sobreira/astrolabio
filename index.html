@@ -130,6 +130,19 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--bronze);
   padding:12px 15px;margin-bottom:20px;font-size:14.5px;color:#6E3C00;line-height:1.55;
 }
 .condicional .sub{font-size:15px;color:var(--cinza);margin-bottom:18px}
+.ptt-def{margin:8px 0 12px;padding:12px 14px;border:1px solid #c8ddd5;border-radius:8px;background:#eef7f2;color:#244d43;font-size:14px;line-height:1.55}
+.ptt-def strong{display:block;margin-bottom:2px;color:#14663c}
+.ptt-guia{margin:10px 0 18px;border:1px solid #d7e1dd;border-radius:8px;background:#fff}
+.ptt-guia summary{padding:10px 13px;color:var(--azul);font-weight:800;cursor:pointer}
+.ptt-guia-conteudo{padding:0 14px 12px;color:var(--cinza);font-size:14px;line-height:1.5}
+.ptt-guia-conteudo p{margin:6px 0}
+.ptt-guia-conteudo ul{margin:5px 0 8px;padding-left:20px}
+.ptt-guia-aviso{color:#79511b;font-size:12.5px}
+.ptt-tipologia{margin:8px 0 14px;padding:11px 13px;border-left:4px solid var(--azul);border-radius:5px;background:#F2F8FA;color:var(--cinza);font-size:14px;line-height:1.45}
+.ptt-tipologia strong,.ptt-tipologia span,.ptt-tipologia small{display:block}
+.ptt-tipologia strong{margin-bottom:3px;color:var(--azul)}
+.ptt-tipologia small{margin-top:4px;color:var(--cinza2)}
+.ptt-tipologia-vazia{border-left-color:var(--linha-forte);font-style:italic}
 
 .autor{border:2px solid var(--linha);border-radius:8px;padding:20px;margin-bottom:18px;background:var(--suave2)}
 .autor-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:2px solid var(--linha);padding-bottom:10px}
@@ -362,6 +375,34 @@ const TIPOS_PTT = ['Cartilha ou guia técnico','Protocolo técnico','Aplicativo 
 
 const TIPOLOGIAS_PTT_AREA = ['Produto bibliográfico','Ativo de propriedade intelectual','Tecnologia social','Produto de editoração','Material didático ou educacional','Software ou aplicativo','Norma ou marco regulatório','Relatório técnico conclusivo','Manual ou protocolo','Acervo','Cultivar','Carta, mapa ou similar','Produto ou processo em sigilo','Taxonomia, ontologia ou tesauro','Empresa ou organização social inovadora','Processo, tecnologia, produto ou material não patenteável'];
 
+
+const GUIA_TIPOLOGIA_PTT = {
+ 'Produto bibliográfico': {texto:'Publicação técnica ou de divulgação aplicada a públicos profissionais, institucionais ou sociais.', exemplo:'Série técnica para gestores de recursos hídricos.'},
+ 'Ativo de propriedade intelectual': {texto:'Criação que pode receber proteção formal de propriedade intelectual.', exemplo:'Patente, desenho industrial ou marca ligada à solução.'},
+ 'Tecnologia social': {texto:'Solução construída ou aplicada com participação e apropriação social.', exemplo:'Monitoramento comunitário da qualidade da água.'},
+ 'Produto de editoração': {texto:'Conteúdo técnico selecionado, organizado, editado ou curado.', exemplo:'Catálogo de protocolos e boas práticas.'},
+ 'Material didático ou educacional': {texto:'Recurso estruturado para ensinar conhecimentos ou competências aplicadas.', exemplo:'Jogo educativo, módulo de capacitação ou sequência didática.'},
+ 'Software ou aplicativo': {texto:'Programa, aplicativo ou ferramenta digital funcional para uso por terceiros.', exemplo:'Aplicativo de coleta, painel de indicadores ou sistema de alerta.'},
+ 'Norma ou marco regulatório': {texto:'Estudo ou instrumento para criar, revisar ou implementar regras e regulamentos.', exemplo:'Minuta de resolução para comitê de bacia.'},
+ 'Relatório técnico conclusivo': {texto:'Análise aplicada com conclusão para orientar decisões, práticas ou investimentos.', exemplo:'Estudo de viabilidade com recomendações.'},
+ 'Manual ou protocolo': {texto:'Documento que orienta ou padroniza uma atividade, método ou operação.', exemplo:'Protocolo de monitoramento da água.'},
+ 'Acervo': {texto:'Coleção organizada, catalogada e preparada para consulta ou uso.', exemplo:'Acervo de registros sobre conflitos pelo uso da água.'},
+ 'Cultivar': {texto:'Nova cultivar desenvolvida e registrada, relacionada à pesquisa.', exemplo:'Cultivar adaptada a condições de escassez hídrica.'},
+ 'Carta, mapa ou similar': {texto:'Representação espacial ou temática que apoia análise, planejamento ou decisão.', exemplo:'Mapa de risco de inundação ou vulnerabilidade hídrica.'},
+ 'Produto ou processo em sigilo': {texto:'Produto ou processo com acesso restrito e justificativa documentada.', exemplo:'Solução com dados estratégicos protegidos por acordo.'},
+ 'Taxonomia, ontologia ou tesauro': {texto:'Sistema para organizar e relacionar conceitos ou informações.', exemplo:'Vocabulário controlado de instrumentos de gestão hídrica.'},
+ 'Empresa ou organização social inovadora': {texto:'Empreendimento efetivamente estruturado a partir de solução inovadora da pesquisa.', exemplo:'Cooperativa ou negócio de impacto ligado à gestão da água.'},
+ 'Processo, tecnologia, produto ou material não patenteável': {texto:'Solução técnica aplicável cujo enquadramento não depende de patente.', exemplo:'Método de baixo custo para monitoramento ou apoio à decisão.'}
+};
+function htmlAjudaPTT(tipo){
+ const item=GUIA_TIPOLOGIA_PTT[tipo];
+ if(!item)return '<div class="ptt-tipologia ptt-tipologia-vazia">Escolha uma tipologia para ver seu significado e um exemplo.</div>';
+ return '<div class="ptt-tipologia"><strong>'+escapar(tipo)+'</strong><span>'+escapar(item.texto)+'</span><small><b>Exemplo ilustrativo:</b> '+escapar(item.exemplo)+'</small></div>';
+}
+function atualizarAjudaPTT(tipo,id){
+ const el=document.getElementById(id);
+ if(el)el.innerHTML=htmlAjudaPTT(tipo);
+}
 const ESTACOES = [
   {
     id:'e1', bloco:'Onde estou', titulo:'Ponto de Partida',
@@ -939,6 +980,8 @@ function htmlEntrega(){
     h += `<div class="condicional">
       <h3>Rota do produto técnico e tecnológico</h3>
       <div class="sub">O produto responde a como fazer e para quem serve. Ele é autônomo em relação à dissertação e precisa de usuário, hospedagem, validação e evidência de uso.</div>
+      <div class="ptt-def"><strong>O que é um PTT?</strong> É uma entrega aplicada, ligada à pesquisa, que atende a uma demanda real de gestão da água e pode ser usada por um público definido. A dissertação ou um artigo acadêmico, sozinhos, não substituem o produto.</div>
+      <details class="ptt-guia"><summary>Regras essenciais e como escolher</summary><div class="ptt-guia-conteudo"><p><b>Escolha pela função e pelo usuário, não pelo formato.</b> Um PDF pode ser manual, relatório, material didático ou mapa; o que define a tipologia é o que a entrega permite fazer.</p><ul><li>Identifique o problema e quem vai usar.</li><li>Escolha a tipologia principal pela finalidade do produto.</li><li>Descreva uma entrega utilizável, sua validação e como será compartilhada ou aplicada.</li></ul><p class="ptt-guia-aviso">Resumo do Manual PTT revisado. As referências a requisitos normativos vêm de minutas em apreciação e não substituem a norma vigente do Programa.</p></div></details>
       <div class="dupla">
         <div class="campo"><label>Tipo de produto</label>
           <select onchange="setEnt('tipoProduto',this.value)"><option value="">Selecione</option>
@@ -948,14 +991,14 @@ function htmlEntrega(){
       </div>
       <div class="campo"><label>Tipologia principal prevista para o PTT</label>
         <div class="dica">Enquadramento do produto pela sua finalidade. Pode ser diferente do formato específico abaixo.</div>
-        <select onchange="setEnt('tipoCapes',this.value)"><option value="">Selecione a tipologia</option>
+        <select onchange="setEnt('tipoCapes',this.value);atualizarAjudaPTT(this.value,'ptt-ajuda-principal')"><option value="">Selecione a tipologia</option>
           ${TIPOLOGIAS_PTT_AREA.map(t=>`<option value="${escapar(t)}" ${en.tipoCapes===t?'selected':''}>${escapar(t)}</option>`).join('')}
-        </select></div>
+        </select><div id="ptt-ajuda-principal">${htmlAjudaPTT(en.tipoCapes)}</div></div>
       <div class="campo"><label>Tipologia secundária, se o produto combinar modalidades</label>
         <div class="dica">Opcional: deixe vazio quando houver somente uma tipologia de produto.</div>
-        <select onchange="setEnt('tipoCapes2',this.value)"><option value="">Não há tipologia secundária</option>
+        <select onchange="setEnt('tipoCapes2',this.value);atualizarAjudaPTT(this.value,'ptt-ajuda-secundaria')"><option value="">Não há tipologia secundária</option>
           ${TIPOLOGIAS_PTT_AREA.map(t=>`<option value="${escapar(t)}" ${en.tipoCapes2===t?'selected':''}>${escapar(t)}</option>`).join('')}
-        </select></div>
+        </select><div id="ptt-ajuda-secundaria">${htmlAjudaPTT(en.tipoCapes2)}</div></div>
       <div class="campo"><label>Qual solução aplicada será entregue e o que ela permitirá realizar?</label>
         <div class="dica">Esse é o objetivo do produto. Diferencie a entrega utilizável do objetivo científico da dissertação.</div>
         <textarea oninput="setEnt('objetivoPTT',this.value)">${escapar(en.objetivoPTT||'')}</textarea></div>
