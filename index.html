@@ -964,9 +964,10 @@ function htmlEntrega(){
   let h = `<div class="campo">
     <label>Que formatos a sua entrega assumirá?</label>
     <div class="dica">Pode ser mais de um. No mestrado profissional, o produto técnico é obrigatório e costuma conviver com pelo menos um artigo.</div>
+    <div class="dica" style="font-style:normal">Marque “Produto Técnico e Tecnológico” para abrir as orientações e os campos do PTT logo abaixo.</div>
     <div class="opcoes">${FORMATOS.map(o=>`
       <label class="opcao ${fs.includes(o)?'marcada':''}">
-        <input type="checkbox" ${fs.includes(o)?'checked':''} onchange="alternarFormato(${JSON.stringify(o).replace(/"/g,'&quot;')},this.checked)"> ${escapar(o)}
+        <input type="checkbox" value="${escapar(o)}" ${fs.includes(o)?'checked':''} onchange="alternarFormato(this.value,this.checked)"> ${escapar(o)}
       </label>`).join('')}</div></div>`;
 
   if(fs.includes('Artigo científico')){
