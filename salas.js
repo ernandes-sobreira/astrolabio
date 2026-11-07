@@ -3,10 +3,72 @@
 'use strict';
 const SDK='https://www.gstatic.com/firebasejs/12.4.0/';
 const panel=document.createElement('section');panel.id='salas-panel';panel.setAttribute('aria-label','Conta e salas');
-panel.innerHTML='<div id="salas-status" role="status">Conectando às suas salas…</div><button id="salas-open">Conta e salas</button>';
+panel.innerHTML='<div id="salas-status" role="status">Conectando ao seu percurso…</div><button id="salas-open" title="Abrir projetos e espaços de orientação">Meus projetos</button>';
 document.body.prepend(panel);
 const brands=document.createElement('div');brands.id='salas-brands';brands.setAttribute('aria-label','Instituições');brands.innerHTML=[['estado','Estado de Mato Grosso'],['unemat','Brasão da UNEMAT'],['unematLogo','UNEMAT'],['capes','CAPES'],['ana','Agência Nacional de Águas e Saneamento Básico']].map(([key,name])=>'<img src="data:image/png;base64,'+window.PROFAGUA_MARCAS[key]+'" alt="'+name+'">').join('');panel.after(brands);
-const style=document.createElement('style');style.textContent=`#salas-brands{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:center;background:white;padding:14px}#salas-brands img{max-height:54px;max-width:190px;width:auto;height:auto;object-fit:contain}#salas-panel{background:#f3f7f4;border-bottom:1px solid #cbd6cf;padding:10px 20px;display:flex;justify-content:space-between;gap:10px;align-items:center;font:14px sans-serif;position:sticky;top:0;z-index:1000}#salas-panel button,#salas-dialog button{cursor:pointer;padding:10px 14px;border:1px solid #a5b6ac;border-radius:6px;background:#fff;color:#203c30}#salas-dialog{width:min(640px,90vw);max-height:88vh;border:1px solid #bdcfc3;border-radius:12px;padding:24px;color:#203c30;font:16px/1.5 sans-serif}#salas-dialog::backdrop{background:#12251fbb}#salas-dialog input,#salas-dialog select{display:block;box-sizing:border-box;width:100%;padding:11px;margin:5px 0 14px;border:1px solid #9daf9f;border-radius:5px;font:inherit}#salas-dialog button{margin:4px}#salas-dialog h2{margin-top:0}#salas-dialog .room{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ddd;padding:10px 0;gap:10px}#salas-dialog label{display:block}#salas-message{white-space:pre-wrap}#salas-dialog code{display:block;overflow-wrap:anywhere;background:#eff4ef;padding:12px;user-select:all}body.salas-locked main{pointer-events:none;opacity:.5}`;document.head.append(style);
+const style=document.createElement('style');style.textContent=`#salas-brands{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:center;background:white;padding:14px}#salas-brands img{max-height:54px;max-width:190px;width:auto;height:auto;object-fit:contain}#salas-panel{background:#f3f7f4;border-bottom:1px solid #cbd6cf;padding:10px 20px;display:flex;justify-content:space-between;gap:10px;align-items:center;font:14px sans-serif;position:sticky;top:0;z-index:1000}#salas-panel button,#salas-dialog button{cursor:pointer;padding:10px 14px;border:1px solid #a5b6ac;border-radius:6px;background:#fff;color:#203c30}#salas-dialog{width:min(640px,90vw);max-height:88vh;border:1px solid #bdcfc3;border-radius:12px;padding:24px;color:#203c30;font:16px/1.5 sans-serif}#salas-dialog::backdrop{background:#12251fbb}#salas-dialog input,#salas-dialog select{display:block;box-sizing:border-box;width:100%;padding:11px;margin:5px 0 14px;border:1px solid #9daf9f;border-radius:5px;font:inherit}#salas-dialog button{margin:4px}#salas-dialog h2{margin-top:0}#salas-dialog .room{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ddd;padding:10px 0;gap:10px}#salas-dialog label{display:block}#salas-message{white-space:pre-wrap}#salas-dialog code{display:block;overflow-wrap:anywhere;background:#eff4ef;padding:12px;user-select:all}body.salas-locked main{pointer-events:none;opacity:.5}`;style.textContent+=`
+#salas-panel{background:rgba(248,251,249,.96);border-bottom:1px solid #dfe9e4;padding:9px clamp(12px,3vw,28px);font:600 13px/1.3 system-ui,sans-serif;color:#35534c;backdrop-filter:blur(12px)}
+#salas-panel #salas-status{max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#salas-panel #salas-open{border:0;border-radius:999px;background:#123f3b;color:white;padding:10px 17px;font:700 14px system-ui,sans-serif;box-shadow:0 5px 16px #123f3b22}
+#salas-panel #salas-open:hover{background:#0b5a51;transform:translateY(-1px)}
+#salas-dialog{width:min(720px,calc(100vw - 24px));max-height:min(90dvh,900px);overflow:auto;padding:0;border:1px solid #e4ece8;border-radius:24px;background:#f7faf8;color:#183b36;font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 28px 90px #071f1c55}
+#salas-dialog::backdrop{background:#071f1cb5;backdrop-filter:blur(7px)}
+#salas-dialog .salas-shell{padding:clamp(15px,4vw,28px)}
+#salas-dialog .salas-hero{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border-radius:20px;color:white;background:radial-gradient(circle at 90% 5%,#54b69b77 0,transparent 36%),linear-gradient(135deg,#123f3b,#236e61 72%,#3a8b72)}
+#salas-dialog .salas-hero:after{content:"";position:absolute;width:145px;height:145px;right:-48px;bottom:-72px;border:1px solid #ffffff55;border-radius:50%;box-shadow:0 0 0 17px #ffffff0d,0 0 0 34px #ffffff0a}
+#salas-dialog .salas-eyebrow{display:inline-flex;align-items:center;gap:7px;margin-bottom:10px;padding:5px 10px;border:1px solid #ffffff55;border-radius:999px;background:#ffffff12;color:#effff8;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+#salas-dialog .salas-hero h2{margin:0 0 8px;color:#fff;font-size:clamp(23px,5vw,32px);line-height:1.12;letter-spacing:-.6px}
+#salas-dialog .salas-hero p{max-width:560px;margin:0;color:#e6f4ef;font-size:14px}
+#salas-dialog .salas-account{display:inline-flex;max-width:100%;margin-top:16px;padding:7px 11px;border:1px solid #ffffff38;border-radius:999px;background:#0b302d55;color:white;font-size:12px;overflow-wrap:anywhere}
+#salas-dialog .salas-explainer{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start;margin:16px 0 21px;padding:15px 16px;border:1px solid #d9e9e1;border-radius:16px;background:#edf5f1}
+#salas-dialog .salas-explainer .salas-number{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:#d7eee3;color:#146b55;font-size:19px}
+#salas-dialog .salas-explainer strong{display:block;margin-bottom:2px;color:#173e37}
+#salas-dialog .salas-explainer span{display:block;color:#49635b;font-size:13px}
+#salas-dialog .salas-section{margin:20px 0}
+#salas-dialog .salas-section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px}
+#salas-dialog .salas-section h3{margin:0;color:#173e37;font:750 17px/1.3 system-ui,sans-serif;letter-spacing:-.2px}
+#salas-dialog .salas-caption{color:#6c8179;font-size:12px}
+#salas-dialog .salas-room-card{display:flex;align-items:center;gap:12px;margin:9px 0;padding:13px;border:1px solid #e2ebe6;border-radius:16px;background:white;box-shadow:0 4px 15px #153b3410}
+#salas-dialog .salas-room-icon{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:14px;background:#e6f3ec;font-size:20px}
+#salas-dialog .salas-room-copy{flex:1;min-width:0}
+#salas-dialog .salas-room-copy strong{display:block;overflow-wrap:anywhere;color:#183b36;font-size:15px}
+#salas-dialog .salas-room-copy small{display:block;color:#6c8179;font-size:12px}
+#salas-dialog .salas-primary,#salas-dialog .salas-secondary{border:0;border-radius:12px;padding:10px 15px;font:700 13px system-ui,sans-serif;transition:transform .15s,background .15s}
+#salas-dialog .salas-primary{background:#174f46;color:white}
+#salas-dialog .salas-primary:hover{background:#0e6a59;transform:translateY(-1px)}
+#salas-dialog .salas-secondary{background:#e9f2ed;color:#21483e}
+#salas-dialog .salas-secondary:hover{background:#dcece3}
+#salas-dialog .salas-empty{padding:18px;border:1px dashed #c5d8ce;border-radius:16px;background:#fff;color:#577168;text-align:center}
+#salas-dialog details.salas-fold{margin:12px 0;border:1px solid #e1eae5;border-radius:16px;background:white}
+#salas-dialog details.salas-fold>summary{display:flex;align-items:center;gap:9px;padding:15px 16px;color:#244d43;font-weight:750;cursor:pointer;list-style:none}
+#salas-dialog details.salas-fold>summary::-webkit-details-marker{display:none}
+#salas-dialog details.salas-fold>summary:after{content:"＋";margin-left:auto;color:#448071;font-size:18px}
+#salas-dialog details.salas-fold[open]>summary:after{content:"−"}
+#salas-dialog .salas-fold-body{padding:0 16px 16px;color:#526c63;font-size:13px}
+#salas-dialog .salas-fold-body p{margin:0 0 11px}
+#salas-dialog .salas-fold-body label{display:block;margin:10px 0 4px;color:#34584e;font-size:13px;font-weight:650}
+#salas-dialog .salas-fold-body input{margin:5px 0 10px;border:1px solid #d2e0d8;border-radius:11px;background:#fbfdfc}
+#salas-dialog .salas-check{display:flex!important;align-items:start;gap:8px}
+#salas-dialog .salas-check input{display:inline-block!important;width:auto!important;margin:3px 0 0}
+#salas-dialog .salas-backup{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0;padding:13px 15px;border:1px solid #e6d9ae;border-radius:14px;background:#fffaf0;color:#6d581f;font-size:13px}
+#salas-dialog .salas-backup strong{display:block;color:#574516}
+#salas-dialog .salas-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;padding-top:15px;border-top:1px solid #e2ebe6}
+#salas-dialog .salas-footer button{border:0;background:transparent;color:#657a72;font-size:12px}
+#salas-dialog #salas-message{margin:12px 2px 0;color:#a13c2d}
+#salas-dialog #login-google{display:block;width:100%;margin:17px 0 8px;border-radius:14px;background:#174f46;color:white;font:750 16px system-ui,sans-serif;padding:15px}
+#salas-dialog details:not(.salas-fold){margin-top:16px;padding:13px 15px;border:1px solid #e1eae5;border-radius:14px;background:#fff}
+#salas-dialog details:not(.salas-fold)>summary{color:#34584e;font-weight:700;cursor:pointer}
+@media(max-width:520px){
+#salas-panel{gap:8px;padding:8px 11px}
+#salas-panel #salas-status{max-width:59%;font-size:12px}
+#salas-dialog{width:calc(100vw - 14px);max-height:92dvh;border-radius:20px}
+#salas-dialog .salas-shell{padding:12px}
+#salas-dialog .salas-room-card{gap:9px;padding:10px}
+#salas-dialog .salas-primary,#salas-dialog .salas-secondary{padding:9px 11px}
+#salas-dialog .salas-backup{align-items:flex-start;flex-direction:column}
+#salas-dialog .salas-footer{align-items:flex-start;flex-direction:column}
+}
+`;document.head.append(style);
 const dialog=document.createElement('dialog');dialog.id='salas-dialog';document.body.append(dialog);
 let auth,db,A,F,user=null,active=null,revision=0,dirty=false,saving=false,conflict=false,timer=null,unsub=null,roles={},roomData=null;
 let base=null;
@@ -59,7 +121,17 @@ if(snap.empty){
  status('Seu percurso está salvo na sua conta. Use a mesma conta para acessar de outros dispositivos.');
  return;
 }
-show('<h2>Minhas salas</h2><p>'+esc(user.email)+'</p>'+(hasLocalResponses(recoveryCopy)?'<aside style="border:1px solid #bd8730;background:#fff7e5;padding:12px;margin:12px 0;border-radius:8px"><b>Encontramos respostas salvas neste aparelho.</b> Baixe uma cópia antes de abrir outra sala ou use essas respostas ao criar uma sala nova.<br><button id="download-local">Baixar cópia das respostas</button></aside>':'')+snap.docs.map(d=>'<div class="room"><span>'+esc(d.data().title)+'<br><small>'+esc(d.data().roles[user.uid]==='owner'?'Minha sala':d.data().roles[user.uid]==='editor'?'Edição compartilhada':'Somente leitura')+'</small></span><button data-room="'+d.id+'">Abrir</button></div>').join('')+'<hr><label>Nome do projeto<input id="new-title" maxlength="140" placeholder="Meu projeto de pesquisa"></label><label><input id="import-local" type="checkbox" style="display:inline;width:auto" '+(snap.empty&&hasLocalResponses(recoveryCopy)?'checked':'')+'> Incluir as respostas que já estavam neste aparelho</label><button id="create-room">Criar minha sala</button><hr><p>Se recebeu um link de convite, basta abrir depois de entrar. Se recebeu um código, cole-o aqui:</p><label>Código de convite<input id="join-code" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Código de 32 caracteres" value="'+esc(new URLSearchParams(location.search).get('convite')||'')+'"></label><button id="join-room">Entrar pelo código</button>'+(active?'<button id="back-room">Voltar ao projeto</button><button id="sharing">Compartilhar e participantes</button>':'')+'<button id="logout">Sair da conta</button>');
+const inviteValue=new URLSearchParams(location.search).get('convite')||'';
+const backupNeeded=hasLocalResponses(recoveryCopy)&&!snap.docs.some(d=>JSON.stringify(d.data().data)===JSON.stringify(recoveryCopy));
+const backupCard=backupNeeded?'<aside class="salas-backup"><div><strong>Encontramos uma cópia antiga neste aparelho</strong>Baixe-a antes de usar essas respostas em outro projeto.</div><button class="salas-secondary" id="download-local">Baixar cópia</button></aside>':'';
+const roomCards=snap.docs.map(d=>{
+ const r=d.data(),role=r.roles[user.uid];
+ const access=role==='owner'?'Seu espaço privado':role==='editor'?'Compartilhado · pode editar':'Compartilhado · somente leitura';
+ return '<article class="salas-room-card"><div class="salas-room-icon" aria-hidden="true">🧭</div><div class="salas-room-copy"><strong>'+esc(r.title)+'</strong><small>'+access+'</small></div><button class="salas-primary" data-room="'+d.id+'">Abrir</button></article>';
+}).join('');
+const spaces=roomCards||'<div class="salas-empty">Seu primeiro percurso já está sendo preparado. Ele fica salvo na sua conta.</div>';
+const inviteOptions=active?'<button class="salas-secondary" id="back-room">Voltar ao percurso</button>'+(roles[user.uid]==='owner'?'<button class="salas-secondary" id="sharing">Convidar orientador</button>':''):'';
+show('<div class="salas-shell"><header class="salas-hero"><span class="salas-eyebrow">🧭 Astrolábio · espaço de orientação</span><h2>Seus projetos, em um só lugar</h2><p>Continue seu percurso, crie um novo projeto ou compartilhe um espaço com quem orienta você.</p><span class="salas-account">Conectado como '+esc(user.email)+'</span></header><div class="salas-explainer"><div class="salas-number">✦</div><div><strong>O que é uma sala?</strong><span>É o espaço online de um projeto. Você escreve e acompanha o percurso; seu orientador pode ser convidado para ler, comentar ou escrever junto. Cada sala salva suas alterações na nuvem.</span></div></div>'+backupCard+'<section class="salas-section"><div class="salas-section-head"><h3>Seus percursos</h3><span class="salas-caption">'+snap.docs.length+' '+(snap.docs.length===1?'espaço':'espaços')+'</span></div>'+spaces+'</section><details class="salas-fold"><summary>＋ Criar outro projeto</summary><div class="salas-fold-body"><p>Crie uma sala privada para organizar outro projeto de pesquisa. Você poderá convidar seu orientador depois.</p><label for="new-title">Nome do projeto</label><input id="new-title" maxlength="140" placeholder="Ex.: Minha dissertação sobre o Pantanal"><label class="salas-check"><input id="import-local" type="checkbox" '+(snap.empty&&hasLocalResponses(recoveryCopy)?'checked':'')+'>Incluir as respostas que já estavam neste aparelho</label><button class="salas-primary" id="create-room">Criar projeto</button></div></details><details class="salas-fold"><summary>↗ Recebi convite para uma sala compartilhada</summary><div class="salas-fold-body"><p>O convite conecta você ao espaço de outra pessoa, como o projeto do orientador. Para acessar um projeto compartilhado, abra o link recebido ou cole o código abaixo. Seu percurso pessoal continua separado.</p><label for="join-code">Código do convite</label><input id="join-code" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Cole aqui o código recebido" value="'+esc(inviteValue)+'"><button class="salas-primary" id="join-room">Entrar na sala compartilhada</button></div></details><div class="salas-footer">'+inviteOptions+'<button id="logout">Sair da conta</button></div></div>');
 dialog.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>open(b.dataset.room).catch(fail));
 if(hasLocalResponses(recoveryCopy))btn('download-local',()=>downloadJSON(recoveryCopy,'astrolabio-respostas-locais-backup.json'));
 btn('create-room',async()=>{if(dirty)throw Error('Salve ou resolva as alterações pendentes antes de trocar de sala.');const title=document.getElementById('new-title').value.trim();if(!title)throw Error('Dê um nome ao projeto.');const data=document.getElementById('import-local').checked?recoveryCopy:blank();const r=await F.addDoc(F.collection(db,'rooms'),{title,owner:user.uid,memberIds:[user.uid],roles:{[user.uid]:'owner'},data,revision:0,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp(),updatedBy:user.uid});await open(r.id);});
