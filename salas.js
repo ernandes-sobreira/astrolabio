@@ -51,6 +51,14 @@ function apply(data){estado=JSON.parse(JSON.stringify(data));base=JSON.parse(JSO
 function blank(){return {versao:1,criadoEm:new Date().toISOString(),atualizadoEm:null,dados:{},autores:[],entrega:{formatos:[]}};}
 async function list(){if(!user)return login();
 const snap=await F.getDocs(F.query(F.collection(db,'rooms'),F.where('memberIds','array-contains',user.uid)));
+const invitePending=new URLSearchParams(location.search).has('convite');
+if(snap.empty&&!invitePending){
+ const data=hasLocalResponses(recoveryCopy)?recoveryCopy:blank();
+ const created=await F.addDoc(F.collection(db,'rooms'),{title:'Meu percurso acadêmico',owner:user.uid,memberIds:[user.uid],roles:{[user.uid]:'owner'},data,revision:0,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp(),updatedBy:user.uid});
+ await open(created.id);
+ status('Seu percurso está salvo na sua conta. Use a mesma conta para acessar de outros dispositivos.');
+ return;
+}
 show('<h2>Minhas salas</h2><p>'+esc(user.email)+'</p>'+(hasLocalResponses(recoveryCopy)?'<aside style="border:1px solid #bd8730;background:#fff7e5;padding:12px;margin:12px 0;border-radius:8px"><b>Encontramos respostas salvas neste aparelho.</b> Baixe uma cópia antes de abrir outra sala ou use essas respostas ao criar uma sala nova.<br><button id="download-local">Baixar cópia das respostas</button></aside>':'')+snap.docs.map(d=>'<div class="room"><span>'+esc(d.data().title)+'<br><small>'+esc(d.data().roles[user.uid]==='owner'?'Minha sala':d.data().roles[user.uid]==='editor'?'Edição compartilhada':'Somente leitura')+'</small></span><button data-room="'+d.id+'">Abrir</button></div>').join('')+'<hr><label>Nome do projeto<input id="new-title" maxlength="140" placeholder="Meu projeto de pesquisa"></label><label><input id="import-local" type="checkbox" style="display:inline;width:auto" '+(snap.empty&&hasLocalResponses(recoveryCopy)?'checked':'')+'> Incluir as respostas que já estavam neste aparelho</label><button id="create-room">Criar minha sala</button><hr><p>Se recebeu um link de convite, basta abrir depois de entrar. Se recebeu um código, cole-o aqui:</p><label>Código de convite<input id="join-code" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Código de 32 caracteres" value="'+esc(new URLSearchParams(location.search).get('convite')||'')+'"></label><button id="join-room">Entrar pelo código</button>'+(active?'<button id="back-room">Voltar ao projeto</button><button id="sharing">Compartilhar e participantes</button>':'')+'<button id="logout">Sair da conta</button>');
 dialog.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>open(b.dataset.room).catch(fail));
 if(hasLocalResponses(recoveryCopy))btn('download-local',()=>downloadJSON(recoveryCopy,'astrolabio-respostas-locais-backup.json'));
