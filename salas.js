@@ -11,7 +11,7 @@ const style=document.createElement('style');style.textContent=`#salas-brands{dis
 #salas-panel #salas-status{max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #salas-panel #salas-open{border:0;border-radius:999px;background:#123f3b;color:white;padding:10px 17px;font:700 14px system-ui,sans-serif;box-shadow:0 5px 16px #123f3b22}
 #salas-panel #salas-open:hover{background:#0b5a51;transform:translateY(-1px)}
-#salas-dialog{width:min(720px,calc(100vw - 24px));max-height:min(90dvh,900px);overflow:auto;padding:0;border:1px solid #e4ece8;border-radius:24px;background:#f7faf8;color:#183b36;font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 28px 90px #071f1c55}
+#salas-dialog{margin:auto;width:min(720px,calc(100vw - 24px));max-height:min(90dvh,900px);overflow:auto;padding:0;border:1px solid #e4ece8;border-radius:24px;background:#f7faf8;color:#183b36;font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 28px 90px #071f1c55}
 #salas-dialog::backdrop{background:#071f1cb5;backdrop-filter:blur(7px)}
 #salas-dialog .salas-shell{padding:clamp(15px,4vw,28px)}
 #salas-dialog .salas-hero{position:relative;overflow:hidden;padding:clamp(20px,4vw,30px);border-radius:20px;color:white;background:radial-gradient(circle at 90% 5%,#54b69b77 0,transparent 36%),linear-gradient(135deg,#123f3b,#236e61 72%,#3a8b72)}
@@ -63,6 +63,7 @@ const style=document.createElement('style');style.textContent=`#salas-brands{dis
 #salas-dialog details:not(.salas-fold){margin-top:16px;padding:13px 15px;border:1px solid #e1eae5;border-radius:14px;background:#fff}
 #salas-dialog details:not(.salas-fold)>summary{color:#34584e;font-weight:700;cursor:pointer}
 @media(max-width:520px){
+#salas-brands{gap:12px;padding:8px}#salas-brands img{max-height:34px;max-width:120px}
 #salas-panel{gap:8px;padding:8px 11px}
 #salas-panel #salas-status{max-width:59%;font-size:12px}
 #salas-dialog{width:calc(100vw - 14px);max-height:92dvh;border-radius:20px}
@@ -74,10 +75,12 @@ const style=document.createElement('style');style.textContent=`#salas-brands{dis
 }
 `;document.head.append(style);
 const dialog=document.createElement('dialog');dialog.id='salas-dialog';document.body.append(dialog);
-let auth,db,A,F,user=null,active=null,revision=0,dirty=false,saving=false,conflict=false,timer=null,unsub=null,roles={},roomData=null;
-let base=null;
+/* ---------- estado da sincronização ---------- */
+let auth,db,A,F,user=null,active=null,revision=0,dirty=false,saving=false,timer=null,unsub=null,roles={},roomData=null,offline=false;
+let base=null; // última versão conhecida da nuvem (ancestral comum para o merge por campo)
 const LOCAL_BACKUP_KEY='astrolabio_respostas_locais_antes_da_nuvem_v1';
-const pendingLocal=JSON.parse(JSON.stringify(estado));
+const CLOUD_UID_KEY='astrolabio_nuvem_uid_v1';
+const clone=x=>JSON.parse(JSON.stringify(x));
 function hasValue(v){
  if(typeof v==='string')return v.trim().length>0;
  if(Array.isArray(v))return v.some(hasValue);
@@ -85,12 +88,27 @@ function hasValue(v){
  return typeof v==='number'&&Number.isFinite(v);
 }
 function hasLocalResponses(data){
- return !!data&&[data.dados,data.autores,data.entrega,data.projeto].some(hasValue);
+ return !!data&&[data.dados,data.autores,data.entrega,data.projeto,data.extensoes].some(hasValue);
 }
-if(hasLocalResponses(pendingLocal)&&!Cofre.ler(LOCAL_BACKUP_KEY))
- Cofre.gravar(LOCAL_BACKUP_KEY,JSON.stringify(pendingLocal));
-let recoveryCopy=pendingLocal;
-try{recoveryCopy=JSON.parse(Cofre.ler(LOCAL_BACKUP_KEY)||'null')||pendingLocal;}catch(_){}
+/* As respostas que estavam neste aparelho só contam como "locais" se nunca vieram da nuvem.
+ * Se o localStorage guarda a cópia da nuvem de outra conta, ela não pode ser oferecida a ninguém. */
+const cloudUidAnterior=Cofre.ler(CLOUD_UID_KEY);
+const pendingLocal=clone(estado);
+if(!cloudUidAnterior&&hasLocalResponses(pendingLocal)&&!Cofre.ler(LOCAL_BACKUP_KEY))
+ Cofre.gravar(LOCAL_BACKUP_KEY,JSON.stringify({uid:null,data:pendingLocal}));
+function recoveryFor(uid){
+ try{
+  const b=JSON.parse(Cofre.ler(LOCAL_BACKUP_KEY)||'null');if(!b)return null;
+  const data=b&&b.data&&typeof b.data==='object'&&!b.dados?b.data:b;
+  const dono=b&&Object.prototype.hasOwnProperty.call(b,'uid')?b.uid:null;
+  if(dono&&dono!==uid)return null;
+  return hasLocalResponses(data)?data:null;
+ }catch(_){return null;}
+}
+function limparLocal(){
+ estado=blank();base=null;Cofre.apagar(CHAVE);Cofre.apagar(CLOUD_UID_KEY);
+ estacaoAtual=0;desenharNav();desenharEstacao();atualizarProgresso();
+}
 function downloadJSON(data,name){
  const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
  a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -104,60 +122,244 @@ const status=t=>document.getElementById('salas-status').textContent=t;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function lock(v){document.body.classList.toggle('salas-locked',v);document.querySelectorAll('main input,main textarea,main select,main [contenteditable],#arq,button.risco,button[onclick*="arq"]').forEach(el=>{el.disabled=v;});}
 function msg(t){const el=document.getElementById('salas-message');if(el)el.textContent=t;}
-function fail(e){const codes={'auth/invalid-credential':'Email ou senha incorretos.','auth/email-already-in-use':'Este email já está cadastrado. Use Entrar.','auth/weak-password':'Use uma senha de pelo menos 8 caracteres.','auth/unauthorized-domain':'Domínio ainda não autorizado no Firebase.','auth/popup-closed-by-user':'A janela do Google foi fechada.','auth/too-many-requests':'Muitas tentativas. Aguarde e tente novamente.','permission-denied':'Você não tem permissão para esta ação.','auth/network-request-failed':'Falha de conexão. Tente novamente.'};msg(codes[e.code]||e.message||'Não foi possível concluir.');status('Ação não concluída — abra Conta e salas.');}
-function show(html){const notice='<p id="salas-message" role="status"></p>';if(html.includes('class="salas-shell"')){const end=html.lastIndexOf('</div>');dialog.innerHTML=end>=0?html.slice(0,end)+notice+html.slice(end):html+notice;}else dialog.innerHTML=html+notice;if(!dialog.open)dialog.showModal();}
-function btn(id,fn){document.getElementById(id).onclick=async()=>{try{await fn();}catch(e){fail(e);}};}
+function fail(e){const codes={'auth/invalid-credential':'Email ou senha incorretos.','auth/email-already-in-use':'Este email já está cadastrado. Use Entrar.','auth/weak-password':'Use uma senha de pelo menos 8 caracteres.','auth/unauthorized-domain':'Domínio ainda não autorizado no Firebase.','auth/popup-closed-by-user':'A janela do Google foi fechada.','auth/popup-blocked':'O navegador bloqueou a janela do Google. Permita pop-ups ou abra o Astrolábio no Chrome ou Safari, fora de aplicativos como WhatsApp e Instagram.','auth/too-many-requests':'Muitas tentativas. Aguarde e tente novamente.','permission-denied':'Você não tem permissão para esta ação.','auth/network-request-failed':'Falha de conexão. Tente novamente.'};msg(codes[e.code]||e.message||'Não foi possível concluir.');status('Ação não concluída. Abra Meus projetos.');}
+function show(html){
+ const notice='<p id="salas-message" role="status"></p>';
+ if(html.includes('class="salas-shell"')){const end=html.lastIndexOf('</div>');dialog.innerHTML=end>=0?html.slice(0,end)+notice+html.slice(end):html+notice;}
+ else dialog.innerHTML='<div class="salas-shell">'+html+notice+'</div>';
+ if(!dialog.open)dialog.showModal();
+}
+function btn(id,fn){const el=document.getElementById(id);if(el)el.onclick=async()=>{try{await fn();}catch(e){fail(e);}};}
+function perfil(){return {nome:(user&&user.displayName)||(user&&user.email?user.email.split('@')[0]:'Participante'),email:(user&&user.email)||''};}
+function nomeMembro(id){const m=(roomData&&roomData.members&&roomData.members[id])||{};return m.nome||m.email||('Participante '+String(id).slice(0,8));}
+function minhaFuncao(){return user&&roles?roles[user.uid]:undefined;}
+
+/* ---------- foco: preservar o cursor quando a tela é redesenhada por atualização remota ---------- */
+function campos(){return Array.from(document.querySelectorAll('main input,main textarea,main select'));}
+function snapshotFoco(){
+ const el=document.activeElement;
+ if(!el||!/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)||!el.closest('main'))return null;
+ return {i:campos().indexOf(el),start:el.selectionStart,end:el.selectionEnd,scroll:window.scrollY};
+}
+function restaurarFoco(f){
+ if(!f||f.i<0)return;const el=campos()[f.i];if(!el)return;
+ el.focus({preventScroll:true});
+ try{if(typeof f.start==='number')el.setSelectionRange(f.start,f.end);}catch(_){}
+ window.scrollTo(0,f.scroll);
+}
+
+/* ---------- merge por campo (três vias): base = nuvem conhecida, local = o que está na tela, remote = nuvem nova ---------- */
+const isObj=x=>x&&typeof x==='object'&&!Array.isArray(x);
+function merge3(b,l,r,stats){
+ const L=JSON.stringify(l),R=JSON.stringify(r),B=JSON.stringify(b);
+ if(L===R)return l===undefined?undefined:clone(l);
+ if(L===B)return r===undefined?undefined:clone(r);   // só o remoto mudou
+ if(R===B)return clone(l);                            // só o local mudou
+ if(isObj(l)&&isObj(r)){
+  const out={};
+  new Set([...Object.keys(isObj(b)?b:{}),...Object.keys(l),...Object.keys(r)]).forEach(k=>{
+   const v=merge3(isObj(b)?b[k]:undefined,l[k],r[k],stats);
+   if(v!==undefined)out[k]=v;
+  });
+  return out;
+ }
+ stats.conflitos++;return clone(l);                   // ambos mudaram o mesmo campo: quem está digitando prevalece
+}
+
+/* ---------- aplicar dados na tela ---------- */
+function redesenhar(){
+ const f=snapshotFoco();
+ desenharNav();atualizarProgresso();
+ if(telaAtual==='form')desenharEstacao();
+ else if(telaAtual==='projeto'&&typeof abrirProjeto==='function')abrirProjeto();
+ else if(telaAtual==='revisao'&&typeof abrirRevisaoAcademica==='function')abrirRevisaoAcademica();
+ else irPara(telaAtual);
+ restaurarFoco(f);
+}
+function apply(data){
+ estado=clone(data);if(typeof sanearEstado==='function')sanearEstado();
+ base=clone(estado);
+ Cofre.gravar(CHAVE,JSON.stringify(estado));Cofre.gravar(CLOUD_UID_KEY,user.uid);
+ redesenhar();lock(minhaFuncao()==='viewer');
+}
+function blank(){return {versao:1,criadoEm:new Date().toISOString(),atualizadoEm:null,dados:{},autores:[],entrega:{formatos:[]}};}
+
+/* ---------- login ---------- */
 function login(){lock(true);show('<div class="salas-shell"><header class="salas-hero"><span class="salas-eyebrow">🧭 Astrolábio · espaço de orientação</span><h2>Vamos começar seu percurso</h2><p>Entre com sua conta Google. Seu projeto ficará salvo na nuvem e disponível em qualquer aparelho quando você usar esta mesma conta.</p></header><div class="salas-explainer"><div class="salas-number">✦</div><div><strong>Sem senha nova e sem código para começar</strong><span>Na primeira entrada, criamos seu espaço privado. Depois, se quiser, você convida seu orientador para acompanhar ou escrever junto em uma sala compartilhada.</span></div></div><button id="login-google">Continuar com Google</button><details><summary>Já tenho uma conta com email e senha</summary><p>Use o mesmo email e senha que cadastrou antes. Para reencontrar seu percurso em outros aparelhos, entre sempre pelo mesmo método e pela mesma conta.</p><form id="login-form"><label>Email<input id="login-email" type="email" autocomplete="username" required></label><label>Senha<input id="login-password" type="password" autocomplete="current-password" minlength="8" required></label><button type="submit">Entrar com email</button><button type="button" id="signup">Criar conta com email</button><button type="button" id="reset">Recuperar senha</button></form></details></div>');
 const credentials=()=>({email:document.getElementById('login-email').value.trim(),password:document.getElementById('login-password').value});
 btn('login-google',()=>A.signInWithPopup(auth,new A.GoogleAuthProvider()));
 document.getElementById('login-form').onsubmit=async e=>{e.preventDefault();try{const c=credentials();await A.signInWithEmailAndPassword(auth,c.email,c.password);}catch(err){fail(err);}};
 btn('signup',async()=>{if(!document.getElementById('login-form').reportValidity())return;const c=credentials();await A.createUserWithEmailAndPassword(auth,c.email,c.password);});
 btn('reset',async()=>{const c=credentials();if(!c.email)throw Error('Informe seu email.');await A.sendPasswordResetEmail(auth,c.email);msg('Se houver uma conta para este email, você receberá as instruções de recuperação.');});}
-function apply(data){estado=JSON.parse(JSON.stringify(data));base=JSON.parse(JSON.stringify(data));Cofre.gravar(CHAVE,JSON.stringify(estado));desenharNav();desenharEstacao();atualizarProgresso();if(telaAtual==='projeto'&&typeof abrirProjeto==='function')abrirProjeto();else if(telaAtual==='revisao'&&typeof abrirRevisaoAcademica==='function')abrirRevisaoAcademica();else irPara(telaAtual);lock(roles[user.uid]==='viewer');}
-function blank(){return {versao:1,criadoEm:new Date().toISOString(),atualizadoEm:null,dados:{},autores:[],entrega:{formatos:[]}};}
+
+/* ---------- salas ---------- */
+function novaSala(title,data){
+ return F.addDoc(F.collection(db,'rooms'),{title,owner:user.uid,memberIds:[user.uid],roles:{[user.uid]:'owner'},members:{[user.uid]:perfil()},data,revision:0,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp(),updatedBy:user.uid});
+}
+const codigoDaURL=()=>new URLSearchParams(location.search).get('convite')||'';
+function limparURL(){const u=new URL(location.href);u.searchParams.delete('convite');history.replaceState({},'',u);}
 async function list(){if(!user)return login();
 const snap=await F.getDocs(F.query(F.collection(db,'rooms'),F.where('memberIds','array-contains',user.uid)));
-const invitePending=new URLSearchParams(location.search).has('convite');
+const recoveryCopy=recoveryFor(user.uid);
 if(snap.empty){
- const data=hasLocalResponses(recoveryCopy)?recoveryCopy:blank();
- const created=await F.addDoc(F.collection(db,'rooms'),{title:'Meu percurso acadêmico',owner:user.uid,memberIds:[user.uid],roles:{[user.uid]:'owner'},data,revision:0,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp(),updatedBy:user.uid});
+ const created=await novaSala('Meu percurso acadêmico',recoveryCopy||blank());
  await open(created.id);
  status('Seu percurso está salvo na sua conta. Use a mesma conta para acessar de outros dispositivos.');
+ if(codigoDaURL()){try{await entrarComCodigo(codigoDaURL());}catch(e){fail(e);}}
  return;
 }
-const inviteValue=new URLSearchParams(location.search).get('convite')||'';
-const backupNeeded=hasLocalResponses(recoveryCopy)&&!snap.docs.some(d=>JSON.stringify(d.data().data)===JSON.stringify(recoveryCopy));
-const backupCard=backupNeeded?'<aside class="salas-backup"><div><strong>Encontramos uma cópia antiga neste aparelho</strong>Baixe-a antes de usar essas respostas em outro projeto.</div><button class="salas-secondary" id="download-local">Baixar cópia</button></aside>':'';
+const inviteValue=codigoDaURL();
+const backupNeeded=!!recoveryCopy&&!snap.docs.some(d=>JSON.stringify(d.data().data)===JSON.stringify(recoveryCopy));
+const backupCard=backupNeeded?'<aside class="salas-backup"><div><strong>Encontramos respostas antigas neste aparelho</strong>Elas foram escritas antes de você entrar na conta. Baixe-as ou use a opção "Incluir as respostas que já estavam neste aparelho" ao criar um projeto.</div><button class="salas-secondary" id="download-local">Baixar cópia</button></aside>':'';
 const roomCards=snap.docs.map(d=>{
  const r=d.data(),role=r.roles[user.uid];
- const access=role==='owner'?'Seu espaço privado':role==='editor'?'Compartilhado · pode editar':'Compartilhado · somente leitura';
+ const dono=r.owner===user.uid?'':' · de '+esc((r.members&&r.members[r.owner]&&(r.members[r.owner].nome||r.members[r.owner].email))||'outro participante');
+ const access=role==='owner'?'Seu espaço privado':role==='editor'?'Compartilhado · pode editar'+dono:'Compartilhado · somente leitura'+dono;
  return '<article class="salas-room-card"><div class="salas-room-icon" aria-hidden="true">🧭</div><div class="salas-room-copy"><strong>'+esc(r.title)+'</strong><small>'+access+'</small></div><button class="salas-primary" data-room="'+d.id+'">Abrir</button></article>';
 }).join('');
 const spaces=roomCards||'<div class="salas-empty">Seu primeiro percurso já está sendo preparado. Ele fica salvo na sua conta.</div>';
-const inviteOptions=active?'<button class="salas-secondary" id="back-room">Voltar ao percurso</button>'+(roles[user.uid]==='owner'?'<button class="salas-secondary" id="sharing">Convidar orientador</button>':''):'';
-show('<div class="salas-shell"><header class="salas-hero"><button class="salas-close" id="close-list" type="button" aria-label="Fechar e voltar ao projeto">×</button><span class="salas-eyebrow">🧭 Astrolábio · espaço de orientação</span><h2>Seus projetos, em um só lugar</h2><p>Continue seu percurso, crie um novo projeto ou compartilhe um espaço com quem orienta você.</p><p class="salas-return-hint"><b>Já tem um projeto?</b> Toque em “Abrir” no cartão. O X fecha esta janela e volta ao formulário atual.</p><span class="salas-account">Conectado como '+esc(user.email)+'</span></header><div class="salas-explainer"><div class="salas-number">✦</div><div><strong>O que é uma sala?</strong><span>É o espaço online de um projeto. Você escreve e acompanha o percurso; seu orientador pode ser convidado para ler, comentar ou escrever junto. Cada sala salva suas alterações na nuvem.</span></div></div>'+backupCard+'<section class="salas-section"><div class="salas-section-head"><h3>Seus percursos</h3><span class="salas-caption">'+snap.docs.length+' '+(snap.docs.length===1?'espaço':'espaços')+'</span></div>'+spaces+'</section><details class="salas-fold"><summary>＋ Criar outro projeto</summary><div class="salas-fold-body"><p>Crie uma sala privada para organizar outro projeto de pesquisa. Você poderá convidar seu orientador depois.</p><label for="new-title">Nome do projeto</label><input id="new-title" maxlength="140" placeholder="Ex.: Minha dissertação sobre o Pantanal"><label class="salas-check"><input id="import-local" type="checkbox" '+(snap.empty&&hasLocalResponses(recoveryCopy)?'checked':'')+'>Incluir as respostas que já estavam neste aparelho</label><button class="salas-primary" id="create-room">Criar projeto</button></div></details><details class="salas-fold"><summary>↗ Recebi convite para uma sala compartilhada</summary><div class="salas-fold-body"><p>O convite conecta você ao espaço de outra pessoa, como o projeto do orientador. Para acessar um projeto compartilhado, abra o link recebido ou cole o código abaixo. Seu percurso pessoal continua separado.</p><label for="join-code">Código do convite</label><input id="join-code" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Cole aqui o código recebido" value="'+esc(inviteValue)+'"><button class="salas-primary" id="join-room">Entrar na sala compartilhada</button></div></details><div class="salas-footer">'+inviteOptions+'<button id="logout">Sair da conta</button></div></div>');
-btn('close-list',()=>{dialog.close();lock(active?roles[user.uid]==='viewer':false);status(active?roomData.title+' · salvo na nuvem':hasLocalResponses(estado)?'Você voltou ao projeto deste aparelho. Para sincronizar, abra uma sala em Meus projetos.':'Continue seu percurso no formulário.');});
+const inviteOptions=active?'<button class="salas-secondary" id="back-room">Voltar ao percurso</button>'+(minhaFuncao()==='owner'?'<button class="salas-secondary" id="sharing">Convidar orientador</button>':''):'';
+show('<div class="salas-shell"><header class="salas-hero"><button class="salas-close" id="close-list" type="button" aria-label="Fechar e voltar ao projeto">×</button><span class="salas-eyebrow">🧭 Astrolábio · espaço de orientação</span><h2>Seus projetos, em um só lugar</h2><p>Continue seu percurso, crie um novo projeto ou compartilhe um espaço com quem orienta você.</p><p class="salas-return-hint"><b>Já tem um projeto?</b> Toque em “Abrir” no cartão. O X fecha esta janela e volta ao formulário atual.</p><span class="salas-account">Conectado como '+esc(user.email)+'</span></header><div class="salas-explainer"><div class="salas-number">✦</div><div><strong>O que é uma sala?</strong><span>É o espaço online de um projeto. Você escreve e acompanha o percurso; seu orientador pode ser convidado para ler ou escrever junto. Alterações de pessoas diferentes são combinadas campo a campo.</span></div></div>'+backupCard+'<section class="salas-section"><div class="salas-section-head"><h3>Seus percursos</h3><span class="salas-caption">'+snap.docs.length+' '+(snap.docs.length===1?'espaço':'espaços')+'</span></div>'+spaces+'</section><details class="salas-fold"><summary>＋ Criar outro projeto</summary><div class="salas-fold-body"><p>Crie uma sala privada para organizar outro projeto de pesquisa. Você poderá convidar seu orientador depois.</p><label for="new-title">Nome do projeto</label><input id="new-title" maxlength="140" placeholder="Ex.: Minha dissertação sobre o Pantanal">'+(recoveryCopy?'<label class="salas-check"><input id="import-local" type="checkbox">Incluir as respostas que já estavam neste aparelho</label>':'')+'<button class="salas-primary" id="create-room">Criar projeto</button></div></details><details class="salas-fold"'+(inviteValue?' open':'')+'><summary>↗ Recebi convite para uma sala compartilhada</summary><div class="salas-fold-body"><p>O convite conecta você ao espaço de outra pessoa, como o projeto do orientador. Abra o link recebido ou cole o código abaixo. Seu percurso pessoal continua separado.</p><label for="join-code">Código do convite</label><input id="join-code" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Cole aqui o código recebido" value="'+esc(inviteValue)+'"><button class="salas-primary" id="join-room">Entrar na sala compartilhada</button></div></details><div class="salas-footer">'+inviteOptions+'<button id="logout">Sair da conta</button></div></div>');
+btn('close-list',()=>{dialog.close();lock(active?minhaFuncao()==='viewer':false);status(active?roomData.title+' · salvo na nuvem':'Abra um projeto em Meus projetos para salvar na nuvem.');});
 dialog.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>open(b.dataset.room).catch(fail));
-if(hasLocalResponses(recoveryCopy))btn('download-local',()=>downloadJSON(recoveryCopy,'astrolabio-respostas-locais-backup.json'));
-btn('create-room',async()=>{if(dirty)throw Error('Salve ou resolva as alterações pendentes antes de trocar de sala.');const title=document.getElementById('new-title').value.trim();if(!title)throw Error('Dê um nome ao projeto.');const data=document.getElementById('import-local').checked?recoveryCopy:blank();const r=await F.addDoc(F.collection(db,'rooms'),{title,owner:user.uid,memberIds:[user.uid],roles:{[user.uid]:'owner'},data,revision:0,createdAt:F.serverTimestamp(),updatedAt:F.serverTimestamp(),updatedBy:user.uid});await open(r.id);});
-btn('join-room',async()=>{const code=document.getElementById('join-code').value.replace(/[ \t\r\n-]/g,'').toLowerCase();if(!/^[a-f0-9]{32}$/.test(code))throw Error('O código precisa ter 32 caracteres. Abra o link recebido ou cole o código completo.');const invitation=await F.getDoc(F.doc(db,'invites',code));if(!invitation.exists()||invitation.data().expiresAt.toMillis()<Date.now())throw Error('Convite inválido, revogado ou expirado.');const i=invitation.data();try{await F.updateDoc(F.doc(db,'rooms',i.roomId),{memberIds:F.arrayUnion(user.uid),['roles.'+user.uid]:i.role,joinProof:code});}catch(e){const r=await F.getDoc(F.doc(db,'rooms',i.roomId));if(!r.exists())throw e;}await open(i.roomId);const cleanUrl=new URL(location.href);cleanUrl.searchParams.delete('convite');history.replaceState({},'',cleanUrl);});
-if(new URLSearchParams(location.search).has('convite'))setTimeout(()=>document.getElementById('join-room')?.click(),0);
-if(active){btn('back-room',()=>dialog.close());btn('sharing',sharing);}btn('logout',async()=>{if(dirty)throw Error('Há alterações pendentes. Resolva antes de sair.');await A.signOut(auth);});}
-async function open(id){if(dirty)throw Error('Há alterações pendentes nesta sala. Resolva antes de trocar.');if(unsub)unsub();active=id;conflict=false;const ref=F.doc(db,'rooms',id);const first=await F.getDoc(ref);if(!first.exists())throw Error('Sala não encontrada.');roomData=first.data();roles=roomData.roles;revision=roomData.revision;apply(roomData.data);abrirEstacao(0);lock(roles[user.uid]==='viewer');dialog.close();status(roomData.title+' · '+(roles[user.uid]==='viewer'?'Somente leitura':'Salvo na nuvem'));unsub=F.onSnapshot(ref,s=>{if(!s.exists())return;const r=s.data();roles=r.roles;roomData=r;if(!r.memberIds.includes(user.uid)){lock(true);status('Seu acesso à sala foi removido.');return;}if(r.revision!==revision&&!saving){if(dirty){conflict=true;status('Outra pessoa alterou o projeto. Abra Conta e salas para conciliar.');}else{revision=r.revision;apply(r.data);status(r.title+' · Atualizado da nuvem');}}lock(roles[user.uid]==='viewer');},e=>{lock(true);fail(e);});}
-function changed(){if(!user||!active||roles[user.uid]==='viewer')return;dirty=true;status('Alterações pendentes…');clearTimeout(timer);timer=setTimeout(save,900);}
-async function save(){if(!dirty||saving||conflict||!active)return;saving=true;const data=JSON.parse(JSON.stringify(estado)),expected=revision;try{await F.runTransaction(db,async tx=>{const ref=F.doc(db,'rooms',active),s=await tx.get(ref);if(s.data().revision!==expected)throw Error('CONFLICT');tx.update(ref,{data,revision:expected+1,updatedAt:F.serverTimestamp(),updatedBy:user.uid});});revision=expected+1;base=data;dirty=JSON.stringify(estado)!==JSON.stringify(data);status(dirty?'Alterações pendentes…':'Salvo na nuvem · '+roomData.title);}catch(e){if(e.message==='CONFLICT'){conflict=true;status('Conflito de edição — abra Conta e salas.');}else{status('Sem salvar na nuvem. Suas alterações continuam neste dispositivo.');}}finally{saving=false;if(dirty&&!conflict)timer=setTimeout(save,3000);}}
-function conflictUI(){show('<h2>Há duas versões do projeto</h2><p>Outra pessoa salvou alterações enquanto você escrevia. Baixe sua cópia antes de carregar a versão da nuvem. Nenhum texto será sobrescrito automaticamente.</p><button id="download-pending">Baixar minhas alterações em JSON</button><button id="load-cloud">Carregar versão da nuvem</button><button id="keep-writing">Continuar revisando minha cópia</button>');btn('download-pending',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(estado,null,2)],{type:'application/json'}));a.download='astrolabio-alteracoes-pendentes.json';a.click();URL.revokeObjectURL(a.href);});btn('load-cloud',async()=>{if(!confirm('Carregar a versão da nuvem? Baixe antes a sua cópia para preservar alterações pendentes.'))return;dirty=false;await open(active);});btn('keep-writing',()=>dialog.close());}
-async function sharing(){if(roles[user.uid]!=='owner')throw Error('Somente o dono da sala pode gerenciar convites.');show('<h2>Compartilhar projeto</h2><p>Envie o link para seu orientador ou colaborador. Ele entra com Google. Se for a primeira vez no Astrolábio, o sistema cria primeiro o percurso pessoal dele; depois, em “Meus projetos”, ele acessa esta sala compartilhada. O código também pode ser colado manualmente. O convite vale por 7 dias e pode ser revogado.</p><label>Permissão<select id="invite-role"><option value="viewer">Somente leitura</option><option value="editor">Ler e escrever junto</option></select></label><button id="invite-create">Gerar código</button><div id="invite-result"></div><h3>Participantes</h3>'+roomData.memberIds.filter(id=>id!==user.uid).map(id=>'<div class="room"><span>Participante '+esc(id.slice(0,8))+' · '+esc(roles[id])+'</span><button data-remove="'+id+'">Remover acesso</button></div>').join('')+'<h3>Convites gerados</h3>'+Object.keys(roomData.inviteCodes||{}).map(code=>'<div class="room"><code>'+code+'</code><button data-revoke="'+code+'">Revogar</button></div>').join('')+'<button id="return-list">Voltar às salas</button>');btn('return-list',list);
-btn('invite-create',async()=>{const code=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');await F.setDoc(F.doc(db,'invites',code),{roomId:active,role:document.getElementById('invite-role').value,expiresAt:F.Timestamp.fromMillis(Date.now()+7*86400000)});await F.updateDoc(F.doc(db,'rooms',active),{['inviteCodes.'+code]:true});const inviteUrl=new URL(location.href);inviteUrl.searchParams.set('convite',code);const link=inviteUrl.href;const div=document.getElementById('invite-result');div.innerHTML='<p>Envie este link. Depois que a pessoa entrar, a sala será aberta automaticamente:</p><p><a href="'+esc(link)+'" target="_blank" rel="noopener">Abrir link de convite</a></p><code>'+code+'</code><button id="copy-link">Copiar link</button><button id="copy-code">Copiar código</button><button id="revoke-code">Revogar este convite</button>';btn('copy-link',async()=>{await copyText(link);msg('Link copiado.');});btn('copy-code',async()=>{await copyText(code);msg('Código copiado.');});btn('revoke-code',async()=>{await F.deleteDoc(F.doc(db,'invites',code));await F.updateDoc(F.doc(db,'rooms',active),{['inviteCodes.'+code]:F.deleteField()});div.textContent='Convite revogado.';});});
-dialog.querySelectorAll('[data-revoke]').forEach(b=>b.onclick=async()=>{try{const code=b.dataset.revoke;await F.deleteDoc(F.doc(db,'invites',code));await F.updateDoc(F.doc(db,'rooms',active),{['inviteCodes.'+code]:F.deleteField()});await sharing();}catch(e){fail(e);}});
-dialog.querySelectorAll('[data-remove]').forEach(b=>b.onclick=async()=>{try{await F.updateDoc(F.doc(db,'rooms',active),{memberIds:F.arrayRemove(b.dataset.remove),['roles.'+b.dataset.remove]:F.deleteField()});await sharing();}catch(e){fail(e);}});}
-new MutationObserver(()=>{if(user&&active&&roles&&roles[user.uid]==='viewer'){document.querySelectorAll('main input,main textarea,main select,main [contenteditable]').forEach(el=>{if(!el.disabled)el.disabled=true;});}}).observe(document.body,{childList:true,subtree:true});
-const originalSave=salvar;salvar=function(){if(user&&active&&roles[user.uid]==='viewer')return;originalSave();changed();};
-document.getElementById('salas-open').onclick=()=>{if(conflict)conflictUI();else list().catch(fail);};
-dialog.addEventListener('cancel',e=>{if(!user)e.preventDefault();else lock(active?roles[user.uid]==='viewer':false);});
+if(recoveryCopy)btn('download-local',()=>downloadJSON(recoveryCopy,'astrolabio-respostas-locais-backup.json'));
+btn('create-room',async()=>{if(dirty)throw Error('Aguarde o salvamento das alterações pendentes antes de trocar de sala.');const title=document.getElementById('new-title').value.trim();if(!title)throw Error('Dê um nome ao projeto.');const imp=document.getElementById('import-local');const data=imp&&imp.checked&&recoveryCopy?recoveryCopy:blank();const r=await novaSala(title,data);await open(r.id);});
+btn('join-room',()=>entrarComCodigo(document.getElementById('join-code').value));
+if(inviteValue)setTimeout(()=>document.getElementById('join-room')?.click(),0);
+if(active){btn('back-room',()=>dialog.close());btn('sharing',sharing);}
+btn('logout',async()=>{if(dirty)throw Error('Há alterações pendentes. Aguarde o salvamento antes de sair.');await A.signOut(auth);});}
+
+async function entrarComCodigo(bruto){
+ const code=String(bruto||'').replace(/[ \t\r\n-]/g,'').toLowerCase();
+ if(!/^[a-f0-9]{32}$/.test(code))throw Error('O código precisa ter 32 caracteres. Abra o link recebido ou cole o código completo.');
+ const invitation=await F.getDoc(F.doc(db,'invites',code));
+ if(!invitation.exists()||invitation.data().expiresAt.toMillis()<Date.now())throw Error('Convite inválido, revogado ou expirado.');
+ const i=invitation.data();
+ try{await F.updateDoc(F.doc(db,'rooms',i.roomId),{memberIds:F.arrayUnion(user.uid),['roles.'+user.uid]:i.role,['members.'+user.uid]:perfil(),joinProof:code});}
+ catch(e){const r=await F.getDoc(F.doc(db,'rooms',i.roomId));if(!r.exists())throw e;}
+ try{await F.updateDoc(F.doc(db,'invites',code),{usedBy:F.arrayUnion(user.uid)});}catch(_){}
+ limparURL();
+ await open(i.roomId);
+}
+
+async function open(id){
+ if(dirty)throw Error('Há alterações pendentes nesta sala. Aguarde o salvamento antes de trocar.');
+ if(unsub)unsub();active=id;
+ const ref=F.doc(db,'rooms',id);const first=await F.getDoc(ref);if(!first.exists())throw Error('Sala não encontrada.');
+ roomData=first.data();roles=roomData.roles||{};revision=roomData.revision||0;
+ apply(roomData.data||blank());if(telaAtual!=='form')abrirEstacao(0);
+ dialog.close();status(roomData.title+' · '+(minhaFuncao()==='viewer'?'Somente leitura':'Salvo na nuvem'));
+ unsub=F.onSnapshot(ref,s=>{
+  if(!s.exists())return;const r=s.data();roles=r.roles||{};roomData=r;
+  if(!r.memberIds.includes(user.uid)){acessoRemovido();return;}
+  if(r.revision!==revision&&!saving){
+   if(dirty){
+    const stats={conflitos:0};const merged=merge3(base,estado,r.data,stats);
+    revision=r.revision;base=clone(r.data);
+    const f=snapshotFoco();estado=merged;Cofre.gravar(CHAVE,JSON.stringify(estado));redesenhar();restaurarFoco(f);
+    dirty=JSON.stringify(estado)!==JSON.stringify(r.data);
+    status(r.title+' · combinado com alterações de '+nomeMembro(r.updatedBy)+(stats.conflitos?' · sua versão prevaleceu em '+stats.conflitos+' campo(s)':''));
+    if(dirty){clearTimeout(timer);timer=setTimeout(save,600);}
+   }else{revision=r.revision;apply(r.data);status(r.title+' · atualizado por '+nomeMembro(r.updatedBy));}
+  }
+  lock(minhaFuncao()==='viewer');
+ },e=>{
+  if(e&&e.code==='permission-denied'){acessoRemovido();return;}
+  status('Sem conexão com a nuvem. Suas alterações continuam neste aparelho.');
+ });
+}
+function acessoRemovido(){
+ if(unsub)unsub();unsub=null;const titulo=roomData&&roomData.title;active=null;dirty=false;roles={};
+ lock(false);status('Seu acesso à sala '+(titulo?'"'+titulo+'" ':'')+'foi removido. A cópia na tela não será mais salvada na nuvem.');
+ show('<h2>Acesso removido</h2><p>O dono da sala retirou seu acesso. O que está na tela é uma cópia local: você pode baixá-la em JSON, mas ela não será mais sincronizada.</p><button class="salas-primary" id="voltar-lista">Ir para Meus projetos</button>');
+ btn('voltar-lista',list);
+}
+function changed(){if(!user||!active||minhaFuncao()==='viewer')return;dirty=true;status('Alterações pendentes…');clearTimeout(timer);timer=setTimeout(save,900);}
+async function save(){
+ if(!dirty||saving||!active)return;saving=true;
+ const data=clone(estado),expected=revision,ref=F.doc(db,'rooms',active);
+ try{
+  await F.runTransaction(db,async tx=>{const s=await tx.get(ref);if((s.data().revision||0)!==expected)throw Error('CONFLICT');tx.update(ref,{data,revision:expected+1,updatedAt:F.serverTimestamp(),updatedBy:user.uid});});
+  revision=expected+1;base=data;dirty=JSON.stringify(estado)!==JSON.stringify(data);
+  status(dirty?'Alterações pendentes…':'Salvo na nuvem · '+roomData.title);
+ }catch(e){
+  if(e.message==='CONFLICT'){
+   // Outra pessoa salvou primeiro: combinar campo a campo e tentar de novo.
+   try{
+    const s=await F.getDoc(ref);const r=s.data();const stats={conflitos:0};
+    const merged=merge3(base,estado,r.data,stats);
+    revision=r.revision;base=clone(r.data);
+    const f=snapshotFoco();estado=merged;Cofre.gravar(CHAVE,JSON.stringify(estado));redesenhar();restaurarFoco(f);
+    dirty=true;status('Combinando com alterações de '+nomeMembro(r.updatedBy)+'…');
+   }catch(e2){status('Sem salvar na nuvem. Suas alterações continuam neste dispositivo.');}
+  }else{status('Sem salvar na nuvem. Suas alterações continuam neste dispositivo.');}
+ }finally{saving=false;if(dirty)timer=setTimeout(save,3000);}
+}
+
+/* ---------- compartilhamento ---------- */
+async function sharing(){
+ if(minhaFuncao()!=='owner')throw Error('Somente o dono da sala pode gerenciar convites.');
+ let convites=[];
+ try{const q=await F.getDocs(F.query(F.collection(db,'invites'),F.where('roomId','==',active)));convites=q.docs.map(d=>({code:d.id,...d.data()}));}catch(e){convites=null;}
+ const agora=Date.now();
+ const listaConvites=convites===null?'<p class="salas-caption">Não foi possível listar os convites (regras do Firestore desatualizadas). Publique a versão nova de firebase/firestore.rules.</p>':
+  (convites.length?convites.map(c=>{const exp=c.expiresAt&&c.expiresAt.toMillis?c.expiresAt.toMillis():0;const vencido=exp<agora;return '<div class="room"><span><code style="display:inline;padding:2px 6px">'+esc(c.code.slice(0,8))+'…</code> · '+(c.role==='editor'?'ler e escrever':'somente leitura')+' · '+(vencido?'expirado':'válido até '+new Date(exp).toLocaleDateString('pt-BR'))+'</span><button data-revoke="'+esc(c.code)+'">'+(vencido?'Apagar':'Revogar')+'</button></div>';}).join(''):'<p class="salas-caption">Nenhum convite ativo.</p>');
+ const participantes=(roomData.memberIds||[]).filter(id=>id!==user.uid).map(id=>'<div class="room"><span>'+esc(nomeMembro(id))+' · '+(roles[id]==='editor'?'ler e escrever':'somente leitura')+'</span><button data-remove="'+esc(id)+'">Remover acesso</button></div>').join('')||'<p class="salas-caption">Ninguém além de você.</p>';
+ show('<h2>Compartilhar projeto</h2><p>Envie o link para seu orientador ou colaborador. Ele entra com a conta dele e a sala abre automaticamente. O código também pode ser colado manualmente. O convite vale por 7 dias e pode ser revogado. Remover um participante também invalida os convites que ele usou.</p><label>Permissão<select id="invite-role"><option value="viewer">Somente leitura</option><option value="editor">Ler e escrever junto</option></select></label><button id="invite-create">Gerar código</button><div id="invite-result"></div><h3>Participantes</h3>'+participantes+'<h3>Convites gerados</h3>'+listaConvites+'<button id="return-list">Voltar às salas</button>');
+ btn('return-list',list);
+ btn('invite-create',async()=>{
+  const code=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+  await F.setDoc(F.doc(db,'invites',code),{roomId:active,role:document.getElementById('invite-role').value,expiresAt:F.Timestamp.fromMillis(Date.now()+7*86400000),createdBy:user.uid});
+  const inviteUrl=new URL(location.href);inviteUrl.searchParams.set('convite',code);const link=inviteUrl.href;
+  const div=document.getElementById('invite-result');
+  div.innerHTML='<p>Envie este link. Depois que a pessoa entrar, a sala será aberta automaticamente:</p><p><a href="'+esc(link)+'" target="_blank" rel="noopener">Abrir link de convite</a></p><code>'+esc(code)+'</code><button id="copy-link">Copiar link</button><button id="copy-code">Copiar código</button><button id="revoke-code">Revogar este convite</button>';
+  btn('copy-link',async()=>{await copyText(link);msg('Link copiado.');});
+  btn('copy-code',async()=>{await copyText(code);msg('Código copiado.');});
+  btn('revoke-code',async()=>{await F.deleteDoc(F.doc(db,'invites',code));div.textContent='Convite revogado.';});
+ });
+ dialog.querySelectorAll('[data-revoke]').forEach(b=>b.onclick=async()=>{try{await F.deleteDoc(F.doc(db,'invites',b.dataset.revoke));await sharing();}catch(e){fail(e);}});
+ dialog.querySelectorAll('[data-remove]').forEach(b=>b.onclick=async()=>{try{
+  const id=b.dataset.remove;
+  await F.updateDoc(F.doc(db,'rooms',active),{memberIds:F.arrayRemove(id),['roles.'+id]:F.deleteField(),['members.'+id]:F.deleteField()});
+  // invalida os convites que esse participante usou, para que não volte com o mesmo código
+  try{const q=await F.getDocs(F.query(F.collection(db,'invites'),F.where('roomId','==',active)));
+   await Promise.all(q.docs.filter(d=>(roomData.joinProof===d.id)||(d.data().usedBy||[]).includes(id)).map(d=>F.deleteDoc(d.ref)));}catch(_){}
+  await sharing();
+ }catch(e){fail(e);}});
+}
+
+/* ---------- integração com o index.html ---------- */
+new MutationObserver(()=>{if(user&&active&&minhaFuncao()==='viewer'){document.querySelectorAll('main input,main textarea,main select,main [contenteditable]').forEach(el=>{if(!el.disabled)el.disabled=true;});}}).observe(document.body,{childList:true,subtree:true});
+const originalSave=salvar;salvar=function(){if(user&&active&&minhaFuncao()==='viewer')return;originalSave();changed();};
+const originalLimpar=limpar;limpar=function(){
+ if(active&&minhaFuncao()!=='owner'){alert('Somente o dono da sala pode apagar o projeto compartilhado. Você pode baixar uma cópia em Backup JSON.');return;}
+ originalLimpar();
+};
+window.SALAS={ativa:()=>active,funcao:()=>minhaFuncao()};
+document.getElementById('salas-open').onclick=()=>{if(offline){status('Modo local: sem conta, as respostas ficam só neste aparelho.');return;}list().catch(fail);};
+dialog.addEventListener('cancel',e=>{if(!user&&!offline)e.preventDefault();else lock(active?minhaFuncao()==='viewer':false);});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-try{const appSDK=await import(SDK+'firebase-app.js');A=await import(SDK+'firebase-auth.js');F=await import(SDK+'firebase-firestore.js');
-const app=appSDK.initializeApp({apiKey:'AIzaSyDODPIhQSwPnn2YknwAmdqgismYnMfOYkM',authDomain:'astrolabio-profagua.firebaseapp.com',projectId:'astrolabio-profagua',storageBucket:'astrolabio-profagua.firebasestorage.app',messagingSenderId:'854871826891',appId:'1:854871826891:web:3a4ceb48b37995cbd6964e'});auth=A.getAuth(app);db=F.getFirestore(app);auth.languageCode='pt-BR';
-A.onAuthStateChanged(auth,u=>{user=u;if(!u){if(unsub)unsub();active=null;dirty=false;desenharEstacao();login();status(hasLocalResponses(pendingLocal)?'Entre para continuar. Suas respostas deste aparelho continuam preservadas.':'Entre para acessar seus projetos');}else{status('Conta conectada · Escolha uma sala');list().catch(fail);}});
-}catch(e){lock(true);status('Não foi possível conectar. Recarregue quando estiver online.');show('<h2>Conexão indisponível</h2><p>Não foi possível carregar o serviço de contas. Recarregue a página quando a conexão estiver disponível.</p>');}
+
+try{
+ const appSDK=await import(SDK+'firebase-app.js');A=await import(SDK+'firebase-auth.js');F=await import(SDK+'firebase-firestore.js');
+ const app=appSDK.initializeApp({apiKey:'AIzaSyDODPIhQSwPnn2YknwAmdqgismYnMfOYkM',authDomain:'astrolabio-profagua.firebaseapp.com',projectId:'astrolabio-profagua',storageBucket:'astrolabio-profagua.firebasestorage.app',messagingSenderId:'854871826891',appId:'1:854871826891:web:3a4ceb48b37995cbd6964e'});
+ auth=A.getAuth(app);db=F.getFirestore(app);auth.languageCode='pt-BR';
+ A.onAuthStateChanged(auth,u=>{
+  const anterior=user;user=u;
+  if(!u){
+   if(unsub)unsub();unsub=null;active=null;dirty=false;roles={};roomData=null;
+   if(anterior||Cofre.ler(CLOUD_UID_KEY))limparLocal();   // nada da conta anterior fica no aparelho
+   login();status('Entre para acessar seus projetos');
+  }else{
+   const uidAnterior=Cofre.ler(CLOUD_UID_KEY);
+   if(uidAnterior&&uidAnterior!==u.uid)limparLocal();      // cópia da nuvem de outra conta: não serve para esta
+   status('Conta conectada · Escolha uma sala');list().catch(fail);
+  }
+ });
+}catch(e){
+ offline=true;lock(false);
+ status('Sem conexão com o serviço de contas. Modo local neste aparelho.');
+ show('<h2>Conexão indisponível</h2><p>Não foi possível carregar o serviço de contas. Você pode continuar no modo local: as respostas ficam salvas somente neste aparelho até que a conexão volte e a página seja recarregada. Faça um Backup JSON antes de fechar.</p><button class="salas-primary" id="modo-local">Continuar no modo local</button>');
+ btn('modo-local',()=>dialog.close());
+}
 })();

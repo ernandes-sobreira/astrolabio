@@ -150,8 +150,8 @@ const UI={
   excluirPonto(i){st().geo.pontos.splice(i,1);persist();UI.exibirSelecoes();UI.previewMapa();},
   exibirSelecoes(){
     const g=st().geo,mun=document.getElementById('astro-municipios-lista'),pon=document.getElementById('astro-pontos-lista');
-    if(mun)mun.innerHTML=g.municipios.length?g.municipios.map(m=>'<span class="astro-chip">'+esc(m.nome)+'/'+esc(m.uf)+' <button class="mini" aria-label="Retirar município" onclick="ASTRO_EXT.excluirMunicipio(\''+m.id+'\')">×</button></span>').join(''):'<small>Nenhum município selecionado.</small>';
-    if(pon)pon.innerHTML=g.pontos.length?g.pontos.map((p,i)=>'<span class="astro-chip">'+esc(p.rotulo)+': '+p.lat.toFixed(5)+', '+p.lng.toFixed(5)+' <button class="mini" onclick="ASTRO_EXT.excluirPonto('+i+')">×</button></span>').join(''):'<small>Sem pontos adicionados.</small>';
+    if(mun)mun.innerHTML=g.municipios.length?g.municipios.map(m=>'<span class="astro-chip">'+esc(m.nome)+'/'+esc(m.uf)+' <button class="mini" aria-label="Retirar município" onclick="ASTRO_EXT.excluirMunicipio(\''+esc(String(m.id).replace(/[^0-9]/g,''))+'\')">×</button></span>').join(''):'<small>Nenhum município selecionado.</small>';
+    if(pon)pon.innerHTML=g.pontos.length?g.pontos.map((p,i)=>'<span class="astro-chip">'+esc(p.rotulo)+': '+Number(p.lat).toFixed(5)+', '+Number(p.lng).toFixed(5)+' <button class="mini" onclick="ASTRO_EXT.excluirPonto('+i+')">×</button></span>').join(''):'<small>Sem pontos adicionados.</small>';
   },
   status(msg){const e=document.getElementById('astro-map-status');if(e)e.textContent=msg;},
   async previewMapa(){
@@ -274,7 +274,7 @@ const figuras={
       ctx.fillStyle='#063A4C';ctx.font='bold 17px Arial';ctx.textAlign='left';ctx.fillText('0',95,600);ctx.fillText(km+' km',95+len-18,600);}
     ctx.textAlign='left';ctx.fillStyle='#34515A';ctx.font='17px Arial';ctx.fillText(fs.length?fs.map(x=>x.name+'/'+x.uf).join('  •  ').slice(0,104):'Ponto(s) de análise',62,690);
     ctx.font='15px Arial';ctx.fillText('Limites: IBGE / API de Malhas Geográficas. Elaboração: Astrolábio.',62,720);
-    ctx.textAlign='right';ctx.fillText('Coordenadas geográficas: WGS 84 | Escala gráfica aproximada',1140,744);
+    ctx.textAlign='right';ctx.fillText('Coordenadas geográficas: SIRGAS 2000 | Escala gráfica aproximada',1140,744);
   },
   nuvem(cv){
     const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
@@ -353,12 +353,16 @@ const figuras={
     const regua=figuras.reguaAderencia();
     if(regua&&[st().aderencia.origem,st().aderencia.instituicao,st().aderencia.demanda,st().aderencia.evidencia].some(Boolean)) result.aderencia=regua.base64;
     if(geo.municipios.length||geo.pontos.length){
-      if(!geo.municipios.length&&geo.pontos.length)throw Error('Para inserir pontos no mapa Word, selecione também o município de referência; assim as delimitações oficiais serão exibidas corretamente.');
-      const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=760;
-      const shapes=await figuras.geometriaSelecionada();
-      figuras.desenharMapa(canvas,shapes,geo);
-      result.mapa=canvas.toDataURL('image/png').split(',')[1];
-      result.municipios=geo.municipios.map(m=>m.nome+'/'+m.uf).join(', ');
+      try{
+        if(!geo.municipios.length&&geo.pontos.length)throw Error('há coordenadas sem município de referência; selecione o município na estação 5 para que os limites oficiais apareçam.');
+        const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=760;
+        const shapes=await Promise.race([figuras.geometriaSelecionada(),new Promise((_,rej)=>setTimeout(()=>rej(Error('o IBGE não respondeu em 20 segundos.')),20000))]);
+        figuras.desenharMapa(canvas,shapes,geo);
+        result.mapa=canvas.toDataURL('image/png').split(',')[1];
+        result.municipios=geo.municipios.map(m=>m.nome+'/'+m.uf).join(', ');
+      }catch(e){
+        result.mapaErro=String(e&&e.message||e);
+      }
     }
     const cloud=document.createElement('canvas');cloud.width=1200;cloud.height=700;
     const terms=figuras.nuvem(cloud);

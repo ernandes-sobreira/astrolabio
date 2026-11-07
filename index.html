@@ -209,13 +209,31 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
   .astro-palco{grid-template-columns:1fr}
   .astro-leitura{position:static}
 }
+.acoes-toggle,.nav-toggle{display:none}
+.nav-toggle{width:100%;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px;border:0;border-bottom:3px solid var(--linha);background:#fff;color:var(--azul);font:700 15px/1 inherit;cursor:pointer;text-align:left}
+.nav-toggle small{color:var(--cinza);font-weight:600}
 @media (max-width:900px){
   .palco{grid-template-columns:1fr}
   nav{border-right:none;border-bottom:3px solid var(--linha)}
   main{padding:24px 18px 60px}
   .dupla,.tripla{grid-template-columns:1fr}
   .marca h1{font-size:26px}
+  header{position:static}
+  .faixa{padding:10px 14px;gap:10px}
+  .marca{min-width:0}
+  .marca .selo{width:44px;height:44px}
+  .marca h1{font-size:21px;letter-spacing:2px}
+  .marca p{font-size:11px}
+  .progresso{width:100%;font-size:13px}
+  .acoes-toggle{display:inline-flex}
+  .acoes{display:none;width:100%}
+  .acoes.aberta{display:flex}
+  .acoes button{flex:1 1 45%}
+  nav{display:none}
+  nav.aberta{display:block}
+  .nav-toggle{display:flex}
 }
+
 @media print{
   header,nav,.rodape-nav,.acoes,.aviso,footer{display:none!important}
   .palco{grid-template-columns:1fr}
@@ -264,11 +282,13 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
       <div class="barra"><span id="barraFill"></span></div>
       <span id="barraTxt">0%</span>
     </div>
-    <div class="acoes">
+    <button class="acoes-toggle" type="button" onclick="document.querySelector('.acoes').classList.toggle('aberta');this.setAttribute('aria-expanded',document.querySelector('.acoes').classList.contains('aberta'))" aria-expanded="false" aria-controls="acoes-principais">Menu</button>
+    <div class="acoes" id="acoes-principais">
       <button class="ouro" onclick="irPara('astro')">Astrolábio</button>
       <button onclick="irPara('painel')" id="btPan">Panorama</button>
       <button onclick="irPara('mapa')" id="btMapa">Mapa mental</button>
       <button onclick="abrirRevisaoAcademica()" title="Complementação posterior pelo aluno: introdução científica e referências bibliográficas">Introdução e referências</button>
+      <button onclick="abrirProjeto()" title="Capa, resumo, palavras-chave, cronograma e capítulos do projeto Word">Editor do Word</button>
       <button class="primario" onclick="baixarProjetoProfagua()" title="Gera automaticamente um projeto de pesquisa Word a partir das respostas das dez estações, sem preencher novamente">Baixar projeto Word</button>
        <button onclick="exportar()">Backup JSON</button>
       <button onclick="document.getElementById('arq').click()">Carregar</button>
@@ -279,14 +299,16 @@ footer .marca-rod{font-size:16px;font-weight:800;letter-spacing:2.5px;color:var(
 </header>
 
 <div class="aviso" id="avisoArmazenamento">
-  Este navegador bloqueou o armazenamento local. Suas respostas ficam apenas nesta sessão. Use o botão <b>Baixar</b> antes de fechar a página.
+  Este navegador bloqueou o armazenamento local. Suas respostas ficam apenas nesta sessão. Use o botão <b>Backup JSON</b> antes de fechar a página.
 </div>
 
 <div class="palco">
+  <button class="nav-toggle" type="button" onclick="document.getElementById('nav').classList.toggle('aberta')"><span>Estações do percurso</span><small>mostrar ou ocultar</small></button>
   <nav id="nav"></nav>
   <main>
     <div class="tela ativa" id="tela-form"></div>
     <div class="tela" id="tela-revisao"></div>
+    <div class="tela" id="tela-projeto"></div>
 
 
 
@@ -631,6 +653,15 @@ function migrarAnexoIIParaEstacoes(){
  set('e10','conformidadePTT',value([['Ética','etica'],['Documento ético','eticaDocumento'],['Dados pessoais','dadosPessoais'],['Medidas de proteção','medidasDados'],['Propriedade intelectual','propriedadeIntelectual'],['Sigilo','sigilo'],['Justificativa de sigilo','sigiloJustificativa'],['Acessibilidade','acessibilidade']])||
   [en.etica,en.dadosPes,en.pi,en.sigilo,en.acessibilidade].filter(Boolean).join('; '));
 }
+function sanearEstado(){
+  const ext = estado.extensoes;
+  if(ext && ext.geo){
+    if(!Array.isArray(ext.geo.municipios)) ext.geo.municipios = [];
+    ext.geo.municipios = ext.geo.municipios.filter(m=>m && /^\d{7}$/.test(String(m.id))).map(m=>({id:String(m.id), nome:String(m.nome||''), uf:String(m.uf||'').toUpperCase().slice(0,2)}));
+    if(!Array.isArray(ext.geo.pontos)) ext.geo.pontos = [];
+    ext.geo.pontos = ext.geo.pontos.map(p=>({lat:Number(p&&p.lat), lng:Number(p&&p.lng), rotulo:String((p&&p.rotulo)||'')})).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&Math.abs(p.lat)<=90&&Math.abs(p.lng)<=180);
+  }
+}
 function carregar(){
   const bruto = Cofre.ler(CHAVE);
   if(bruto){
@@ -642,6 +673,7 @@ function carregar(){
       if(!estado.entrega) estado.entrega = {formatos:[]};
       if(!Array.isArray(estado.entrega.formatos)) estado.entrega.formatos = [];
       migrarAnexoIIParaEstacoes();
+      sanearEstado();
     }catch(e){ console.warn('Registro anterior ilegível.'); }
   }
 }
@@ -752,6 +784,7 @@ function desenharNav(){
 }
 function abrirEstacao(i){
   estacaoAtual = i; telaAtual = 'form';
+  if(window.innerWidth<=900){ document.getElementById('nav').classList.remove('aberta'); document.querySelector('.acoes').classList.remove('aberta'); }
   mostrarTela('form');
   desenharEstacao();
   desenharNav();
@@ -764,9 +797,11 @@ function mostrarTela(qual){
   document.getElementById('tela-painel').classList.toggle('ativa', qual==='painel');
   document.getElementById('tela-mapa').classList.toggle('ativa', qual==='mapa');
   document.getElementById('tela-astro').classList.toggle('ativa', qual==='astro');
- 
+  document.getElementById('tela-projeto').classList.toggle('ativa', qual==='projeto');
+
 }
 function irPara(qual){
+  if(window.innerWidth<=900){ document.querySelector('.acoes').classList.remove('aberta'); }
   mostrarTela(qual);
   if(qual==='painel') desenharPainel();
   if(qual==='mapa') desenharMapa();
@@ -1160,10 +1195,11 @@ function diagnosticar(){
     add('critico','Coerência','O nível declarado é profissional, mas não há produto técnico entre os formatos previstos.','Nos programas profissionais o produto é exigência formativa, não alternativa.');
 
   const pub = texto(v('e7','publico')).toLowerCase();
-  if(cheio(pub) && (pub.length < 45 || VAGOS.some(t=>pub === t || pub.replace(/[.]/g,'').trim() === t)))
+  const pubNorm = pub.replace(/[.!]/g,'').trim();
+  if(cheio(pub) && (VAGOS.some(t=>pubNorm === t || pubNorm === 'a '+t || pubNorm === 'o '+t) || pubNorm.split(/\s+/).length < 3))
     add('atencao','Estação 7','A definição do público está genérica.','Nomeie função, instituição e território. Público difuso produz linguagem difusa.');
 
-  if(fs.includes('Produto Técnico e Tecnológico') && cheio(pub) && (pub.includes('cientific') || pub.includes('científ') || pub.includes('acadêmic') || pub.includes('academic')))
+  if(fs.includes('Produto Técnico e Tecnológico') && cheio(pub) && /comunidade (cient[ií]fica|acad[eê]mica)|pesquisadores(?! e)|\ba academia\b|p[uú]blico acad[eê]mico/.test(pub))
     add('critico','Coerência','O produto técnico é destinado a público acadêmico.','Existe contradição. O produto técnico existe justamente para alcançar quem está fora da universidade. Reveja a estação 7 ou o formato escolhido.');
 
   if(!cheio(v('e7','oQueMuda')))
@@ -1670,6 +1706,7 @@ function importar(ev){
       if(!estado.entrega) estado.entrega = {formatos:[]};
       if(!Array.isArray(estado.entrega.formatos)) estado.entrega.formatos = [];
       migrarAnexoIIParaEstacoes();
+      sanearEstado();
       salvar(); abrirEstacao(0);
       alert('Percurso carregado.');
     }catch(err){
@@ -1680,7 +1717,11 @@ function importar(ev){
   ev.target.value = '';
 }
 function limpar(){
-  if(!confirm('Isto apaga todas as respostas deste dispositivo. Você baixou uma cópia?')) return;
+  const naNuvem = !!(window.SALAS && window.SALAS.ativa && window.SALAS.ativa());
+  const aviso = naNuvem
+    ? 'Este projeto está salvo na nuvem e compartilhado com quem você convidou. Limpar apaga TODAS as respostas da sala para todos os participantes. Você baixou uma cópia?'
+    : 'Isto apaga todas as respostas deste dispositivo. Você baixou uma cópia?';
+  if(!confirm(aviso)) return;
   if(!confirm('Confirma o apagamento definitivo?')) return;
   Cofre.apagar(CHAVE);
   estado = { versao:1, criadoEm:new Date().toISOString(), atualizadoEm:null, dados:{}, autores:[], entrega:{formatos:[]} };
@@ -1920,7 +1961,7 @@ function ligarInteracao(){
 
   cancelAnimationFrame(laco);
   (function passo(){
-    if(!document.getElementById('tela-astro').classList.contains('ativa')){ laco = requestAnimationFrame(passo); return; }
+    if(!document.getElementById('tela-astro').classList.contains('ativa')){ laco = null; return; }
     if(!arrastando){
       inerciaRete *= 0.955; inerciaRegua *= 0.94;
       if(Math.abs(inerciaRete) < 0.055) inerciaRete = inerciaRete >= 0 ? 0.055 : -0.055;
@@ -1952,10 +1993,10 @@ window.addEventListener('beforeunload', function(){
 </script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
 <script src="profagua-marcas.js?v=20261029-png-original" defer></script>
-<script src="astrolabio-avancado.js?v=20261026-leituras-simplificadas" defer></script>
+<script src="astrolabio-avancado.js?v=20261107" defer></script>
 <script src="astrolabio-mapa-hierarquico.js?v=20261024b" defer></script>
-<script src="projeto-profagua.js?v=20261026-leituras-simplificadas" defer></script>
+<script src="projeto-profagua.js?v=20261107" defer></script>
 
-<script src="salas.js?v=20261107i" defer></script>
+<script src="salas.js?v=20261107j" defer></script>
 </body>
 </html>

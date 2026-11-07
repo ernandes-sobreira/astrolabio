@@ -2,33 +2,48 @@ rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
   function signed(){ return request.auth != null; }
-  function owner(id){ return signed() && get(/databases/$(database)/documents/rooms/$(id)).data.owner == request.auth.uid; }
+  function uid(){ return request.auth.uid; }
+  function room(id){ return get(/databases/$(database)/documents/rooms/$(id)).data; }
+  function owner(id){ return signed() && room(id).owner == uid(); }
+  function invite(code){ return get(/databases/$(database)/documents/invites/$(code)).data; }
+
   match /rooms/{id} {
-   allow read: if signed() && request.auth.uid in resource.data.memberIds;
-   allow create: if signed() && request.resource.data.owner == request.auth.uid
-    && request.resource.data.memberIds == [request.auth.uid]
-    && request.resource.data.roles.keys().hasOnly([request.auth.uid])
-    && request.resource.data.roles[request.auth.uid] == 'owner';
+   allow read: if signed() && uid() in resource.data.memberIds;
+   allow create: if signed() && request.resource.data.owner == uid()
+    && request.resource.data.memberIds == [uid()]
+    && request.resource.data.roles.keys().hasOnly([uid()])
+    && request.resource.data.roles[uid()] == 'owner'
+    && (!('members' in request.resource.data) || request.resource.data.members.keys().hasOnly([uid()]));
    allow update: if signed() && (
-    (resource.data.owner == request.auth.uid && request.resource.data.owner == resource.data.owner)
-    || (request.auth.uid in resource.data.memberIds && resource.data.roles[request.auth.uid] == 'editor'
+    // dono: tudo, exceto transferir a propriedade
+    (resource.data.owner == uid() && request.resource.data.owner == resource.data.owner)
+    // editor: só o conteúdo e o controle de revisão
+    || (uid() in resource.data.memberIds && resource.data.roles[uid()] == 'editor'
      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['data','revision','updatedAt','updatedBy']))
-    || ( !(request.auth.uid in resource.data.memberIds)
-     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds','roles','joinProof'])
-     && request.resource.data.memberIds == resource.data.memberIds.concat([request.auth.uid])
-     && request.resource.data.roles.diff(resource.data.roles).affectedKeys().hasOnly([request.auth.uid])
-     && get(/databases/$(database)/documents/invites/$(request.resource.data.joinProof)).data.roomId == id
-     && get(/databases/$(database)/documents/invites/$(request.resource.data.joinProof)).data.expiresAt > request.time
-     && request.resource.data.roles[request.auth.uid] == get(/databases/$(database)/documents/invites/$(request.resource.data.joinProof)).data.role
+    // entrada por convite válido: acrescenta a si mesmo, com o papel do convite
+    || ( !(uid() in resource.data.memberIds)
+     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds','roles','members','joinProof'])
+     && request.resource.data.memberIds == resource.data.memberIds.concat([uid()])
+     && request.resource.data.roles.diff(resource.data.roles).affectedKeys().hasOnly([uid()])
+     && (!('members' in request.resource.data) || !('members' in resource.data)
+         || request.resource.data.members.diff(resource.data.members).affectedKeys().hasOnly([uid()]))
+     && invite(request.resource.data.joinProof).roomId == id
+     && invite(request.resource.data.joinProof).expiresAt > request.time
+     && request.resource.data.roles[uid()] == invite(request.resource.data.joinProof).role
     ));
    allow delete: if false;
   }
+
   match /invites/{code} {
+   // quem tem o código pode ler o convite; a listagem é só do dono da sala, filtrada por roomId
    allow get: if signed();
-   allow list: if false;
+   allow list: if signed() && room(resource.data.roomId).owner == uid();
    allow create: if owner(request.resource.data.roomId) && request.resource.data.role in ['viewer','editor']
     && request.resource.data.expiresAt > request.time && code.size() >= 24;
-   allow update: if false;
+   // o convidado registra que usou o convite; nada mais pode ser alterado
+   allow update: if signed()
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy'])
+    && request.resource.data.usedBy == (('usedBy' in resource.data) ? resource.data.usedBy : []).concat([uid()]);
    allow delete: if owner(resource.data.roomId);
   }
  }

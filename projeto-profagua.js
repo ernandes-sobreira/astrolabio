@@ -5,17 +5,17 @@
 (function(){
 'use strict';
 const CAMPOS = [
- ['resumo','Resumo do projeto','Apresente o problema, a finalidade, os métodos previstos e a contribuição esperada.'],
- ['palavras','Palavras-chave','Separe por ponto e vírgula.'],
- ['introducao','1. Introdução','Contextualização do problema, estado atual do conhecimento, relevância e delimitação.'],
- ['justificativa','3. Justificativa','Relevância científica, social e para a gestão de recursos hídricos.'],
- ['fundamentacao','5. Fundamentação teórica','Escreva os argumentos e conceitos com citações autor-data.'],
- ['areaEstudo','6.1. Área de estudo','Localização, características hídricas, população ou unidades de análise.'],
- ['metodos','6.2. Delineamento, dados e procedimentos','Fontes, amostragem, critérios, coleta e tratamento de dados previstos.'],
- ['analises','6.3. Estratégia de análise','Métodos qualitativos, quantitativos, espaciais ou estatísticos previstos.'],
- ['produto','7. Produto técnico e tecnológico previsto','Produto e público usuário, justificativa de aplicação e como será validado.'],
- ['esperados','8. Resultados esperados','Somente expectativas e contribuições futuras; não declare resultados obtidos.'],
- ['cronograma','9. Cronograma','Uma atividade por linha. Para fazer uma tabela no Word, use: Atividade | Período previsto.'],
+ ['resumo','Resumo do projeto (complemento)','Texto livre que entra no Resumo do Projeto, após os itens vindos das estações.'],
+ ['palavras','Palavras-chave','Separe por ponto e vírgula. Aparece logo após o resumo.'],
+ ['introducao','2. Introdução','Contextualização do problema, estado atual do conhecimento, relevância e delimitação. Mesmo campo da tela Introdução e referências.'],
+ ['justificativa','4. Justificativa','Relevância científica, social e para a gestão de recursos hídricos.'],
+ ['fundamentacao','6. Estado do conhecimento (notas de fundamentação)','Argumentos e conceitos com citações autor-data.'],
+ ['areaEstudo','7.1. Área e período de estudo','Localização, características hídricas, população ou unidades de análise.'],
+ ['metodos','7.3. Dados, instrumentos e procedimentos','Fontes, amostragem, critérios, coleta e tratamento de dados previstos.'],
+ ['analises','7.4. Procedimentos de análise','Métodos qualitativos, quantitativos, espaciais ou estatísticos previstos.'],
+ ['produto','8. Produto técnico e tecnológico (o que será produzido)','Produto e público usuário, justificativa de aplicação e como será validado.'],
+ ['esperados','9. Resultados esperados','Somente expectativas e contribuições futuras; não declare resultados obtidos.'],
+ ['cronograma','12. Cronograma','Uma atividade por linha, no formato Atividade | Período previsto. Se vazio, o cronograma é montado com as metas da estação 8 e os prazos informados.'],
  ['referencias','Referências bibliográficas','Uma referência bibliográfica completa por linha, conforme ABNT; não invente citações.']
 ];
 const PREFIXO='Projeto de pesquisa — ProfÁgua/UNEMAT';
@@ -49,11 +49,11 @@ function mostrarProjeto(){
  opc('ano','curto','Ano','Exemplo: 2026')+'</div>'+
  '<h3 class="projeto-titulo">Redação científica</h3>';
  for(const [k,n,d] of CAMPOS.slice(0,2))ins+=opc(k,'longo',n,d);
- ins+=opc('introducao','longo','1. Introdução','Desenvolva o problema com citações.');
- ins+=opc('e5.pergunta','estacao','2. Problema e pergunta de pesquisa','A pergunta é recuperada da estação 5.');
- ins+=opc('justificativa','longo','3. Justificativa','Relevância científica, social e aplicada.');
- ins+=opc('e5.objetivoGeral','estacao','4.1. Objetivo geral','')+
- opc('e5.objetivosEsp','estacao','4.2. Objetivos específicos','Um por linha.');
+ ins+=opc('introducao','longo','2. Introdução','Desenvolva o problema com citações. Mesmo campo da tela Introdução e referências.');
+ ins+=opc('e5.pergunta','estacao','3. Problema e pergunta de pesquisa','A pergunta é recuperada da estação 5.');
+ ins+=opc('justificativa','longo','4. Justificativa','Relevância científica, social e aplicada.');
+ ins+=opc('e5.objetivoGeral','estacao','5.1. Objetivo geral','')+
+ opc('e5.objetivosEsp','estacao','5.2. Objetivos específicos','Um por linha.');
  for(const [k,n,d] of CAMPOS.slice(4))ins+=opc(k,'longo',n,d);
  ins+='<div class="projeto-acoes"><button class="primario" onclick="baixarProjetoProfagua()">Baixar projeto .docx</button>'+
  '<button onclick="exportar()">Fazer backup JSON</button></div>';
@@ -75,6 +75,7 @@ window.projetoAlterarEstacao=function(input){
  atualizarBarra();
 };
 window.abrirProjeto=function(){
+ if(!el('tela-projeto')){alert('Atualize o Astrolábio para acessar o editor do projeto.');return;}
  mostrarTela('projeto');mostrarProjeto();desenharNav();
  window.scrollTo({top:0,behavior:'smooth'});
 };
@@ -106,7 +107,7 @@ window.atualizarComplementacaoAcademica=function(chave,texto){
  met(chave,texto);
 };
 
-function xml(t){ return String(t===null||t===undefined?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
+function xml(t){ return String(t===null||t===undefined?'':t).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,'').replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/g,'$1').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
 function wtxt(s){return '<w:r><w:t xml:space="preserve">'+xml(s)+'</w:t></w:r>';}
 function p(text,o){
  o=o||{};
@@ -238,6 +239,7 @@ function conteudo(){
     ['Produto previsto',en.nomeProduto||en.tipoProduto],
     ['Contribuição esperada',vv('e7','oQueMuda')]
   ],'[Resumo em construção: as respostas das estações 5 a 7 serão incorporadas automaticamente.]');
+  if(String(valor('resumo')||'').trim())b+=parags(valor('resumo'));
   b+=p('Palavras-chave: '+(valor('palavras')||'[A definir com a orientação.]'),{align:'left'})+pg();
   b+=titulo('SUMÁRIO')+indice()+pg();
 
@@ -306,6 +308,8 @@ function conteudo(){
     b+=figuraWord('rId7',71,'Figura '+numeroFigura+' – Localização da área de estudo: '+(FIGURAS.municipios||'municípios selecionados')+'.',
       'Fonte: limites municipais do IBGE (API de Malhas Geográficas); pontos e elaboração cartográfica: Astrolábio, a partir das coordenadas informadas pelo discente.',5400000,3420000);
     (g.pontos||[]).forEach(o=>b+=rotulado('Coordenada '+o.rotulo,Number(o.lat).toFixed(5)+'°, '+Number(o.lng).toFixed(5)+'°'));
+  }else if(FIGURAS&&FIGURAS.mapaErro){
+    b+=p('[A figura cartográfica não pôde ser gerada nesta exportação: '+FIGURAS.mapaErro+' Exporte novamente com conexão ao IBGE para incluí-la.]',{first:true});
   }else{
     b+=p('[Para gerar a figura cartográfica, selecione municípios e, opcionalmente, coordenadas na estação 5.]',{first:true});
   }
@@ -556,7 +560,7 @@ function footerDefault(){
 /* Página final reservada à manifestação posterior do orientador.
  * Não exige novo preenchimento pelo discente no Astrolábio. */
 function paginaAssinatura(){
- return titulo('8.4 Manifestação do orientador — etapa posterior')+
+ return titulo('MANIFESTAÇÃO DO ORIENTADOR (etapa posterior)')+
   vazio(2)+
   p('Situação do planejamento: ( ) aprovado   ( ) aprovado com ajustes   ( ) reformulação necessária',{align:'left',space:200})+
   vazio(1)+
@@ -587,7 +591,7 @@ function doc(){
   '<w:pgMar w:top="1650" w:right="1200" w:bottom="950" w:left="1200" w:header="340" w:footer="400" w:gutter="0"/>'+
   '</w:sectPr>';
  const anterior=FIGURAS.nuvem?'B':'A';
- const figurasAnteriores=(FIGURAS.mapa?1:0)+(FIGURAS.nuvem?1:0);
+ const figurasAnteriores=(FIGURAS.mapa?1:0)+(FIGURAS.aderencia?1:0)+(FIGURAS.nuvem?1:0);
  const tituloAnexo='APÊNDICE '+anterior+' — MAPA MENTAL DO PERCURSO DE PESQUISA';
  const razao=FIGURAS.mentalAspect||2;
  // Área útil A4 paisagem: 10,04 x 6,46 pol; reservar espaço para título, legenda e fonte.
@@ -628,7 +632,7 @@ function relations(pairs){
 }
 function marcas(){
  const out=window.PROFAGUA_MARCAS;
- if(!out || !['estado','unemat','profagua','unematLogo','capesAna'].every(k=>out[k]&&out[k].length>1000))throw new Error('As logomarcas institucionais não foram carregadas. Verifique a conexão e recarregue a página.');
+ if(!out || !['estado','unemat','profagua','unematLogo','capes','ana'].every(k=>out[k]&&out[k].length>500))throw new Error('As logomarcas institucionais não foram carregadas. Verifique a conexão e recarregue a página.');
  return out;
 }
 
@@ -712,10 +716,10 @@ async function imagemMapaMental(){
 async function gerar(){
  if(typeof window.JSZip==='undefined')throw new Error('Biblioteca para criar Word não carregada. Conecte-se à internet e recarregue.');
  const m=marcas(); const z=new JSZip();
-  FIGURAS=window.ASTRO_FIGURAS ? await window.ASTRO_FIGURAS.renderizar() : {};
-  const mapaMental=await imagemMapaMental();
-  FIGURAS.mental=mapaMental.base64;
-  FIGURAS.mentalAspect=mapaMental.aspect;
+  try{FIGURAS=window.ASTRO_FIGURAS ? await window.ASTRO_FIGURAS.renderizar() : {};}
+  catch(e){console.warn('Figuras complementares indisponíveis:',e);FIGURAS={mapaErro:String(e&&e.message||e)};}
+  try{const mapaMental=await imagemMapaMental();FIGURAS.mental=mapaMental.base64;FIGURAS.mentalAspect=mapaMental.aspect;}
+  catch(e){console.warn('Mapa mental indisponível:',e);}
   // As marcas enviadas são PNG originais: preservar pixels e cores.
 
  z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
