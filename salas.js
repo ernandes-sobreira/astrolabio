@@ -80,7 +80,7 @@ let auth,db,A,F,user=null,active=null,revision=0,dirty=false,saving=false,timer=
 let base=null; // última versão conhecida da nuvem (ancestral comum para o merge por campo)
 const LOCAL_BACKUP_KEY='astrolabio_respostas_locais_antes_da_nuvem_v1';
 const CLOUD_UID_KEY='astrolabio_nuvem_uid_v1';
-const clone=x=>JSON.parse(JSON.stringify(x));
+const clone=x=>x===undefined?undefined:JSON.parse(JSON.stringify(x));
 function hasValue(v){
  if(typeof v==='string')return v.trim().length>0;
  if(Array.isArray(v))return v.some(hasValue);
@@ -96,6 +96,11 @@ const cloudUidAnterior=Cofre.ler(CLOUD_UID_KEY);
 const pendingLocal=clone(estado);
 if(!cloudUidAnterior&&hasLocalResponses(pendingLocal)&&!Cofre.ler(LOCAL_BACKUP_KEY))
  Cofre.gravar(LOCAL_BACKUP_KEY,JSON.stringify({uid:null,data:pendingLocal}));
+function vincularBackup(uid){
+ try{const b=JSON.parse(Cofre.ler(LOCAL_BACKUP_KEY)||'null');
+  if(b&&b.uid===null&&b.data)Cofre.gravar(LOCAL_BACKUP_KEY,JSON.stringify({uid,data:b.data}));
+ }catch(_){}
+}
 function recoveryFor(uid){
  try{
   const b=JSON.parse(Cofre.ler(LOCAL_BACKUP_KEY)||'null');if(!b)return null;
@@ -321,9 +326,9 @@ async function sharing(){
  dialog.querySelectorAll('[data-remove]').forEach(b=>b.onclick=async()=>{try{
   const id=b.dataset.remove;
   await F.updateDoc(F.doc(db,'rooms',active),{memberIds:F.arrayRemove(id),['roles.'+id]:F.deleteField(),['members.'+id]:F.deleteField()});
-  // invalida os convites que esse participante usou, para que não volte com o mesmo código
+  // Invalida somente os convites comprovadamente usados por este participante.
   try{const q=await F.getDocs(F.query(F.collection(db,'invites'),F.where('roomId','==',active)));
-   await Promise.all(q.docs.filter(d=>(roomData.joinProof===d.id)||(d.data().usedBy||[]).includes(id)).map(d=>F.deleteDoc(d.ref)));}catch(_){}
+   await Promise.all(q.docs.filter(d=>(d.data().usedBy||[]).includes(id)).map(d=>F.deleteDoc(d.ref)));}catch(_){}
   await sharing();
  }catch(e){fail(e);}});
 }
@@ -348,11 +353,12 @@ try{
   const anterior=user;user=u;
   if(!u){
    if(unsub)unsub();unsub=null;active=null;dirty=false;roles={};roomData=null;
-   if(anterior||Cofre.ler(CLOUD_UID_KEY))limparLocal();   // nada da conta anterior fica no aparelho
+   if(anterior||Cofre.ler(CLOUD_UID_KEY)){limparLocal();Cofre.apagar(LOCAL_BACKUP_KEY);} // não expor cópia de outra conta
    login();status('Entre para acessar seus projetos');
   }else{
    const uidAnterior=Cofre.ler(CLOUD_UID_KEY);
    if(uidAnterior&&uidAnterior!==u.uid)limparLocal();      // cópia da nuvem de outra conta: não serve para esta
+   vincularBackup(u.uid);
    status('Conta conectada · Escolha uma sala');list().catch(fail);
   }
  });
