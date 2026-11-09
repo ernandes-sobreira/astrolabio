@@ -435,6 +435,8 @@ try{
  auth=A.getAuth(app);db=F.getFirestore(app);auth.languageCode='pt-BR';
  A.onAuthStateChanged(auth,u=>{
   const anterior=user;user=u;
+  // Ao reautenticar a mesma conta, não substitua o diálogo de exclusão.
+  if(u&&anterior&&anterior.uid===u.uid)return;
   if(!u){
    if(unsub)unsub();unsub=null;active=null;dirty=false;roles={};roomData=null;
    if(anterior||Cofre.ler(CLOUD_UID_KEY)){limparLocal();Cofre.apagar(LOCAL_BACKUP_KEY);} // não expor cópia de outra conta
