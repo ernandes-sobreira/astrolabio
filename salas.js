@@ -6,7 +6,7 @@ const panel=document.createElement('section');panel.id='salas-panel';panel.setAt
 panel.innerHTML='<div id="salas-save-info"><div id="salas-status" role="status" aria-live="polite">Conectando ao seu percurso…</div><small id="salas-autosave-note">Salvamento automático</small></div><div class="salas-toolbar"><button id="salas-save-now" type="button">Salvar agora</button><button id="salas-open" title="Abrir projetos e espaços de orientação">Meus projetos</button></div>';
 document.body.prepend(panel);
 const brands=document.createElement('div');brands.id='salas-brands';brands.setAttribute('aria-label','Instituições');brands.innerHTML=[['estado','Estado de Mato Grosso'],['unemat','Brasão da UNEMAT'],['unematLogo','UNEMAT'],['capes','CAPES'],['ana','Agência Nacional de Águas e Saneamento Básico']].map(([key,name])=>'<img src="data:image/png;base64,'+window.PROFAGUA_MARCAS[key]+'" alt="'+name+'">').join('');panel.after(brands);
-const style=document.createElement('style');style.textContent=`#salas-brands{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:center;background:white;padding:14px}#salas-brands img{max-height:54px;max-width:190px;width:auto;height:auto;object-fit:contain}#salas-panel{background:#f3f7f4;border-bottom:1px solid #cbd6cf;padding:10px 20px;display:flex;justify-content:space-between;gap:10px;align-items:center;font:14px sans-serif;position:sticky;top:0;z-index:1000}#salas-panel button,#salas-dialog button{cursor:pointer;padding:10px 14px;border:1px solid #a5b6ac;border-radius:6px;background:#fff;color:#203c30}#salas-dialog{width:min(640px,90vw);max-height:88vh;border:1px solid #bdcfc3;border-radius:12px;padding:24px;color:#203c30;font:16px/1.5 sans-serif}#salas-dialog::backdrop{background:#12251fbb}#salas-dialog input,#salas-dialog select{display:block;box-sizing:border-box;width:100%;padding:11px;margin:5px 0 14px;border:1px solid #9daf9f;border-radius:5px;font:inherit}#salas-dialog button{margin:4px}#salas-dialog h2{margin-top:0}#salas-dialog .room{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ddd;padding:10px 0;gap:10px}#salas-dialog label{display:block}#salas-message{white-space:pre-wrap}#salas-dialog code{display:block;overflow-wrap:anywhere;background:#eff4ef;padding:12px;user-select:all}body.salas-locked main{pointer-events:none;opacity:.5}#salas-panel #salas-save-info{flex:1;min-width:0}#salas-panel #salas-autosave-note{display:block;color:#54756b;font-size:11px}#salas-panel .salas-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}#salas-panel #salas-save-now{background:#e5f1eb;color:#123f3b;border:1px solid #abc9b7;font-weight:750}#salas-dialog .salas-danger{color:#9f2929;background:#fff3f0;border:1px solid #ecc5be}#salas-dialog .salas-danger:hover{background:#ffe5df}#salas-dialog .salas-delete-warning{border:1px solid #edbdb5;background:#fff7f5;color:#7e2b23;border-radius:12px;padding:13px;margin:12px 0}#salas-dialog .salas-delete-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}@media(max-width:560px){#salas-panel .salas-toolbar{gap:3px}#salas-panel #salas-save-now{padding:8px}#salas-panel #salas-autosave-note{font-size:10px}}#salas-dialog .salas-room-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}#salas-dialog .salas-invite-card{border:1px solid #dbe7df;background:#fff;border-radius:12px;padding:12px;margin:10px 0}#salas-dialog .salas-invite-card>strong{display:block;margin-bottom:8px}#salas-dialog .salas-invite-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}@media(max-width:560px){#salas-dialog .salas-room-card{align-items:flex-start;flex-wrap:wrap}#salas-dialog .salas-room-actions{width:100%;justify-content:flex-start}}`;style.textContent+=`
+const style=document.createElement('style');style.textContent=`#salas-brands{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;align-items:center;background:white;padding:14px}#salas-brands img{max-height:54px;max-width:190px;width:auto;height:auto;object-fit:contain}#salas-panel{background:#f3f7f4;border-bottom:1px solid #cbd6cf;padding:10px 20px;display:flex;justify-content:space-between;gap:10px;align-items:center;font:14px sans-serif;position:sticky;top:0;z-index:1000}#salas-panel button,#salas-dialog button{cursor:pointer;padding:10px 14px;border:1px solid #a5b6ac;border-radius:6px;background:#fff;color:#203c30}#salas-dialog{width:min(640px,90vw);max-height:88vh;border:1px solid #bdcfc3;border-radius:12px;padding:24px;color:#203c30;font:16px/1.5 sans-serif}#salas-dialog::backdrop{background:#12251fbb}#salas-dialog input,#salas-dialog select{display:block;box-sizing:border-box;width:100%;padding:11px;margin:5px 0 14px;border:1px solid #9daf9f;border-radius:5px;font:inherit}#salas-dialog button{margin:4px}#salas-dialog h2{margin-top:0}#salas-dialog .room{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ddd;padding:10px 0;gap:10px}#salas-dialog label{display:block}#salas-message{white-space:pre-wrap}#salas-dialog code{display:block;overflow-wrap:anywhere;background:#eff4ef;padding:12px;user-select:all}body.salas-locked main{pointer-events:none;opacity:.5}#salas-panel #salas-save-info{flex:1;min-width:0}#salas-panel #salas-autosave-note{display:block;color:#54756b;font-size:11px}#salas-panel .salas-toolbar{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}#salas-panel #salas-save-now{background:#e5f1eb;color:#123f3b;border:1px solid #abc9b7;font-weight:750}@media(max-width:560px){#salas-panel .salas-toolbar{gap:3px}#salas-panel #salas-save-now{padding:8px}#salas-panel #salas-autosave-note{font-size:10px}}#salas-dialog .salas-room-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}#salas-dialog .salas-invite-card{border:1px solid #dbe7df;background:#fff;border-radius:12px;padding:12px;margin:10px 0}#salas-dialog .salas-invite-card>strong{display:block;margin-bottom:8px}#salas-dialog .salas-invite-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}@media(max-width:560px){#salas-dialog .salas-room-card{align-items:flex-start;flex-wrap:wrap}#salas-dialog .salas-room-actions{width:100%;justify-content:flex-start}}`;style.textContent+=`
 #salas-panel{background:rgba(248,251,249,.96);border-bottom:1px solid #dfe9e4;padding:9px clamp(12px,3vw,28px);font:600 13px/1.3 system-ui,sans-serif;color:#35534c;backdrop-filter:blur(12px)}
 #salas-panel #salas-status{max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #salas-panel #salas-open{border:0;border-radius:999px;background:#123f3b;color:white;padding:10px 17px;font:700 14px system-ui,sans-serif;box-shadow:0 5px 16px #123f3b22}
@@ -222,8 +222,7 @@ const roomCards=snap.docs.map(d=>{
  const dono=r.owner===user.uid?'':' · de '+esc((r.members&&r.members[r.owner]&&(r.members[r.owner].nome||r.members[r.owner].email))||'outro participante');
  const access=role==='owner'?'Seu espaço privado':role==='editor'?'Compartilhado · pode editar'+dono:'Compartilhado · somente leitura'+dono;
  const convidar=role==='owner'?'<button class="salas-secondary" data-share-room="'+esc(d.id)+'" aria-label="Convidar outra pessoa para '+esc(r.title)+'">Convidar outra pessoa</button>':'';
-  const excluir=role==='owner'?'<button class="salas-secondary salas-danger" data-delete-room="'+esc(d.id)+'" aria-label="Excluir permanentemente o projeto '+esc(r.title)+'">Excluir projeto</button>':'';
-  return '<article class="salas-room-card"><div class="salas-room-icon" aria-hidden="true">🧭</div><div class="salas-room-copy"><strong>'+esc(r.title)+'</strong><small>'+access+'</small></div><div class="salas-room-actions"><button class="salas-primary" data-room="'+esc(d.id)+'">Abrir</button>'+convidar+excluir+'</div></article>';
+  return '<article class="salas-room-card"><div class="salas-room-icon" aria-hidden="true">🧭</div><div class="salas-room-copy"><strong>'+esc(r.title)+'</strong><small>'+access+'</small></div><div class="salas-room-actions"><button class="salas-primary" data-room="'+esc(d.id)+'">Abrir</button>'+convidar+'</div></article>';
 }).join('');
 const spaces=roomCards||'<div class="salas-empty">Seu primeiro percurso já está sendo preparado. Ele fica salvo na sua conta.</div>';
 const inviteOptions=active?'<button class="salas-secondary" id="back-room">Voltar ao percurso</button>'+(minhaFuncao()==='owner'?'<button class="salas-secondary" id="sharing">Convidar outra pessoa</button>':''):'';
@@ -231,7 +230,6 @@ show('<div class="salas-shell"><header class="salas-hero"><button class="salas-c
 btn('close-list',()=>{dialog.close();lock(active?minhaFuncao()==='viewer':false);status(active?roomData.title+' · salvo na nuvem':'Abra um projeto em Meus projetos para salvar na nuvem.');});
 dialog.querySelectorAll('[data-room]').forEach(b=>b.onclick=()=>open(b.dataset.room).catch(fail));
  dialog.querySelectorAll('[data-share-room]').forEach(b=>b.onclick=async()=>{try{await open(b.dataset.shareRoom);await sharing();}catch(e){fail(e);}});
- dialog.querySelectorAll('[data-delete-room]').forEach(b=>b.onclick=async()=>{try{await prepararExclusao(b.dataset.deleteRoom);}catch(e){fail(e);}});
 if(recoveryCopy)btn('download-local',()=>downloadJSON(recoveryCopy,'astrolabio-respostas-locais-backup.json'));
 btn('create-room',async()=>{if(dirty)throw Error('Aguarde o salvamento das alterações pendentes antes de trocar de sala.');const title=document.getElementById('new-title').value.trim();if(!title)throw Error('Dê um nome ao projeto.');const imp=document.getElementById('import-local');const data=imp&&imp.checked&&recoveryCopy?recoveryCopy:blank();const r=await novaSala(title,data);await open(r.id);});
 btn('join-room',()=>entrarComCodigo(document.getElementById('join-code').value));
@@ -307,80 +305,6 @@ async function save(){
 }
 
 /* ---------- exclusão definitiva, restrita à conta proprietária ---------- */
-async function prepararExclusao(id){
- if(dirty||saving)throw Error('Aguarde as alterações serem salvas na nuvem antes de excluir.');
- const ref=F.doc(db,'rooms',id),registro=await F.getDoc(ref);
- if(!registro.exists())throw Error('Projeto não encontrado.');
- const sala=registro.data(),nome=sala.title;
- if(sala.owner!==user.uid)throw Error('Somente o proprietário pode excluir esse projeto.');
- const uidProprietario=user.uid;
- show('<h2>Excluir projeto permanentemente</h2><p><strong>'+esc(nome)+'</strong></p><div class="salas-delete-warning"><strong>Atenção: ação irreversível.</strong> As respostas desta sala serão apagadas para você e todos os participantes. Os convites deixarão de funcionar. Seus outros projetos serão preservados. Antes de continuar, recomendamos baixar Backup JSON da sala.</div><p>Digite o nome exato do projeto, confirme a exclusão e autentique sua conta novamente para finalizar.</p><label>Nome completo do projeto<input id="delete-room-name" autocomplete="off" spellcheck="false" placeholder="Digite exatamente o nome acima"></label><div id="delete-reauth-container"></div><p id="delete-progress" role="status" aria-live="polite"></p><div class="salas-delete-actions"><button id="delete-cancel" class="salas-secondary">Cancelar</button><button id="delete-confirm" class="salas-danger" disabled>Excluir projeto permanentemente</button></div>');
- const nomeInput=document.getElementById('delete-room-name'),botao=document.getElementById('delete-confirm');
- const senhaAtiva=user.providerData.some(p=>p.providerId==='password');
- const area=document.getElementById('delete-reauth-container');
- if(senhaAtiva)area.innerHTML='<label>Senha da conta do Astrolábio (não armazenada)<input id="delete-room-password" type="password" autocomplete="current-password" placeholder="Sua senha"></label>';
- else area.innerHTML='<p>Para sua segurança, o Google solicitará que você confirme sua conta antes de apagar o projeto.</p>';
- const verificar=()=>{botao.disabled=nomeInput.value!==nome||(senhaAtiva&&!document.getElementById('delete-room-password').value);};
- nomeInput.addEventListener('input',verificar);
- if(senhaAtiva)document.getElementById('delete-room-password').addEventListener('input',verificar);
- btn('delete-cancel',list);
- btn('delete-confirm',async()=>{
-  if(nomeInput.value!==nome||botao.disabled)throw Error('Digite o nome exato do projeto.');
-  // Confirmação antes do popup: navegadores podem bloquear confirm() após OAuth assíncrono.
-  if(!window.confirm('CONFIRMA EXCLUSÃO DEFINITIVA de "'+nome+'"? Todos os participantes perderão acesso e todas as respostas serão apagadas. NÃO é possível desfazer.'))return;
-  botao.disabled=true;botao.textContent='Confirmando identidade…';
-  const progresso=document.getElementById('delete-progress');
-  const informar=t=>{if(progresso&&progresso.isConnected)progresso.textContent=t;status(t);};
-  try{
-   informar('Aguardando confirmação de identidade…');
-   if(senhaAtiva){
-    const senha=document.getElementById('delete-room-password').value;
-    await A.reauthenticateWithCredential(user,A.EmailAuthProvider.credential(user.email,senha));
-    const senhaEl=document.getElementById('delete-room-password');
-    if(senhaEl)senhaEl.value='';
-   }else{
-    await A.reauthenticateWithPopup(user,new A.GoogleAuthProvider());
-   }
-   // O popup de reautenticação concluído não significa que o Firestore já excluiu.
-   if(!auth.currentUser||auth.currentUser.uid!==uidProprietario)
-    throw Error('A conta autenticada é diferente da proprietária. Nenhuma exclusão foi executada.');
-   await auth.currentUser.getIdToken(true);
-   informar('Identidade confirmada. Excluindo sala no Firebase…');
-   // Os convites precisam ser conhecidos antes de apagar a sala.
-   // Uma falha de listagem NÃO deve impedir a exclusão da sala.
-   let convites=[];
-   try{
-    const consulta=await F.getDocs(F.query(F.collection(db,'invites'),F.where('roomId','==',id)));
-    convites=consulta.docs;
-   }catch(e){informar('Não foi possível consultar convites; tentando excluir o projeto mesmo assim…');}
-   const atual=await F.getDoc(ref);
-   if(!atual.exists())throw Error('O projeto já não existe no Firebase.');
-   if(atual.data().owner!==uidProprietario)throw Error('Você não é proprietário deste projeto.');
-   await F.deleteDoc(ref);
-   informar('Projeto apagado no Firebase. Finalizando…');
-   let falhas=0;
-   for(const convite of convites){try{await F.deleteDoc(convite.ref);}catch(_){falhas++;}}
-   if(active===id){
-    if(unsub)unsub();unsub=null;active=null;dirty=false;roomData=null;roles={};revision=0;
-    limparLocal();
-   }
-   Cofre.gravar('astrolabio_skip_autoroom_'+uidProprietario,'1');
-   try{await list();}catch(e){show('<h2>Projeto excluído</h2><p>A sala foi apagada da nuvem. Reabra Meus projetos para atualizar a lista.</p><button id="delete-back-list">Voltar a Meus projetos</button>');btn('delete-back-list',list);}
-   status('Projeto excluído permanentemente.');
-   if(falhas)msg('Projeto apagado, mas '+falhas+' registros de convite não puderam ser limpos. Eles não concedem acesso à sala excluída.');
-  }catch(e){
-   if(botao.isConnected){botao.disabled=false;botao.textContent='Tentar excluir novamente';}
-   const descricao=e.code==='permission-denied'
-    ?'Exclusão bloqueada pelo Firebase. Confirme se a versão nova de firebase/firestore.rules foi PUBLICADA no console. O projeto permanece intacto.'
-    :e.code==='auth/popup-closed-by-user'?'A janela Google foi fechada. O projeto não foi excluído.'
-    :e.code==='auth/user-mismatch'?'A conta Google selecionada não é a proprietária da sala.'
-    :(e.message||'Não foi possível excluir o projeto.');
-   informar('Falha na exclusão: '+descricao);
-   msg(descricao);
-  }
- });
-}
-
 /* ---------- compartilhamento ---------- */
 async function sharing(){
  if(minhaFuncao()!=='owner')throw Error('Somente o dono da sala pode gerenciar convites.');
