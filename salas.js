@@ -313,48 +313,70 @@ async function prepararExclusao(id){
  if(!registro.exists())throw Error('Projeto não encontrado.');
  const sala=registro.data(),nome=sala.title;
  if(sala.owner!==user.uid)throw Error('Somente o proprietário pode excluir esse projeto.');
- show('<h2>Excluir projeto permanentemente</h2><p><strong>'+esc(nome)+'</strong></p><div class="salas-delete-warning"><strong>Esta ação não pode ser desfeita.</strong> Todas as respostas desta sala serão apagadas para você e seus participantes. Os convites deixarão de funcionar. Outros projetos não serão afetados. Faça um Backup JSON antes, se precisar.</div><p>Digite o nome exato do projeto e confirme novamente sua identidade para autorizar a exclusão.</p><label>Nome completo do projeto<input id="delete-room-name" autocomplete="off" spellcheck="false" placeholder="Digite exatamente o nome acima"></label><div id="delete-reauth-container"></div><div class="salas-delete-actions"><button id="delete-cancel" class="salas-secondary">Cancelar</button><button id="delete-confirm" class="salas-danger" disabled>Confirmar identidade e excluir permanentemente</button></div>');
+ const uidProprietario=user.uid;
+ show('<h2>Excluir projeto permanentemente</h2><p><strong>'+esc(nome)+'</strong></p><div class="salas-delete-warning"><strong>Atenção: ação irreversível.</strong> As respostas desta sala serão apagadas para você e todos os participantes. Os convites deixarão de funcionar. Seus outros projetos serão preservados. Antes de continuar, recomendamos baixar Backup JSON da sala.</div><p>Digite o nome exato do projeto, confirme a exclusão e autentique sua conta novamente para finalizar.</p><label>Nome completo do projeto<input id="delete-room-name" autocomplete="off" spellcheck="false" placeholder="Digite exatamente o nome acima"></label><div id="delete-reauth-container"></div><p id="delete-progress" role="status" aria-live="polite"></p><div class="salas-delete-actions"><button id="delete-cancel" class="salas-secondary">Cancelar</button><button id="delete-confirm" class="salas-danger" disabled>Excluir projeto permanentemente</button></div>');
  const nomeInput=document.getElementById('delete-room-name'),botao=document.getElementById('delete-confirm');
  const senhaAtiva=user.providerData.some(p=>p.providerId==='password');
  const area=document.getElementById('delete-reauth-container');
  if(senhaAtiva)area.innerHTML='<label>Senha da conta do Astrolábio (não armazenada)<input id="delete-room-password" type="password" autocomplete="current-password" placeholder="Sua senha"></label>';
- else area.innerHTML='<p>Você confirmará sua identidade novamente pela janela de login do Google.</p>';
+ else area.innerHTML='<p>Para sua segurança, o Google solicitará que você confirme sua conta antes de apagar o projeto.</p>';
  const verificar=()=>{botao.disabled=nomeInput.value!==nome||(senhaAtiva&&!document.getElementById('delete-room-password').value);};
  nomeInput.addEventListener('input',verificar);
  if(senhaAtiva)document.getElementById('delete-room-password').addEventListener('input',verificar);
  btn('delete-cancel',list);
  btn('delete-confirm',async()=>{
   if(nomeInput.value!==nome||botao.disabled)throw Error('Digite o nome exato do projeto.');
+  // Confirmação antes do popup: navegadores podem bloquear confirm() após OAuth assíncrono.
+  if(!window.confirm('CONFIRMA EXCLUSÃO DEFINITIVA de "'+nome+'"? Todos os participantes perderão acesso e todas as respostas serão apagadas. NÃO é possível desfazer.'))return;
   botao.disabled=true;botao.textContent='Confirmando identidade…';
+  const progresso=document.getElementById('delete-progress');
+  const informar=t=>{if(progresso&&progresso.isConnected)progresso.textContent=t;status(t);};
   try{
+   informar('Aguardando confirmação de identidade…');
    if(senhaAtiva){
     const senha=document.getElementById('delete-room-password').value;
     await A.reauthenticateWithCredential(user,A.EmailAuthProvider.credential(user.email,senha));
-    document.getElementById('delete-room-password').value='';
-   }else await A.reauthenticateWithPopup(user,new A.GoogleAuthProvider());
-   if(!confirm('ÚLTIMA CONFIRMAÇÃO: excluir permanentemente "'+nome+'" para todos os participantes? Não será possível recuperar as respostas.')){
-    botao.disabled=false;botao.textContent='Confirmar identidade e excluir permanentemente';return;
+    const senhaEl=document.getElementById('delete-room-password');
+    if(senhaEl)senhaEl.value='';
+   }else{
+    await A.reauthenticateWithPopup(user,new A.GoogleAuthProvider());
    }
-   botao.textContent='Excluindo projeto…';
-   // A consulta precisa ocorrer antes da exclusão; convites antigos não dão acesso a salas apagadas.
-   const convites=await F.getDocs(F.query(F.collection(db,'invites'),F.where('roomId','==',id)));
+   // O popup de reautenticação concluído não significa que o Firestore já excluiu.
+   if(!auth.currentUser||auth.currentUser.uid!==uidProprietario)
+    throw Error('A conta autenticada é diferente da proprietária. Nenhuma exclusão foi executada.');
+   await auth.currentUser.getIdToken(true);
+   informar('Identidade confirmada. Excluindo sala no Firebase…');
+   // Os convites precisam ser conhecidos antes de apagar a sala.
+   // Uma falha de listagem NÃO deve impedir a exclusão da sala.
+   let convites=[];
+   try{
+    const consulta=await F.getDocs(F.query(F.collection(db,'invites'),F.where('roomId','==',id)));
+    convites=consulta.docs;
+   }catch(e){informar('Não foi possível consultar convites; tentando excluir o projeto mesmo assim…');}
    const atual=await F.getDoc(ref);
-   if(!atual.exists()||atual.data().owner!==user.uid)throw Error('O projeto deixou de existir ou não pertence mais à sua conta.');
+   if(!atual.exists())throw Error('O projeto já não existe no Firebase.');
+   if(atual.data().owner!==uidProprietario)throw Error('Você não é proprietário deste projeto.');
    await F.deleteDoc(ref);
+   informar('Projeto apagado no Firebase. Finalizando…');
    let falhas=0;
-   for(const convite of convites.docs){try{await F.deleteDoc(convite.ref);}catch(_){falhas++;}}
+   for(const convite of convites){try{await F.deleteDoc(convite.ref);}catch(_){falhas++;}}
    if(active===id){
     if(unsub)unsub();unsub=null;active=null;dirty=false;roomData=null;roles={};revision=0;
     limparLocal();
    }
-   Cofre.gravar('astrolabio_skip_autoroom_'+user.uid,'1');
-   await list();
-   status('Projeto excluído permanentemente'+(falhas?' · há registros de convite para limpar':'')+'.');
-   if(falhas)msg('O projeto foi excluído. '+falhas+' registros de convite não puderam ser removidos, mas não dão acesso à sala apagada.');
+   Cofre.gravar('astrolabio_skip_autoroom_'+uidProprietario,'1');
+   try{await list();}catch(e){show('<h2>Projeto excluído</h2><p>A sala foi apagada da nuvem. Reabra Meus projetos para atualizar a lista.</p><button id="delete-back-list">Voltar a Meus projetos</button>');btn('delete-back-list',list);}
+   status('Projeto excluído permanentemente.');
+   if(falhas)msg('Projeto apagado, mas '+falhas+' registros de convite não puderam ser limpos. Eles não concedem acesso à sala excluída.');
   }catch(e){
-   botao.disabled=false;botao.textContent='Confirmar identidade e excluir permanentemente';
-   if(e.code==='permission-denied')throw Error('As regras de exclusão do Firestore ainda não foram publicadas. Publique firebase/firestore.rules do repositório e tente novamente.');
-   throw e;
+   if(botao.isConnected){botao.disabled=false;botao.textContent='Tentar excluir novamente';}
+   const descricao=e.code==='permission-denied'
+    ?'Exclusão bloqueada pelo Firebase. Confirme se a versão nova de firebase/firestore.rules foi PUBLICADA no console. O projeto permanece intacto.'
+    :e.code==='auth/popup-closed-by-user'?'A janela Google foi fechada. O projeto não foi excluído.'
+    :e.code==='auth/user-mismatch'?'A conta Google selecionada não é a proprietária da sala.'
+    :(e.message||'Não foi possível excluir o projeto.');
+   informar('Falha na exclusão: '+descricao);
+   msg(descricao);
   }
  });
 }
