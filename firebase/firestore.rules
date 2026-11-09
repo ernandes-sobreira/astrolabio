@@ -31,7 +31,13 @@ service cloud.firestore {
      && invite(request.resource.data.joinProof).expiresAt > request.time
      && request.resource.data.roles[uid()] == invite(request.resource.data.joinProof).role
     ));
-   allow delete: if false;
+   // Exclusão permanente: somente o proprietário com autenticação renovada nos últimos 5 minutos.
+   // A verificação do auth_time é feita no servidor, não apenas na interface.
+   allow delete: if signed()
+    && resource.data.owner == uid()
+    && request.auth.token.auth_time is int
+    && request.time.toMillis() - request.auth.token.auth_time * 1000 >= 0
+    && request.time.toMillis() - request.auth.token.auth_time * 1000 < 300000;
   }
 
   match /invites/{code} {
@@ -44,7 +50,12 @@ service cloud.firestore {
    allow update: if signed()
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy'])
     && request.resource.data.usedBy == (('usedBy' in resource.data) ? resource.data.usedBy : []).concat([uid()]);
-   allow delete: if owner(resource.data.roomId);
+   // Permite limpar convites depois da exclusão da sala pelo dono que os criou.
+   allow delete: if owner(resource.data.roomId)
+    || (signed() && resource.data.createdBy == uid()
+     && request.auth.token.auth_time is int
+     && request.time.toMillis() - request.auth.token.auth_time * 1000 >= 0
+     && request.time.toMillis() - request.auth.token.auth_time * 1000 < 300000);
   }
  }
 }
